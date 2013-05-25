@@ -129,7 +129,15 @@
 	left:-1px;
 	top:auto;
 }
-
+.custom_col{
+    display:inline;
+    float: left;
+    position: relative;
+    margin-left: 5px;
+    margin-right: 5px;
+    height:130px;
+    width:170px;
+}
 .col_1,
 .col_2,
 .col_3,
@@ -298,3 +306,13 @@
 	padding:4px 6px 4px 6px;
 	margin:0px 0px 4px 0px;
 }
+ .error{
+        color:red;
+        font-size:12px;
+        font-weight:normal;
+        font-family:sans-serif;
+        float:left;
+        margin-left:115px;
+        width:50%;
+    }
+   

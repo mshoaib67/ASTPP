@@ -13,23 +13,30 @@
 # @daily /usr/local/astpp/astpp-low-balance.pl minbalance=5
 #
 ###############################################################################
+use LWP::Simple qw(!head);
+use POSIX;
+use POSIX qw(strftime);
 use DBI;
 use CGI;
 use CGI qw/:standard Vars/;
-use Locale::Language;
+use Getopt::Long;
+use Locale::Country;
 use Locale::gettext_pp qw(:locale_h);
+use Data::Dumper;
+use ASTPP;
+use strict;
+
 use lib './lib', '../lib';
-use warnings;
-#use strict;
 require "/usr/local/astpp/astpp-common.pl";
 $ENV{'LANGUAGE'} = "en";    # de, es, br - whatever
 print STDERR "Interface language is set to: $ENV{'LANGUAGE'}\n";
-
-bindtextdomain( "astpp", "/usr/local/share/locale" );
-textdomain("astpp");
-
-my ( $config, $params, $astpp_db, @cardlist );
-my @output = ("STDERR");
+bindtextdomain( "ASTPP", "/var/locale" );
+textdomain("ASTPP");
+use vars qw($config $astpp_db $osc_db $agile_db $cdr_db
+  @output @cardlist $config $params $ASTPP);
+@output = ( "STDOUT", "LOGFILE" );
+$ASTPP     = ASTPP->new;
+$ASTPP->set_verbosity(4);    #Tell ASTPP debugging how verbose we want to be.
 
 sub initialize() {
     $config     = &load_config();
@@ -48,15 +55,12 @@ foreach my $param ( param() ) {
 &initialize();
 
 @cardlist = &list_accounts($astpp_db);
-$params->{minbalance} = 1;
 foreach my $card (@cardlist) {
     my $cardinfo = &get_account( $astpp_db,  $card );
-    my $balance  = &accountbalance( $astpp_db, $card );       
-    $balance = $balance / 1;
+    my $balance = (-1 * $cardinfo->{balance}) + ($cardinfo->{posttoexternal} * $cardinfo->{credit_limit});
     if ( ($balance * -1) <= $params->{minbalance} && $cardinfo->{posttoexternal} == 0 )    
     {
-        print "\n Card Number: $card Balance: $balance\n";
-	&email_low_balance( $config, $cardinfo->{email},
-            $balance );
+        print "\n Card Number: $card Balance: $balance\n";	
+	&email_low_balance( $config, $cardinfo->{email},$balance );
     }
 }

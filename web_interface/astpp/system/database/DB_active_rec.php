@@ -955,9 +955,8 @@ class CI_DB_active_record extends CI_DB_driver {
 		}
 
 		$sql = $this->_compile_select();
-// echo $sql."<br/><br/>";
+
 		$result = $this->query($sql);
-		
 		$this->_reset_select();
 		return $result;
 	}
@@ -1711,10 +1710,9 @@ class CI_DB_active_record extends CI_DB_driver {
 		{
 			$sql .= "\nFROM ";
 
-//                        echo $this->_from_tables($this->ar_from)."<br/>";
 			$sql .= $this->_from_tables($this->ar_from);
 		}
-//echo $sql;
+
 		// ----------------------------------------------------------------
 
 		// Write the "JOIN" portion of the query

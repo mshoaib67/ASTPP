@@ -1,11 +1,12 @@
 #facebox {
   position: absolute;
+/*   position:relative; */
   top: 0;
-  left: 0;
+  left:40px;
   z-index: 99999;
   text-align: left;
+  margin:0px auto;
 }
-
 
 #facebox .popup{
   position:relative;
@@ -16,7 +17,9 @@
   -webkit-box-shadow:0 0 18px rgba(0,0,0,0.4);
   -moz-box-shadow:0 0 18px rgba(0,0,0,0.4);
   box-shadow:0 0 18px rgba(0,0,0,0.4);
-  margin:0 auto;
+  margin:0px 100px 0px 100px;
+/*   left:-450px; */
+    
 }
 
 #facebox .content {

@@ -16,7 +16,7 @@
 */
 $astpp_config = parse_ini_file("/var/lib/astpp/astpp-config.conf");
 $config['base_url'] = $astpp_config['base_url'];
-$config['perl_url'] = $astpp_config['base_url']."cgi-bin/astpp-admin/";
+// $config['perl_url'] = $astpp_config['base_url']."cgi-bin/astpp-admin/";
 /*
 |--------------------------------------------------------------------------
 | Index File
@@ -282,7 +282,7 @@ $config['cookie_secure']	= FALSE;
 | COOKIE data is encountered
 |
 */
-$config['global_xss_filtering'] = FALSE;
+$config['global_xss_filtering'] = TRUE;
 
 /*
 |--------------------------------------------------------------------------
@@ -345,7 +345,7 @@ $config['time_reference'] = 'local';
 |
 */
 $config['rewrite_short_tags'] = TRUE;
-$config['payment_type'] = array("0"=>"Cash","1"=>"Cheque","2"=>"Transfer");
+
 
 /*
 |--------------------------------------------------------------------------

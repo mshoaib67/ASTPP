@@ -973,8 +973,8 @@ CREATE TABLE IF NOT EXISTS `manager_action_variables` (
 --
 DROP TABLE IF EXISTS `outbound_routes`;
 CREATE TABLE IF NOT EXISTS `outbound_routes` (
-  `pattern` char(40) DEFAULT NULL,
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `pattern` char(40) DEFAULT NULL,  
   `comment` char(80) NOT NULL DEFAULT '',
   `connectcost` decimal(10,5) NOT NULL DEFAULT '0.00000',
   `includedseconds` int(11) NOT NULL DEFAULT '0',

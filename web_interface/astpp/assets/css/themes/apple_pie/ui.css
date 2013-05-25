@@ -311,6 +311,7 @@ a:hover, .ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited
 	-moz-box-shadow:0 0 0 #fff;
 	-webkit-box-shadow:0 0 0 #fff;
 	padding-right:0px;
+	width:1265px;
 }
 
 #sidebar-left #page_wrapper #page-content #page-content-wrapper {
@@ -390,7 +391,7 @@ a:hover, .ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited
 }
 
 .sub-form div{
-	width:160px;
+/* 	width:160px; */
 	float:left;
 	margin-left:5px;
 }

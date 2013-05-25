@@ -107,7 +107,10 @@
 
       $('#facebox').show().css({
         top:	getPageScroll()[1] + (getPageHeight() / 10),
-        left:	$(window).width() / 2 - ($('#facebox .popup').outerWidth() / 2)
+/*       
+ * 	Change:  Add below line to set popup position with site layout.*/
+//         left:	$(window).width() / 2 - ($('#facebox .popup').outerWidth() / 2)
+// 	width:	$(window).width() / 2 - ($('#facebox .popup').outerWidth() / 2)
       })
 
       $(document).bind('keydown.facebox', function(e) {
@@ -118,13 +121,15 @@
     },
 
     reveal: function(data, klass) {
-	
-//       alert($(window).width()+'-----'+$('#facebox .popup').outerWidth());
+//        alert($(window).width()+'-----'+$('#facebox .popup').outerWidth());
       $(document).trigger('beforeReveal.facebox')
       if (klass) $('#facebox .content').addClass(klass)
       $('#facebox .content').empty().append(data)
       $('#facebox .popup').children().fadeIn('normal')
-      $('#facebox').css('left', $(window).width() / 2 - ($('#facebox .popup').outerWidth() / 2))
+/*       
+ * 	Change:  Add below line to set popup position with site layout.*/
+      
+//       $('#facebox').css('left', $(window).width() / 2 - ($('#facebox .popup').outerWidth() / 2))
       $(document).trigger('reveal.facebox').trigger('afterReveal.facebox')
     },
 
@@ -307,6 +312,10 @@
     $('#facebox').fadeOut(function() {
       $('#facebox .content').removeClass().addClass('content')
       $('#facebox .loading').remove()
+/*       
+ * 	Change Add below line to remoave multiple close sign from popup with out refresh page.*/
+      $('#facebox .close_image').remove()
+      
       $(document).trigger('afterClose.facebox')
     })
     hideOverlay()

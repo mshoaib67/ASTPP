@@ -136,7 +136,7 @@ ask_to_install_astpp () {
 	if [ ${TEMP_USER_ANSWER} = "yes" ]; then
 	    echo -e "***************************************************************************************************************"
 	    echo -e "		CAUTION : This script will WIPE all your previous data and install new version. 		    "
-	    echo -e "			  If necessary then take full back of your data. 					    "
+	    echo -e "			  If necessary please take full backup of your source manually.				    "
 	    echo -e "***************************************************************************************************************"
 	    read -n 1 -p "Press any key to continue ... "
 	    clear

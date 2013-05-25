@@ -133,6 +133,7 @@ genpasswd() {
 ask_to_install_astpp () {
   
 	ask_to_user_yes_or_no "Do you have ASTPP installed already?"
+	echo -e "";
 	if [ ${TEMP_USER_ANSWER} = "yes" ]; then
 	    echo -e "***************************************************************************************************************"
 	    echo -e "		CAUTION : This script will WIPE all your previous data and install new version. 		    "
@@ -501,6 +502,10 @@ astpp_install () {
 	echo "http://${ASTPP_HOST_DOMAIN_NAME}:8081 "
 	echo "Username= Leave empty "
 	echo "Password= Passw0rd! "
+	echo ""
+	echo ""
+	steps
+	
 }
 
 # Install astpp

@@ -502,10 +502,6 @@ astpp_install () {
 	echo "http://${ASTPP_HOST_DOMAIN_NAME}:8081 "
 	echo "Username= Leave empty "
 	echo "Password= Passw0rd! "
-	echo ""
-	echo ""
-	steps
-	
 }
 
 # Install astpp

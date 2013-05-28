@@ -13,10 +13,10 @@ class did_form {
         $form['forms'] = array(base_url() . '/did/did_save/', array('id' => 'did_form', 'method' => 'POST', 'name' => 'did_form'));
         $form['DID Add/Edit'] = array(
             array('', 'HIDDEN', array('name' => 'id'), '', '', '', ''),
-            array('Number', 'INPUT', array('name' => 'number', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), 'trim|required|min_length[5]|max_length[10]|xss_clean', 'tOOL TIP', 'Please Enter account number'),
+            array('Number', 'INPUT', array('name' => 'number', 'size' => '20', 'maxlength' => '20', 'class' => "text field medium"), 'trim|required|xss_clean', 'tOOL TIP', 'Please Enter account number'),
             array('Country', 'country_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'country', 'countrycode', 'build_dropdown', '', ''),
-            array('City', 'INPUT', array('name' => 'city', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
-            array('Province/State', 'INPUT', array('name' => 'province', 'size' => '15', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
+            array('City', 'INPUT', array('name' => 'city', 'size' => '20', 'maxlength' => '30', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
+            array('Province/State', 'INPUT', array('name' => 'province', 'size' => '15', 'maxlength' => '30', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
             array('Provider', 'provider_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'number', 'accounts', 'build_dropdown', 'type', '3'),
         );
 

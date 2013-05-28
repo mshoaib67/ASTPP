@@ -104,7 +104,7 @@ class Freeswitch_form {
             array('SIP Profile', 'sip_profile_id', 'SELECT', '', '', 'tOOL TIP', '', 'id', 'name', 'sip_profiles', 'build_dropdown', '', ''),
             array('Username', 'INPUT', array('name' => 'username', 'size' => '20', 'maxlength' => '30', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter user name'),
             array('Password', 'PASSWORD', array('name' => 'password', 'size' => '20', 'maxlength' => '30', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
-            array('Proxy', 'INPUT', array('name' => 'proxy', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), 'trim|required|xss_clean', 'tOOL TIP', ''),
+            array('Proxy', 'INPUT', array('name' => 'proxy', 'size' => '20', 'maxlength' => '30', 'class' => "text field medium"), 'trim|required|xss_clean', 'tOOL TIP', ''),
             array('Register', array('name' => 'register', 'class' => 'add_settings'), 'SELECT', '', '', 'tOOL TIP', '', '', '', '', 'set_sip_config_option'),
             array('Caller-id-in-from', array('name' => 'caller-id-in-from', 'class' => 'add_settings'), 'SELECT', '', '', 'tOOL TIP', '', '', '', '', 'set_sip_config_option'),
             

@@ -263,9 +263,9 @@ install_freeswitch_for_astpp () {
     # Edit modules.conf
     echo "Enable mod_xml_curl, mod_xml_cdr, mod_perl (If you want to use calling card features)"
 
-    sed -i "s#\#xml_int/mod_xml_curl#xml_int/mod_xml_curl#g" /usr/local/src/freeswitch/modules.conf
-    #sed -i "s#\#languages/mod_perl#languages/mod_perl#g" /usr/local/src/freeswitch/modules.conf
-    sed -i "s#\#mod_xml_cdr#mod_xml_cdr#g" /usr/local/src/freeswitch/modules.conf
+    sed -i "s#\#xml_int/mod_xml_curl#xml_int/mod_xml_curl#g" /usr/local/src/freeswitch-1.2.8/modules.conf
+    #sed -i "s#\#languages/mod_perl#languages/mod_perl#g" /usr/local/src/freeswitch-1.2.8/modules.conf
+    sed -i "s#\#mod_xml_cdr#mod_xml_cdr#g" /usr/local/src/freeswitch-1.2.8/modules.conf
 
     read -n 1 -p "Press any key to continue ... "
 

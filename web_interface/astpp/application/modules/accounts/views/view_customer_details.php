@@ -5,7 +5,7 @@
         $('#tabs').tabs();
         build_grid("chrges_grid","<?php echo base_url(); ?>accounts/customer_details_json/package/<?= $account_data[0]['id']; ?>",<? echo $charges_grid_field ?>,"");
 
-        build_grid("ipmap_grid","<?php echo base_url(); ?>accounts/customer_ipmap_json/<?= $account_data[0]['id']; ?>",<? echo json_encode($ipmap_grid_field) ?>,"");
+        build_grid("ipmap_grid","<?php echo base_url(); ?>accounts/customer_ipmap_json/<?= $account_data[0]['id']; ?>/customer/",<? echo json_encode($ipmap_grid_field) ?>,"");
 
         build_grid("ANI_map_grid","<?php echo base_url(); ?>accounts/customer_animap_json/<?= $account_data[0]['id']; ?>",<? echo json_encode($animap_grid_field) ?>,"");
 
@@ -36,12 +36,32 @@
         });
         $("#ani_map").validate({
             rules: {
-                ANI: "required"
-            },
-            messages:{
-                ANI: "Please enter Vallid ANI address"
+                ANI: {
+                    required: true
+                }
             }
         });  
+
+//        $(".invoice_day").hide();
+//        $('label[for="Billing Day"]').hide()
+        $(".sweep_id").change(function(e){
+            if(this.value != 0){
+                $.ajax({
+                    type:'POST',
+                    url: "<?= base_url()?>/accounts/customer_invoice_option",
+                    data:"sweepid="+this.value, 
+                    success: function(response) {
+                        $(".invoice_day").html(response);
+                        $('.invoice_day').show();
+                        $('label[for="Billing Day"]').show()
+                    }
+                });
+            }else{
+                $('label[for="Billing Day"]').hide()
+                $('.invoice_day').css('display','none');                
+            }
+        })
+
 
     });
 </script>
@@ -108,11 +128,11 @@
                             </div>
                             <div class="content-box-wrapper"> 
                                 <div class="sub-form">
-                                    <form method="post" name="ip_map" id="ip_map" action="<?= base_url() ?>accounts/customer_ipmap_action/add/<?= $account_data[0] ['id'] ?>" enctype="multipart/form-data">
+                                    <form method="post" name="ip_map" id="ip_map" action="<?= base_url() ?>accounts/customer_ipmap_action/add/<?= $account_data[0] ['id'] ?>/customer/" enctype="multipart/form-data">
                                         <div><label>Name: </label><input class="text field large" name="name" size="16" type="text"></div>                                        
                                         <div><label>IP: </label><input class="text field large" name="ip" size="16" type="text"></div>
                                         <div><label>Prefix: </label><input class="text field large" name="prefix" size="16" type="text"></div>			
-                                        <div style="width:20%"><label>Price List: </label><?= $ip_pricelist; ?></div>
+                                        <div style="width:20%"><label>Rate Group: </label><?= $ip_pricelist; ?></div>
                                         <div style="width:60px;"><input class="ui-state-default ui-corner-all ui-button" name="action" value="Map IP" type="submit"></div>
                                     </form>
                                 </div>
@@ -121,6 +141,34 @@
                     </div>           
                 </div>
             </div>
+
+	<!-- ANI/CLID Table Starts -->
+	<div class="two-column" style="float:left;width: 100%;">
+	  <!--<div class="column">        -->
+	  <div class="portlet ui-widget ui-widget-content ui-helper-clearfix ui-corner-all">
+	  <div class="portlet-header ui-widget-header">ANI Prefix Mapping<span class="ui-icon ui-icon-circle-arrow-s"></span></div>
+	  <div class="portlet-content">          
+          <!--<div class="hastable" style="margin-bottom:10px;">-->
+              <table id="ANI_map_grid" align="left" style="display:none;"></table>              
+          <!--</div>-->
+            <div class="content-box content-box-header ui-corner-all float-left full" style="position:relative; z-index:9999">
+                  <div class="ui-state-default ui-corner-top ui-box-header">
+                      <span class="ui-icon float-left ui-icon-signal"></span>Map ANI
+                  </div>
+                  <div class="content-box-wrapper"> 
+                      <div class="sub-form">   
+                          <form method="post" name="ani_map" id="ani_map" action="<?=base_url()?>accounts/customer_animap_action/add/<?=$account_data[0]['id']?>" enctype="multipart/form-data">
+                            <div  style="width:20%"><label>ANI </label><input class="text field large" name="ANI" id="ANI" size="20" type="text"></div>
+                            <div><input class="ui-state-default ui-corner-all ui-button" name="action" value="Map ANI" type="submit"></div>
+                          </form>  
+                      </div>
+                  </div>
+             </div>
+          </div>
+          </div>       
+        </div>        <!-- ANI/CLID Table	 Completed-->    
+            
+            
             <!--   IAX & SIP Table Starts   -->
             <div class="two-column" style="float:left;width: 100%;">
                 <div class="portlet ui-widget ui-widget-content ui-helper-clearfix ui-corner-all">
@@ -132,6 +180,7 @@
                             echo "Opensips Devices";
                         }
                         ?>
+			<span id="error_msg" class=" success"></span>
                         <span class="ui-icon ui-icon-circle-arrow-s"></span></div>
                     <div class="portlet-content">          
                         <? if (common_model::$global_config['system_config']['opensips'] == 0) { ?>

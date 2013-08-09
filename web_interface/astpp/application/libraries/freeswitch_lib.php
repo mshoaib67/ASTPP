@@ -2,11 +2,12 @@
 class freeswitch_lib{
 	
 	function event_socket_create($host='127.0.0.1', $port='8021', $password='ClueCon') {
-	    $fp = @fsockopen($host, $port, $errno, $errdesc)
-	      or die("Connection to $host failed");
-	    socket_set_blocking($fp,false);
+	    $fp = @fsockopen($host, $port, $errno, $errdesc);
+// 	    or die("Connection to $host failed");
+// 	    socket_set_blocking($fp,false);
 	    
 	    if ($fp) {
+		socket_set_blocking($fp,false);
 		while (!feof($fp)) {
 		    $buffer = fgets($fp, 1024);
 		    usleep(100); //allow time for reponse

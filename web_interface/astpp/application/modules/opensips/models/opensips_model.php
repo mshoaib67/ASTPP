@@ -12,17 +12,16 @@ class Opensips_model extends CI_Model {
         $this->opensips_db = $this->load->database($opensipdsn, true);
         $this->build_search_opensips('opensipsdevice_list_search');
         if ($flag) {
-            $this->opensips_db->limit($start, $limit);
+            $this->opensips_db->limit($limit,$start);
             $query = $this->opensips_db->get("subscriber");
         } else {
-            $this->opensips_db->limit($start, $limit);
             $query = $this->opensips_db->get("subscriber");
             $query = $query->num_rows();
         }
         return $query;
     }
 
-    function getopensipsdevice_customer_list($flag, $accountid = "", $start = "", $limit = "") {
+    function getopensipsdevice_customer_list($flag, $accountid = "", $start = "0", $limit = "0") {
         $db_config = Common_model::$global_config['system_config'];
         $opensipdsn = "mysql://" . $db_config['opensips_dbuser'] . ":" . $db_config['opensips_dbpass'] . "@" . $db_config['opensips_dbhost'] . "/" . $db_config['opensips_dbname'] . "?char_set=utf8&dbcollat=utf8_general_ci&cache_on=true&cachedir=";
         $this->opensips_db = $this->load->database($opensipdsn, true);
@@ -30,11 +29,10 @@ class Opensips_model extends CI_Model {
             $where = array("accountcode" => $this->common->get_field_name('number', 'accounts', array('id' => $accountid)));
         }
         if ($flag) {
-            $this->opensips_db->limit($start, $limit);
             $this->opensips_db->where($where);
             $query = $this->opensips_db->get("subscriber");
         } else {
-            $this->opensips_db->limit($start, $limit);
+// $this->opensips_db->limit($limit,$start);
             $this->opensips_db->where($where);
             $query = $this->opensips_db->get("subscriber");
             $query = $query->num_rows();
@@ -42,8 +40,12 @@ class Opensips_model extends CI_Model {
         return $query;
     }
 
-    function getopensipsdispatcher_list($flag, $start = 0, $limit = 0) {
+    function getopensipsdispatcher_list($flag, $start = '', $limit = '') {
+        $db_config = Common_model::$global_config['system_config'];
+        $opensipdsn = "mysql://" . $db_config['opensips_dbuser'] . ":" . $db_config['opensips_dbpass'] . "@" . $db_config['opensips_dbhost'] . "/" . $db_config['opensips_dbname'] . "?char_set=utf8&dbcollat=utf8_general_ci&cache_on=true&cachedir=";
+        $this->opensips_db = $this->load->database($opensipdsn, true);
         if ($flag) {
+            $this->opensips_db->limit( $limit,$start);
             $query = $this->opensips_db->get("dispatcher");
         } else {
             $query = $this->opensips_db->get("dispatcher");
@@ -80,17 +82,29 @@ class Opensips_model extends CI_Model {
     }
 
     function add_opensipsdispatcher($data) {
+        $db_config = Common_model::$global_config['system_config'];
+        $opensipdsn = "mysql://" . $db_config['opensips_dbuser'] . ":" . $db_config['opensips_dbpass'] . "@" . $db_config['opensips_dbhost'] . "/" . $db_config['opensips_dbname'] . "?char_set=utf8&dbcollat=utf8_general_ci&cache_on=true&cachedir=";
+        $this->opensips_db = $this->load->database($opensipdsn, true);
         unset($data["action"]);
         $this->opensips_db->insert("dispatcher", $data);
     }
 
     function edit_opensipsdispatcher($data, $id) {
         unset($data["action"]);
+
+        $db_config = Common_model::$global_config['system_config'];
+        $opensipdsn = "mysql://" . $db_config['opensips_dbuser'] . ":" . $db_config['opensips_dbpass'] . "@" . $db_config['opensips_dbhost'] . "/" . $db_config['opensips_dbname'] . "?char_set=utf8&dbcollat=utf8_general_ci&cache_on=true&cachedir=";
+        $this->opensips_db = $this->load->database($opensipdsn, true);
+
         $this->opensips_db->where("id", $id);
         $this->opensips_db->update("dispatcher", $data);
     }
 
     function remove_dispatcher($id) {
+        $db_config = Common_model::$global_config['system_config'];
+        $opensipdsn = "mysql://" . $db_config['opensips_dbuser'] . ":" . $db_config['opensips_dbpass'] . "@" . $db_config['opensips_dbhost'] . "/" . $db_config['opensips_dbname'] . "?char_set=utf8&dbcollat=utf8_general_ci&cache_on=true&cachedir=";
+        $this->opensips_db = $this->load->database($opensipdsn, true);
+
         $this->opensips_db->where("id", $id);
         $this->opensips_db->delete("dispatcher");
         return true;

@@ -19,7 +19,7 @@
 
                                         <div class="content" style="height: 110px;">
                                             <p>
-                                                <label for="login" class="large" style="color: rgb(16, 51, 77); line-height: 24px; font-size: 15px;"> Username</label>
+                                                <label for="login" class="large" style="color: rgb(16, 51, 77); line-height: 24px; font-size: 15px;"> E-mail/Account number</label>
                                                 <input id="username" name="username" style="width: 200px;" tabindex="1" type="text">
                                             </p>
 

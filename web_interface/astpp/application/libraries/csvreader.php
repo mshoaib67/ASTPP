@@ -39,7 +39,7 @@ class CSVReader {
         //Giving line numbers
         for($i=0;$i<sizeof($lines);$i++)
         {
-            if($lines[$i]!='')
+            if(trim($lines[$i]) != "")
             {
                 $columnname = explode($this->separator, $lines[$i]);
 //   echo "<pre>"; print_r($columnname);
@@ -80,7 +80,8 @@ class CSVReader {
                 {
                     if( isset($elements[$id]) ) 
                     {
-                        $item[trim($field)] = trim($elements[$id]);
+                        $item[str_replace('"','',trim($field))] = str_replace('"','',trim($elements[$id]));                        
+//                        $item[trim($field)] = trim($elements[$id]);
                     }
                 }
                $content[] = $item;

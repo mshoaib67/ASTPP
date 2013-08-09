@@ -20,7 +20,7 @@
         <div id="page-content" >
             <div id="page-content-wrapper" <?php if (!isset($astpp_sidebar)) { ?>style="padding-right:10px" <?php } else { ?>style="padding-right:100px"<?php } ?>>					
                 <?php
-                $astpp_errormsg = $this->session->userdata('astpp_errormsg');
+                $astpp_errormsg = $this->session->flashdata('astpp_errormsg');
                 if ($astpp_errormsg) {
                     ?>
                     <div class="response-msg error" style="text-align: center;">
@@ -31,10 +31,10 @@
                 }
                 ?>            				
                 <?php
-                $astpp_notification = $this->session->userdata('astpp_notification');
+                $astpp_notification = $this->session->flashdata('astpp_notification');
                 if ($astpp_notification) {
                     ?>
-                    <div class="response-msg success" style="text-align: center;">
+                    <div class="response-msg" style="text-align: center;">
                         <b><?= $astpp_notification ?></b>
                     </div>	
             <?php $this->session->set_userdata('astpp_notification', ''); 

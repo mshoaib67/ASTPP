@@ -11,7 +11,26 @@
         build_grid("invoice_grid","<?php echo base_url(); ?>accounts/reseller_details_json/invoices/<?= $account_data[0]['id']; ?>",<? echo $invoice_grid_fields ?>,"");
 
         build_grid("cdrs_grid","<?php echo base_url(); ?>accounts/customer_details_json/reports/<?= $account_data[0]['id']; ?>",<? echo $cdrs_grid_fields ?>,"");        
-    });
+    
+        $(".sweep_id").change(function(e){
+            if(this.value != 0){
+                $.ajax({
+                    type:'POST',
+                    url: "<?= base_url()?>/accounts/customer_invoice_option",
+                    data:"sweepid="+this.value, 
+                    success: function(response) {
+                        $(".invoice_day").html(response);
+                        $('.invoice_day').show();
+                        $('label[for="Billing Day"]').show()
+                    }
+                });
+            }else{
+                $('label[for="Billing Day"]').hide()
+                $('.invoice_day').css('display','none');                
+            }
+        })
+
+});
 </script>
 
 <? endblock() ?>

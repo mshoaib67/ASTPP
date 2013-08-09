@@ -24,7 +24,9 @@
 <? startblock('content') ?>        
 
 <div class="portlet ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" id="searchbar">
-    <div class="portlet-header ui-widget-header" ><span id="show_search" style="cursor:pointer">Search</span><span class="ui-icon ui-icon-circle-arrow-s"></span></div>
+    <div class="portlet-header ui-widget-header" ><span id="show_search" style="cursor:pointer">Search</span>
+        <span id="active_search"  style="margin-left:10px; text-align: center;background-color: none;color:#1c8400;"></span>
+        <span class="ui-icon ui-icon-circle-arrow-s"></span></div>
     <div class="portlet-content"  id="search_bar" style="cursor:pointer; display:none">
         <?php echo $form_search; ?>
         </div>
@@ -32,7 +34,9 @@
 
 
 <div class="portlet ui-widget ui-widget-content ui-helper-clearfix ui-corner-all">                        
-    <div class="portlet-header ui-widget-header">CC Brand List<span class="ui-icon ui-icon-circle-arrow-s"></span></div>
+    <div class="portlet-header ui-widget-header">CC Brand List
+        <span id="error_msg" class=" success"></span>
+        <span class="ui-icon ui-icon-circle-arrow-s"></span></div>
     <div class="portlet-content">         
         <form method="POST" action="del/0/" enctype="multipart/form-data" id="ListForm">
             <table id="ccbrand_grid" align="left" style="display:none;"></table>

@@ -43,10 +43,15 @@ class Statistics extends CI_Controller {
     }
 
     function trunkstats() {
-        $data['app_name'] = 'ASTPP - Open Source Billing Solution | System | Trunk Stats';
         $data['username'] = $this->session->userdata('user_name');
         $data['page_title'] = 'TrunkStats List';
         $this->session->set_userdata('advance_search', 0);
+	  $data['form_search'] = $this->form->build_serach_form($this->statistics_form->get_trunk_stat_search_form());
+        if(isset($_POST) && !empty($_POST)){
+            $search_data = $_POST;
+            $this->session->set_userdata('trunk_stats_search', $search_data);
+        }
+
         $this->load->view('view_statistics_trunkstats', $data);
     }
 
@@ -54,75 +59,73 @@ class Statistics extends CI_Controller {
      * -------Here we write code for controller statistics functions trunkstats------
      * Listing of trunks stat data through php function json_encode
      */
-    function trunkstats_json($grid = NULL, $start_date = NULL, $end_date = NULL, $start_hour = NULL, $start_minute = NULL, $start_second = NULL, $end_hour = NULL, $end_minute = NULL, $end_second = NULL) {
-        $data['app_name'] = 'ASTPP - Open Source Billing Solution | Accounts | Create';
-        $data['username'] = $this->session->userdata('user_name');
-        $data['page_title'] = 'Statistics - trunk stats';
-        $sd = $start_date;
-        $ed = $end_date;
-        $data['start_date'] = $sd;
-        $data['end_date'] = $ed;
-        $data['start_hour'] = $start_hour;
-        $data['start_minute'] = $start_minute;
-        $data['start_second'] = $start_second;
+    function trunkstats_json() {
+        $where =  "";
+        if(isset($this->session->userdata["trunk_stats_search"]) && !empty($this->session->userdata["trunk_stats_search"])){
+            $where = " where ";
+            $where_len = strlen($where);
+            $search_data = $this->session->userdata("trunk_stats_search");
+          
+            if (!empty($search_data['start_date'])) {
+                $where .="callstart >= '".$search_data['start_date']."' ";
+            }
+            if (!empty($search_data['end_date'])) {
+                if(strlen($where) > $where_len)
+                    $where .=" AND ";
+                $where .=" callstart <= '".$search_data['end_date']."' ";
+            }
+            if (!empty($search_data['trunkid'])) {
+                if(strlen($where) > $where_len)
+                    $where .=" AND ";
+                $where .=" trunk_id = '".$search_data['trunkid']."' ";
+            }
+        }
+        $this->db_model->build_search('trunk_stats_search');
+        $json_data = array();
+        $sql1 = "SELECT count(*) as total_count FROM provider_cdrs $where GROUP BY trunk_id";	
+        $query1 = $this->db->query($sql1);        
+        $count_all = $query1->num_rows();
+        
+        $paging_data = $this->form->load_grid_config($count_all, $_GET['rp'], $_GET['page']);
+        $json_data = $paging_data["json_paging"];
+        $this->db_model->build_search('provider_summary_search');
+        $sql1 = "SELECT trunk_id,uniqueid,notes,pattern, COUNT(*) AS attempts, AVG(billseconds) AS acd,"
+                . " MAX(billseconds) AS mcd, SUM(billseconds) AS billable, "
+                . " SUM(debit) AS cost, SUM(cost) AS price FROM provider_cdrs $where 
+                      GROUP BY trunk_id  limit ".$paging_data["paging"]["start"].",". $paging_data["paging"]["page_no"];
+        $query1 = $this->db->query($sql1);        
+        
+                if ($query1->num_rows() > 0) {
+            foreach ($query1->result_array() as $row1) {
+                $atmpt = $row1['attempts'];
+                $acd = $row1['acd'];
+                $mcd = $row1['mcd'];
+                $bill = $row1['billable'];
+                $price = $row1['price'];
+                $cost = $row1['cost'];
+                $profit = $row1['cost'] - $row1['price'];
+                $sql2 = "SELECT COUNT(*) AS completed FROM cdrs
+                  where disposition IN ('SUCCESS','NORMAL_CLEARING') AND pattern='".$row1['pattern']."' 
+                    AND trunk_id='".$row1['trunk_id']."'";
+                $query2 = $this->db->query($sql2);
+                $row2 = $query2->row_array();
+                $cmplt = ($row2['completed'] != 0) ? $row2['completed'] : 0;
+                $asr =  ($cmplt/$atmpt)* 100;
 
-        $data['end_hour'] = $end_hour;
-        $data['end_minute'] = $end_minute;
-        $data['end_second'] = $end_second;
-
-        if ($sd == NULL || $ed == NULL || $sd == 'NULL' || $ed == 'NULL') {
-            $sd = date("Y-m-d", strtotime(date('m') . '/01/' . date('Y') . ' 00:00:00'));
-            $ed = date('Y-m-d 23:59:59');
-
-            $data['start_date'] = date("Y-m-d", strtotime(date('m') . '/01/' . date('Y')));
-            $data['end_date'] = date('Y-m-d');
-
-            $data['start_hour'] = '00';
-            $data['start_minute'] = '00';
-            $data['start_second'] = '00';
-
-            $data['end_hour'] = '23';
-            $data['end_minute'] = '59';
-            $data['end_second'] = '59';
-        } else {
-
-            $sd = $start_date . " " . $start_hour . ":" . $start_minute . ":" . $start_second;
-            $ed = $end_date . " " . $end_hour . ":" . $end_minute . ":" . $end_minute;
+                $json_data['rows'][] = array('cell' => array(
+                    $this->common->get_field_name("name", "trunks",array("id"=>$row1['trunk_id'])),
+//                     $this->common->get_only_numeric_val("","",$row1["pattern"]),
+//                     $row1["notes"],
+                    $atmpt,
+                    $cmplt,
+                    round($asr, 2),
+                    round($acd/60, 2),
+                    round($mcd/60, 2),                        
+                    round($bill/60, 2)));
+                }
         }
 
-        //grid json data	
-        $json_data = array();$count_all=0;
-//         $count_all = $this->statistics_model->getTrunkStatsCount();
-        $config['total_rows'] = $count_all=0;
-        $config['per_page'] = $_GET['rp']=1;
-
-        $page_no = $_GET['page'];
-        $json_data['page'] = $page_no=1;
-        $json_data['total'] = ($config['total_rows'] > 0) ? $config['total_rows'] : 0;
-        $perpage = $config['per_page'];
-        $start = ($page_no - 1) * $perpage;
-        if ($start < 0)
-            $start = 0;
-	
-//         $trunkstats = $this->statistics_model->getTrunkStatsList($start, $perpage, $sd, $ed);
-        
-//         if (count($trunkstats) > 0) {
-//             foreach ($trunkstats as $key => $value) {
-//                 $json_data['rows'][] = array('cell' => array(
-//                         $value['tech_path'],
-//                         $value['ct'],
-//                         $value['bs'],
-//                         $value['acwt'],
-//                         "(" . $value['calls'] . ") " . $value['success_rate'] . "%",
-//                         "(" . $value['failed_calls'] . ") " . $value['congestion_rate'] . "%"
-//                         ));
-//             }
-//         }
-//       $json_data = array();
- $json_data['rows']=array();
-// {"page":null,"total":0,"rows":[]}
-
-        echo json_encode($json_data);
+        echo json_encode($json_data);        
     }
 
 }

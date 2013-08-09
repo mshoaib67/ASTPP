@@ -32,6 +32,8 @@ class Charges extends CI_Controller {
         foreach ($account->result_array() as $key => $value) {
             $edit_data = $value;
         }
+        $edit_data['charge'] = $this->common_model->to_calculate_currency($edit_data['charge'], '', '', true, false);
+        
         $data['form'] = $this->form->build_form($this->charges_form->get_charegs_form_fields(), $edit_data);
         $this->load->view('view_periodiccharges_add_edit', $data);
     }
@@ -51,8 +53,7 @@ class Charges extends CI_Controller {
                 }
                 $add_array['charge'] = $this->common_model->add_calculate_currency($add_array['charge'], '', '', false, false);
                 $this->charges_model->edit_charge($add_array, $add_array['id']);
-                $this->session->set_userdata('astpp_notification', 'Periodic Charge updated successfully!');
-                echo "1";
+                echo json_encode(array("SUCCESS"=> $add_array["description"]." Charges updates Successfully."));
                 exit;
             }
         } else {
@@ -64,8 +65,7 @@ class Charges extends CI_Controller {
             } else {
                 $add_array['charge'] = $this->common_model->add_calculate_currency($add_array['charge'], '', '', false, false);
                 $this->charges_model->add_charge($add_array);
-                $this->session->set_userdata('astpp_notification', 'Periodic Charge added successfully!');
-                echo "1";
+                echo json_encode(array("SUCCESS"=> $add_array["description"]." Charges added Successfully."));
                 exit;
             }
         }
@@ -73,6 +73,7 @@ class Charges extends CI_Controller {
 
     function periodiccharges_delete($id) {
         $this->charges_model->remove_charge($id);
+        $this->session->set_flashdata('astpp_notification', 'Tax removed successfully!');
         redirect(base_url() . 'charges/periodiccharges/');
     }
 

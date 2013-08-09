@@ -1863,6 +1863,13 @@ table.blacklist tr.odd {
     padding-right:14px;
     padding-bottom:3px;
 }
+.bluebox_image
+{
+    text-decoration:none;
+    background-image:url(../images/Phone-icon.png);
+    padding-right:14px;
+    padding-bottom:3px;
+}
 
 .reset_icon_image
 {

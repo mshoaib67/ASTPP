@@ -21,18 +21,19 @@ $("#flex1").flexigrid({
     method: 'GET',
     dataType: 'json',
 	colModel : [
-		{display: 'User', name: 'Number', width:80,  sortable: false, align: 'center'},
-        {display: 'Destination', name: 'country',width:100, sortable: false, align: 'center'},
-        {display: 'IDD Code', name: 'province',width:120, sortable: false, align: 'center'},
-		{display: 'Attempted Calls', name: 'province',width:120, sortable: false, align: 'center'},
-		{display: 'ASR', name: 'province',width:50, sortable: false, align: 'center'},
-		{display: 'ACD', name: 'province',width:50, sortable: false, align: 'center'},
+        {display: 'User', name: 'Number', width:170,  sortable: false, align: 'center'},
+        {display: 'Code', name: 'country',width:100, sortable: false, align: 'center'},
+        {display: 'Destination', name: 'province',width:170, sortable: false, align: 'center'},
+        {display: 'Attempted Calls', name: 'province',width:100, sortable: false, align: 'center'},
+        {display: 'Complete Calls', name: 'completecall',width:80, sortable: false, align: 'center'},
+        {display: 'ASR', name: 'province',width:50, sortable: false, align: 'center'},
+        {display: 'ACD', name: 'province',width:50, sortable: false, align: 'center'},
         {display: 'MCD', name: 'city', width:50, sortable: false, align: 'center'},
-        {display: 'Actual',width:80, name: 'provider',  sortable: false, align: 'center'},
+//        {display: 'Actual',width:80, name: 'provider',  sortable: false, align: 'center'},
         {display: 'Billable', width:80,name: 'status',  sortable: false, align: 'center'},
-        {display: 'Price',width:50, name: 'calls',  sortable: false, align: 'center'},
-        {display: 'Cost', width:50,name: 'province',  sortable: false, align: 'center'},
-
+        {display: 'Price',width:80, name: 'calls',  sortable: false, align: 'center'},
+        {display: 'Cost', width:80,name: 'province',  sortable: false, align: 'center'},
+        {display: 'Profit', width:80,name: 'profit',  sortable: false, align: 'center'},
 		],
 		 buttons : [
 		{name: 'Remove Search Filter', bclass: 'reload', onpress : clear_filter},
@@ -45,7 +46,7 @@ $("#flex1").flexigrid({
 	resizable: true,
 	title: '',
 	useRp: true,
-	rp: 20,
+	rp: 10,
 	showTableToggleBtn: true,
 	height: "auto",	
 	width: "auto",	
@@ -62,70 +63,8 @@ $("#flex1").flexigrid({
         alert("Request failed");
     }
 });
-        
-function format() {
-	
-    var gridContainer = this.Grid.closest('.flexigrid');
-    //alert(gridContainer);
-    var headers = gridContainer.find('div.hDiv table tr:first th:not(:hidden)');
-    var drags = gridContainer.find('div.cDrag div');
-    var offset = 0;
-    var firstDataRow = this.Grid.find('tr:first td:not(:hidden)');
-    var columnWidths = new Array( firstDataRow.length );
-    this.Grid.find( 'tr' ).each( function() {
-    	
-        $(this).find('td:not(:hidden)').each( function(i) {
-            var colWidth = $(this).outerWidth();
-            if (!columnWidths[i] || columnWidths[i] < colWidth) {
-                columnWidths[i] = colWidth;
-            }
-        });
-    });
-    for (var i = 0; i < columnWidths.length; ++i) {
-        var bodyWidth = columnWidths[i];
-		alert(bodyWidth);
-        var header = headers.eq(i);
-        var headerWidth = header.outerWidth();
-
-        var realWidth = bodyWidth > headerWidth ? bodyWidth : headerWidth;
-
-        firstDataRow.eq(i).css('width',realWidth);
-        header.css('width',realWidth);            
-        drags.eq(i).css('left',  offset + realWidth );
-        offset += realWidth;
-    }
-}
-
-$("#id_filter").click(function(){
-
-	var start_date = ($("#start_date").val()=='' ? 'NULL' : $("#start_date").val());
-	var end_date = ($("#end_date").val()=='' ? 'NULL' : $("#end_date").val());
-	var Reseller = $("#Reseller").val();
-	var destination = $("#destination").val();
-	var pattern = $("#pattern").val();
-	
-	var start_hour = $("#start_hour").val();
-	var start_minute = $("#start_minute").val();
-	var start_second = $("#start_second").val();
-	var end_hour = $("#end_hour").val();
-	var end_minute = $("#end_minute").val();
-	var end_second = $("#start_hour").val();
-	
-	//var flex_url = "<?php echo base_url();?>adminReports/resellerReport/grid/?"+encodeURIComponent("filter_ok=1&start_date="+start_date+"&end_date="+end_date+"&Reseller="+Reseller+"&destination="+destination+"&pattern="+pattern);
-	flex_url = "<?php echo base_url();?>adminReports/userReport/grid/"+start_date+"/"+end_date+"/"+Reseller+"/"+destination+"/"+encodeURIComponent(pattern)+"/"+start_hour+"/"+start_minute+"/"+start_second+"/"+end_hour+"/"+end_minute+"/"+end_second;
-	
-	$('#flex1').flexOptions({url: flex_url}).flexReload();
-	
-});
-    $("#search_userreport").click(function(){	
-        $.ajax({type:'POST', url: '<?=base_url()?>adminReports/user_search', data:$('#search_form22').serialize(), success: function(response) {
-            $('#flex1').flexReload();
-        }});
-    });
     $("#id_reset").click(function(){
-            $.ajax({url:'<?=base_url()?>adminReports/clearsearchfilter_user/', success:function(){
-            $('#flex1').flexReload(); }
-            });
+        window.location="<?=base_url()?>reports/userReport_clear_search_sum_Report/";
     });
     $("#show_search").click(function(){
         $("#search_bar").toggle();
@@ -183,85 +122,36 @@ function reload_button()
 			$("#user_to_date").datetimepicker({ dateFormat: 'yy-mm-dd' });			
 		  });
 		  </script> 
-         <form action="<?=base_url()?>adminReports/user_search" id="search_form22" name="form22" method="POST" enctype="multipart/form-data" style="display:block">
-          <input type="hidden" name="ajax_search" value="1">
-         <input type="hidden" name="advance_search" value="1">
-         
+         <form action="<?=base_url()?>reports/userReport" id="search_form22" name="form22" method="POST" enctype="multipart/form-data" style="display:block">
          <ul style=" list-style:none;">
           <fieldset  >
             <legend><span style="font-size:14px; font-weight:bold; color:#000;">Search User Report</span></legend>
-            	<li>
-                	<div class="float-left" style="width:30%">
-                	<span>
-                      <label>User:</label>
-                        <input size="20" class="text field" name="reseller" id="reseller">
-                        <a onclick="window.open('<?=base_url()?>adminReports/user_list/' , 'UserList','scrollbars=1,width=650,height=330,top=20,left=100,scrollbars=1');" href="#"><img src="<?=base_url()?>images/icon_arrow_orange.gif" border="0"></a>
-                    </span>
-                    </div>
-                    
-                    <div class="float-left" style="width:30%">
-                	<span>
-                     <label>Destination:</label>
-                      <select class="select field" name="Destination" id="Destination" style="width:307px;">
-                        <option value="ALL">ALL</option>
-                        <?php foreach($destination as $key => $value)
-                            {
-                                if($value!="")
-                                {
-                            
-                                ?>
-                                <option value="<?php echo $value?>" <?php if(@$Destination==$value) { echo "selected";}?> ><?php echo $value?></option>
-                                <?
-                                }
-                            }?>
-                      </select>
-                    </span>
-                    </div>
-                    
-                    
-                    <div class="float-left" style="width:30%">
-                	<span>
-                   <label >IDD Code:</label>
-                  <select class="select field" name="Pattern" value="IDD Code" id="Pattern" style="width:307px;">
-                  <option value="ALL">ALL</option>
-                  <?php foreach($pattern as $key => $value)
-                        {
-                            if($value!="")
-                            {
-                            ?>
-                            <option value="<?php echo $value?>" <?php if(@$Pattern==$value) { echo "selected";}?> ><?php echo $value?></option>
-                            <?
-                            }
-                        }
-                 ?>
-                  </select>
-                    </span>
-                    </div>
-                </li>
-                
-                <li>
-                	 <div class="float-left" style="width:30%">
-                	<span>
-                    	  <label>Start Date & Time  :</label>
-            <input size="20" class="text field" name="start_date" id="user_from_date"> &nbsp;<img src="<?=base_url()?>images/calendar.png" border="0">
-                    </span>
-                    </div>
-                    
-                     <div class="float-left" style="width:30%">
-                	<span>
-                      <label>End Date & Time:</label>
-            <input size="20" class="text field" name="end_date" id="user_to_date">  &nbsp;<img src="<?=base_url()?>images/calendar.png" border="0">          
-                    </span>
-                    </div>
-                    
-                </li>
+            <li>
+                <div class="float-left" style="width:30%">
+                <span>
+                    <label>Start Date & Time  :</label>
+                    <input size="20" class="text field" name="start_date" id="user_from_date"> &nbsp;<img src="<?=base_url()?>images/calendar.png" border="0">
+                </span>
+                </div>
+                <div class="float-left" style="width:30%">
+                <span>
+                <label>End Date & Time:</label>
+                <input size="20" class="text field" name="end_date" id="user_to_date">  &nbsp;<img src="<?=base_url()?>images/calendar.png" border="0">          
+                </span>
+                </div>
+                <div class="float-left" style="width:30%">
+                    <span><label>Account:</label>
+                        <?=$account;?>
+                </span>
+                </div>                
+            </li>
             
           
             </fieldset>
           </ul>
            <br />
-            <input type="button" id="id_reset" class="ui-state-default float-right ui-corner-all ui-button" name="reset" value="Clear Search Filter">&nbsp;  
-        <input type="button" class="ui-state-default float-right ui-corner-all ui-button" name="action" value="Search" id="search_userreport" style="margin-right:22px;" />
+        <input type="button" id="id_reset" class="ui-state-default float-right ui-corner-all ui-button" name="reset" value="Clear Search Filter">&nbsp;  
+        <input type="submit" class="ui-state-default float-right ui-corner-all ui-button" name="action" value="Search" id="search_userreport" style="margin-right:22px;" />
         <br><br>
          </form>
             </div>
@@ -269,7 +159,7 @@ function reload_button()
 
 
 <div class="portlet ui-widget ui-widget-content ui-helper-clearfix ui-corner-all">                        
-    <div class="portlet-header ui-widget-header">User Report<span class="ui-icon ui-icon-circle-arrow-s"></span></div>
+    <div class="portlet-header ui-widget-header">Customer Summary Report<span class="ui-icon ui-icon-circle-arrow-s"></span></div>
     <div class="portlet-content">         
 		<form method="POST" action="del/0/" enctype="multipart/form-data" id="ListForm">
 			<table id="flex1" align="left" style="display:none;"></table>

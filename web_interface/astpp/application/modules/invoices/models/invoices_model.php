@@ -6,14 +6,17 @@ class Invoices_model extends CI_Model {
         parent::__construct();
     }
     function getcharges_list($flag, $start = 0, $limit = 0) {
+	$where = array();
         if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
             $reseller = $this->session->userdata('username');
-	    $where = array("accountid"=>$reseller,"status"=>"1");
+	    //$where = array("accountid"=>$reseller,"paid_status"=>"1");
+	    $where = array("accountid"=>$reseller);
         } else {
-	    $where = array("status"=>"1");
+	    //$where = array("paid_status"=>"1");
+	  //$where = array("accountid"=>0);
         }
         if ($flag) {
-            $query = $this->db_model->select("*","invoices",$where,"date","desc",$limit,$start);
+            $query = $this->db_model->select("*","invoices",$where,"invoice_date","desc",$limit,$start);
         } else {
               $query = $this->db_model->countQuery("*","invoices",$where);
         }
@@ -72,15 +75,6 @@ class Invoices_model extends CI_Model {
 			$row = $query->row_array();
 			return $row;
 		}
-		
-//		$q = "SELECT * FROM accounts WHERE cc = '".$this->db->escape_str($accountdata)."'";
-//		$query = $this->db->query($q);		
-//		if($query->num_rows() > 0)
-//		{
-//			$row = $query->row_array();
-//			return $row;			
-//		}
-		
 		$q = "SELECT * FROM accounts WHERE accountid = '".$this->db->escape_str($accountdata)."'";
 		$query = $this->db->query($q);		
 		if($query->num_rows() > 0)

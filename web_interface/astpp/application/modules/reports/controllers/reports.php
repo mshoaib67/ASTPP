@@ -59,7 +59,6 @@ class Reports extends MX_Controller {
         $count_all = $this->reports_model->getsystem_list(false, "", "");
         $paging_data = $this->form->load_grid_config($count_all, $_GET['rp'], $_GET['page']);
         $json_data = $paging_data["json_paging"];
-
         $query = $this->reports_model->getsystem_list(true, $paging_data["paging"]["start"], $paging_data["paging"]["page_no"]);
         $grid_fields = json_decode($this->reports_form->build_report_list_for_admin());
         $data['form_search'] = $this->form->build_serach_form($this->reports_form->get_customer_cdr_form());
@@ -526,668 +525,313 @@ class Reports extends MX_Controller {
 
     function userReport() {
         $data['username'] = $this->session->userdata('user_name');
-        $data['page_title'] = 'Customer CDRs Report';
-        $data['cur_menu_no'] = 5;
+        $data['page_title'] = 'Customer Summary Report';
         $this->session->set_userdata('advance_search', 0);
+        $data["account"] = $data['ip_pricelist'] = form_dropdown('account',$this->db_model->build_concat_dropdown('id,first_name,last_name,number', 'accounts', 'where_arr', array("type"=>"0", "deleted" => "0")), '');
+        if(isset($_POST) && !empty($_POST)){
+            $search_data = $_POST;
+            $this->session->set_userdata('user_sum_search', $search_data);
+        }
         $this->load->view('view_adminReports_userReport', $data);
     }
+    function userReport_clear_search_sum_Report(){
+        $this->session->set_userdata('user_sum_search',"");
+        redirect(base_url()."reports/userReport/");
+    }
+    
 
-    function userReport_grid($grid = NULL, $start_date = NULL, $end_date = NULL, $reseller = NULL, $destination = NULL, $pattern = NULL, $start_hour = NULL, $start_minute = NULL, $start_second = NULL, $end_hour = NULL, $end_minute = NULL, $end_second = NULL) {
-        $name = "User";
-        $type = "0";
-        $data['username'] = $this->session->userdata('user_name');
-        $data['page_title'] = 'User Report';
+    function userReport_grid() {
 
-        //For Reseller
-        //$Reseller_post = $this->input->post('Reseller',0);
-        if ($this->session->userdata('advance_search') == 1) {
-
-            $user_search = $this->session->userdata('user_search');
-
-            if (!empty($user_search['reseller'])) {
-                $reseller = $user_search['reseller'];
-            }
-
-            if (!empty($user_search['Destination'])) {
-                $destination = $user_search['Destination'];
-            }
-
-
-            if (!empty($user_search['Pattern'])) {
-                $pattern = $user_search['Pattern'];
-            }
-
-            if (!empty($user_search['start_date'])) {
-                $start_date_before = $user_search['start_date'];
-
-                $start_date_before = explode(" ", $start_date_before);
-                $start_date = @$start_date_before[0];
-                $time = explode(":", @$start_date_before[1]);
-
-                $start_hour = $time[0];
-                $start_minute = $time[1];
-                $start_second = "00";
-            }
-
-            if (!empty($user_search['end_date'])) {
-                $end_date_before = $user_search['end_date'];
-
-                $end_date_before = explode(" ", $end_date_before);
-                $end_date = @$end_date_before[0];
-                $time = explode(":", @$end_date_before[1]);
-
-                $end_hour = $time[0];
-                $end_minute = $time[1];
-                $end_second = "59";
-            }
-        }
-
-        if ($reseller == NULL) {
-            $reseller = "ALL";
-        }
-
+	$where = "";
         if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
-            $sth_reseller = $this->reports_model->getReseller("" . $this->session->userdata('username') . "", $type);
+            $accountinfo = $this->session->userdata['accountinfo'];
+            $reseller_id = $accountinfo["id"];
         } else {
-            $sth_reseller = $this->reports_model->getReseller("", $type);
+            $reseller_id = "0";
         }
-
-        $data['Reseller'] = $reseller;
-        $data['reseller'] = $sth_reseller;
-
-        //For Destination
-        //$Destination_post = $this->input->post('destination',0);
-        if ($destination == NULL) {
-            $destination = "ALL";
+        $com_reseller_id = "";
+        $reseller_query = $this->db_model->getSelect("id", "accounts", array("reseller_id"=>$reseller_id,"type"=>"0"));
+        $reseller_query = $reseller_query->result_array();
+        $com_reseller_id = "";
+        foreach($reseller_query as $reseller_value){
+            $com_reseller_id .= $reseller_value["id"].",";
         }
-        if ($pattern == NULL) {
-            $pattern = "ALL";
-        }
-
-        if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
-            $sth_destination = $this->reports_model->getDestination("" . $this->session->userdata('username') . "");
-        } else {
-            $sth_destination = $this->reports_model->getDestination();
-        }
-
-        $destination_list = $sth_destination[1];
-        $pattern_list = $sth_destination[2];
-
-        $data['Destination'] = $destination;
-        $data['destination'] = $destination_list;
-
-        $data['Pattern'] = urldecode($pattern);
-        $data['pattern'] = $pattern_list;
-
-        $sd = $start_date;
-        $ed = $end_date;
-
-        $data['start_date'] = $sd;
-        $data['end_date'] = $ed;
-
-        $data['start_hour'] = $start_hour;
-        $data['start_minute'] = $start_minute;
-        $data['start_second'] = $start_second;
-
-        $data['end_hour'] = $end_hour;
-        $data['end_minute'] = $end_minute;
-        $data['end_second'] = $end_second;
-
-        if ($sd == NULL || $ed == NULL || $sd == 'NULL' || $ed == 'NULL') {
-            $sd = date("Y-m-d", strtotime(date('m') . '/01/' . date('Y') . ' 00:00:00'));
-            $ed = date('Y-m-d 23:59:59');
-
-            $data['start_date'] = date("Y-m-d", strtotime(date('m') . '/01/' . date('Y')));
-            $data['end_date'] = date('Y-m-d');
-
-            $data['start_hour'] = '00';
-            $data['start_minute'] = '00';
-            $data['start_second'] = '00';
-
-            $data['end_hour'] = '23';
-            $data['end_minute'] = '59';
-            $data['end_second'] = '59';
-        } else {
-
-            $sd = $start_date . " " . $start_hour . ":" . $start_minute . ":" . $start_second;
-            $ed = $end_date . " " . $end_hour . ":" . $end_minute . ":" . $end_minute;
-        }
-
-        if (!empty($_POST)) {// AND $_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'])
-            // put your processing code here... we show what we do for emailing. You will need to add a correct email address
-            if ($this->_process_create($_POST)) {
-                $this->session->set_flashdata('success', TRUE);
-                redirect('.');
+        $com_reseller_id = rtrim($com_reseller_id,",");
+        if($com_reseller_id != '')
+	        $where =  " where accountid IN ($com_reseller_id)";
+        if(isset($this->session->userdata["user_sum_search"]) && !empty($this->session->userdata["user_sum_search"])){
+            $where = " where ";
+            $where_len = strlen($where);
+            $search_data = $this->session->userdata("user_sum_search");
+            if (!empty($search_data['start_date'])) {
+                $where .="callstart >= '".$search_data['start_date']."' ";
+            }
+            if (!empty($search_data['end_date'])) {
+                if(strlen($where) > $where_len)
+                    $where .=" AND ";
+                $where .=" callstart <= '".$search_data['end_date']."' ";
+            }
+            if (!empty($search_data['account'])) {
+                if(strlen($where) > $where_len)
+                    $where .=" AND ";
+                $where .=" accountid = '".$search_data['account']."' ";
             }
         }
-        $where = "";
+        
+        $json_data = array();
+        $sql1 = "SELECT count(*) as total_count FROM customer_cdrs $where GROUP BY pattern,accountid order by accountid";
+        $query1 = $this->db->query($sql1);        
+        $count_all = $query1->num_rows();
+        $paging_data = $this->form->load_grid_config($count_all, $_GET['rp'], $_GET['page']);
+        $json_data = $paging_data["json_paging"];
 
-        if ($sd != 'NULL' && $ed != 'NULL' && $sd != "" && $ed != "") {
-            $where = " AND callstart BETWEEN '" . $sd . "' AND '" . $ed . "' ";
-        }
+        $sql1 = "SELECT accountid,uniqueid,notes,pattern, COUNT(*) AS attempts, AVG(billseconds) AS acd,"
+                . " MAX(billseconds) AS mcd, SUM(billseconds) AS billable, "
+                . " SUM(debit) AS cost, SUM(cost) AS price FROM customer_cdrs $where
+                      GROUP BY pattern,accountid order by accountid limit ".$paging_data["paging"]["start"].",". $paging_data["paging"]["page_no"];
+        $query1 = $this->db->query($sql1);        
+        
+        if ($query1->num_rows() > 0) {
+            foreach ($query1->result_array() as $row1) {
+                $atmpt = $row1['attempts'];
+                $acd = $row1['acd'];
+                $mcd = $row1['mcd'];
+                $bill = $row1['billable'];
+                $price = $row1['price'];
+                $cost = $row1['cost'];
+                $profit = $row1['cost'] - $row1['price'];
+                $sql2 = "SELECT COUNT(*) AS completed FROM customer_cdrs
+                  where disposition IN ('SUCCESS','NORMAL_CLEARING') AND pattern='".$row1['pattern']."' 
+                    AND accountid='".$row1['accountid']."'";
+                $query2 = $this->db->query($sql2);
+                $row2 = $query2->row_array();
+                $cmplt = ($row2['completed'] != 0) ? $row2['completed'] : 0;
+                $asr =  ($cmplt/$atmpt)* 100;
 
-        if ($reseller == 'ALL') {
-            if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
-                $where .="AND accountid IN (SELECT `id` FROM accounts WHERE reseller_id = '" . $reseller . "' AND type IN (" . $type . ")) ";
-            } else {
-                $where .="AND accountid IN (SELECT `id` FROM accounts WHERE type IN (" . $type . ")) ";
-            }
-        } else {
-            if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
-                $where .="AND accountid = '" . $reseller . "' ";
-            } else {
-                if (strpos($type, "1") != -1) {
-                    $where .= "AND accountid IN (SELECT `id` FROM accounts WHERE `id` = '" . $reseller . "' AND type IN (" . $type . ")) ";
+                $json_data['rows'][] = array('cell' => array(
+                    $this->common->build_concat_string("first_name,last_name,number", "accounts",$row1['accountid']),
+                    $this->common->get_only_numeric_val("","",$row1["pattern"]),
+                    $row1["notes"],
+                    $atmpt,
+                    $cmplt,
+                    round($asr, 2),
+                    round($acd/60, 2),
+                    round($mcd/60, 2),                        
+                    round($bill/60, 2),                        
+                    $this->common_model->calculate_currency($row1["price"]),
+                    $this->common_model->calculate_currency($cost),
+                    $this->common_model->calculate_currency($profit)));
                 }
-            }
         }
-
-        if ($destination == 'ALL') {
-            if (urldecode($pattern) == 'ALL' || urldecode($pattern) == "") {
-                $where .= "";
-            } else {
-                $where .= "AND notes LIKE '" . "%|" . urldecode($pattern) . "' ";
-            }
-        } else {
-            if (urldecode($pattern) == 'ALL' || urldecode($pattern) == "") {
-                $where .= "";
-            } else {
-                $where .= "AND (notes LIKE '" . "%|" . $destination . "|%" . "' "
-                        . "OR notes LIKE '" . "%|" . urldecode($pattern) . "' ";
-            }
-        }
-
-        $table = "tmp_" . time();
-        $query = "CREATE TEMPORARY TABLE  $table AS SELECT * FROM cdrs WHERE uniqueid != '' " . $where;
-        //CREATE VIEW prodsupp AS
-
-        $rs_create = $this->db->query($query);
-
-        if ($rs_create) {
-            $sql = $this->db->query("SELECT DISTINCT accountid AS '" . $name . "' FROM $table");
-            $count_all = $sql->num_rows();
-
-            $config['total_rows'] = $count_all;
-            $config['per_page'] = $_GET['rp'] = 10;
-
-            $page_no = $_GET['page'] = 1;
-
-            $json_data = array();
-            $json_data['page'] = $page_no;
-            $json_data['total'] = ($config['total_rows'] > 0) ? $config['total_rows'] : 0;
-
-            $perpage = $config['per_page'];
-            $start = ($page_no - 1) * $perpage;
-            if ($start < 0)
-                $start = 0;
-
-            $admin_reseller_report = $this->reports_model->getCardNum($reseller, $table, $start, $perpage, $name);
-            if (count($admin_reseller_report) > 0) {
-
-                foreach ($admin_reseller_report as $key => $value) {
-                    $json_data['rows'][] = array('cell' => array($value['bth'],
-                            $value['dst'],
-                            $value['idd'],
-                            $value['atmpt'],
-                            $value['cmplt'],
-                            $value['asr'],
-                            $value['mcd'],
-                            $value['act'],
-                            $value['bill'],
-                            $this->common_model->calculate_currency($value['price']),
-                            $this->common_model->calculate_currency($value['cost'])));
-                }
-            }
-            echo json_encode($json_data);
-        }
+        echo json_encode($json_data);        
     }
 
     /**
      * -------Here we write code for controller adminReports functions resellerReport------
      * Reseller report with call record info from start date to end date with IDD code and destination
      */
-    function reseller_summery_Report() {
+      function reseller_summery_Report() {
         $data['username'] = $this->session->userdata('user_name');
-        $data['page_title'] = 'Reseller CDRs Report';
-        $this->session->set_userdata('advance_search', 0);
+        $data['page_title'] = 'Reseller Summary Report';
+        $data['cur_menu_no'] = 5;
+        $data["account"] = $data['ip_pricelist'] = form_dropdown('account',$this->db_model->build_concat_dropdown('id,first_name,last_name,number', 'accounts', 'where_arr', array("type"=>"1", "deleted" => "0")), '');
+//        $data['form_search'] = $this->form->build_serach_form($this->reports_form->get_provider_summary_search_form());
+        if(isset($_POST) && !empty($_POST)){
+            $search_data = $_POST;
+            $this->session->set_userdata('reseller_sum_search', $search_data);
+        }
         $this->load->view('view_adminReports_resellerReport', $data);
+          
+      }
+    function reseller_clear_search_sum_Report(){
+        $this->session->set_userdata('reseller_sum_search',"");
+        redirect(base_url()."reports/reseller_summery_Report/");
     }
-
-    function reseller_sum_Report($grid = NULL, $start_date = NULL, $end_date = NULL, $reseller = NULL, $destination = NULL, $pattern = NULL, $start_hour = NULL, $start_minute = NULL, $start_second = NULL, $end_hour = NULL, $end_minute = NULL, $end_second = NULL) {
-        $name = "Reseller";
-        $type = "1";
-
-        $data['username'] = $this->session->userdata('user_name');
-        $data['page_title'] = 'Reseller Report';
-
-        //For Reseller
-        //$Reseller_post = $this->input->post('Reseller',0);
-
-        if ($this->session->userdata('advance_search') == 1) {
-            $reseller_search = $this->session->userdata('reseller_search');
-            if (!empty($reseller_search['reseller'])) {
-                $reseller = $reseller_search['reseller'];
-            }
-            if (!empty($reseller_search['Destination'])) {
-                $destination = $reseller_search['Destination'];
-            }
-            if (!empty($reseller_search['Pattern'])) {
-                $pattern = $reseller_search['Pattern'];
-            }
-            if (!empty($reseller_search['start_date'])) {
-                $start_date_before = $reseller_search['start_date'];
-                $start_date_before = explode(" ", $start_date_before);
-                $start_date = @$start_date_before[0];
-                $time = explode(":", @$start_date_before[1]);
-
-                $start_hour = $time[0];
-                $start_minute = $time[1];
-                $start_second = "00";
-            }
-            if (!empty($reseller_search['end_date'])) {
-                $end_date_before = $reseller_search['end_date'];
-
-                $end_date_before = explode(" ", $end_date_before);
-                $end_date = @$end_date_before[0];
-                $time = explode(":", @$end_date_before[1]);
-
-                $end_hour = $time[0];
-                $end_minute = $time[1];
-                $end_second = "59";
-            }
-        }
-
-        if ($reseller == NULL) {
-            $reseller = "ALL";
-        }
-
+    function reseller_sum_Report() {
         if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
-            $sth_reseller = $this->reports_model->getReseller("" . $this->session->userdata('username') . "", $type);
+            $accountinfo = $this->session->userdata['accountinfo'];
+            $reseller_id = $accountinfo["id"];
         } else {
-            $sth_reseller = $this->reports_model->getReseller("", $type);
+            $reseller_id = "0";
         }
-
-        $data['Reseller'] = $reseller;
-        $data['reseller'] = $sth_reseller;
-
-        //For Destination
-        //$Destination_post = $this->input->post('destination',0);
-        if ($destination == NULL) {
-            $destination = "ALL";
+	$com_reseller_id = "";
+        $reseller_query = $this->db_model->getSelect("id", "accounts", array("reseller_id"=>$reseller_id,"type"=>"1"));
+        $reseller_query = $reseller_query->result_array();
+        foreach($reseller_query as $reseller_value){
+            $com_reseller_id .= $reseller_value["id"].",";
         }
-        if (urldecode($pattern) == NULL) {
-            $pattern = "ALL";
-        }
-
-        if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
-            $sth_destination = $this->reports_model->getDestination("" . $this->session->userdata('username') . "");
-        } else {
-            $sth_destination = $this->reports_model->getDestination();
-        }
-
-        $destination_list = $sth_destination[1];
-        $pattern_list = $sth_destination[2];
-
-        $data['Destination'] = $destination;
-        $data['destination'] = $destination_list;
-
-        $data['Pattern'] = urldecode($pattern);
-        $data['pattern'] = $pattern_list;
-
-        $sd = $start_date;
-        $ed = $end_date;
-
-        $data['start_date'] = $sd;
-        $data['end_date'] = $ed;
-
-        $data['start_hour'] = $start_hour;
-        $data['start_minute'] = $start_minute;
-        $data['start_second'] = $start_second;
-
-        $data['end_hour'] = $end_hour;
-        $data['end_minute'] = $end_minute;
-        $data['end_second'] = $end_minute;
-
-        if ($sd == NULL || $ed == NULL || $sd == 'NULL' || $ed == 'NULL') {
-            $sd = date("Y-m-d", strtotime(date('m') . '/01/' . date('Y') . ' 00:00:00'));
-            $sd = $sd . " 00:00:00";
-            $ed = date('Y-m-d 23:59:59');
-
-            $data['start_date'] = date("Y-m-d", strtotime(date('m') . '/01/' . date('Y')));
-            $data['end_date'] = date('Y-m-d');
-
-            $data['start_hour'] = '00';
-            $data['start_minute'] = '00';
-            $data['start_second'] = '00';
-
-            $data['end_hour'] = '23';
-            $data['end_minute'] = '59';
-            $data['end_second'] = '59';
-        } else {
-            $sd = $start_date . " " . $start_hour . ":" . $start_minute . ":" . $start_second;
-            $ed = $end_date . " " . $end_hour . ":" . $end_minute . ":" . $end_minute;
-        }
-
-        if (!empty($_POST)) {// AND $_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'])
-            // put your processing code here... we show what we do for emailing. You will need to add a correct email address
-            if ($this->_process_create($_POST)) {
-                $this->session->set_flashdata('success', TRUE);
-                redirect('.');
-            }
-        }
-        $where = "";
-
-        if ($sd != 'NULL' && $ed != 'NULL' && $sd != "" && $ed != "") {
-            $where = " AND callstart BETWEEN '" . $sd . "' AND '" . $ed . "' ";
-        }
-
-        if ($reseller == 'ALL') {
-            if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
-                $where .="AND accounid IN (SELECT `id` FROM accounts WHERE reseller_id = '" . $reseller . "' AND type IN (" . $type . ")) ";
-            } else {
-                $where .="AND accountid IN (SELECT `id` FROM accounts WHERE type IN (" . $type . ")) ";
-            }
-        } else {
-            if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
-                $where .="AND accountid = '" . $reseller . "' ";
-            } else {
-                if (strpos($type, "1") != -1) {
-                    $where .= "AND accountid IN (SELECT `number` FROM accounts WHERE `number` = '" . $reseller . "' AND type IN (" . $type . ")) ";
-                } elseif (strpos($type, "3") != -1) {
-                    if ($reseller != 'ALL') {
-                        $where .= "AND accountid = '" . $reseller . "' ";
-                    }
-                }
-            }
-        }
-
-        if ($destination == 'ALL') {
-            if (urldecode($pattern) == 'ALL' || urldecode($pattern) == "") {
-                $where .= "";
-            } else {
-                $where .= "AND notes LIKE '" . "%|" . urldecode($pattern) . "' ";
-            }
-        } else {
-            if (urldecode($pattern) == 'ALL' || urldecode($pattern) == "") {
-                $where .= "";
-            } else {
-
-                $where .= "AND (notes LIKE '" . "%|" . $destination . "|%" . "' "
-                        . "OR notes LIKE '" . "%|" . urldecode($pattern) . "') ";
-            }
-        }
-
-        $table = "tmp_" . time();
-        $query = "CREATE TEMPORARY TABLE  $table AS SELECT * FROM cdrs WHERE uniqueid != '' " . $where;
-        //CREATE VIEW prodsupp AS
-
-        $rs_create = $this->db->query($query);
+        $com_reseller_id = rtrim($com_reseller_id,",");
         
-//print_r($this->db->last_query());
-//exit;
 
-        if ($rs_create) {
-            $sql = $this->db->query("SELECT DISTINCT accountid AS '" . $name . "' FROM $table");
-            $count_all = $sql->num_rows();
+	if($com_reseller_id != ""){
+	 	 $where =  " where accountid IN ($com_reseller_id) ";
+	}else{
+		$where =  " where accountid  NOT IN ($reseller_id)";
+	} 
 
-            $config['total_rows'] = $count_all;
-            $config['per_page'] = $_GET['rp'];
-
-            $page_no = $_GET['page'];
-
-            $json_data = array();
-            $json_data['page'] = $page_no;
-            $json_data['total'] = ($config['total_rows'] > 0) ? $config['total_rows'] : 0;
-
-            $perpage = $config['per_page'];
-            $start = ($page_no - 1) * $perpage;
-            if ($start < 0)
-                $start = 0;
-
-            $admin_reseller_report = $this->reports_model->getCardNum($reseller, $table, $start, $perpage, $name);
-
-            if (count($admin_reseller_report) > 0) {
-
-                foreach ($admin_reseller_report as $key => $value) {
-                    $json_data['rows'][] = array('cell' => array($value['bth'],
-                            $value['dst'],
-                            $value['idd'],
-                            $value['atmpt'],
-                            $value['cmplt'],
-                            $value['asr'],
-                            $value['acd'],
-                            $value['mcd'],
-                            $value['act'],
-                            $value['bill'],
-                            $this->common_model->calculate_currency($value['price']),
-                            $this->common_model->calculate_currency($value['cost'])));
-                }
+       if(isset($this->session->userdata["reseller_sum_search"]) && !empty($this->session->userdata["reseller_sum_search"])){
+            $where = " where ";
+            $where_len = strlen($where);
+            $search_data = $this->session->userdata("reseller_sum_search");
+          
+            if (!empty($search_data['start_date'])) {
+                $where .="callstart >= '".$search_data['start_date']."' ";
             }
-            echo json_encode($json_data);
+            if (!empty($search_data['end_date'])) {
+                if(strlen($where) > $where_len)
+                    $where .=" AND ";
+                $where .=" callstart <= '".$search_data['end_date']."' ";
+            }
+            if (!empty($search_data['account'])) {
+                if(strlen($where) > $where_len)
+                    $where .=" AND ";
+                $where .=" accountid = '".$search_data['account']."' ";
+            }
         }
+        $this->db_model->build_search('reseller_sum_search');
+        $json_data = array();
+        $sql1 = "SELECT count(*) as total_count FROM reseller_cdrs $where GROUP BY pattern,accountid order by accountid";
+        $query1 = $this->db->query($sql1);        
+        $count_all = $query1->num_rows();
+        
+        $paging_data = $this->form->load_grid_config($count_all, $_GET['rp']=10, $_GET['page']=1);
+        $json_data = $paging_data["json_paging"];
+        $this->db_model->build_search('provider_summary_search');
+        $sql1 = "SELECT accountid,uniqueid,notes,pattern, COUNT(*) AS attempts, AVG(billseconds) AS acd,"
+                . " MAX(billseconds) AS mcd, SUM(billseconds) AS billable, "
+                . " SUM(debit) AS cost, SUM(cost) AS price FROM reseller_cdrs $where 
+                      GROUP BY pattern,accountid order by accountid  limit ".$paging_data["paging"]["start"].",". $paging_data["paging"]["page_no"];
+
+        $query1 = $this->db->query($sql1);        
+        
+                if ($query1->num_rows() > 0) {
+            foreach ($query1->result_array() as $row1) {
+                $atmpt = $row1['attempts'];
+                $acd = $row1['acd'];
+                $mcd = $row1['mcd'];
+                $bill = $row1['billable'];
+                $price = $row1['price'];
+                $cost = $row1['cost'];
+                $profit = $row1['cost'] - $row1['price'];
+                $sql2 = "SELECT COUNT(*) AS completed FROM reseller_cdrs
+                  where disposition IN ('SUCCESS','NORMAL_CLEARING') AND pattern='".$row1['pattern']."' 
+                    AND accountid='".$row1['accountid']."'";
+                $query2 = $this->db->query($sql2);
+                $row2 = $query2->row_array();
+                $cmplt = ($row2['completed'] != 0) ? $row2['completed'] : 0;
+                $asr =  ($cmplt/$atmpt)* 100;
+
+                $json_data['rows'][] = array('cell' => array(
+                    $this->common->build_concat_string("first_name,last_name,number", "accounts",$row1['accountid']),
+                    $this->common->get_only_numeric_val("","",$row1["pattern"]),
+                    $row1["notes"],
+                    $atmpt,
+                    $cmplt,
+                    round($asr, 2),
+                    round($acd/60, 2),
+                    round($mcd/60, 2),                        
+                    round($bill/60, 2),                        
+                    $this->common_model->calculate_currency($row1["price"]),
+                    $this->common_model->calculate_currency($cost),
+                    $this->common_model->calculate_currency($profit)));
+                }
+        }
+
+        echo json_encode($json_data);        
     }
 
     function provider_summery_Report() {
 
         $data['username'] = $this->session->userdata('user_name');
-        $data['page_title'] = 'Provider CDRs Report';
+        $data['page_title'] = 'Provider Summary Report';
         $data['cur_menu_no'] = 5;
         $this->session->set_userdata('advance_search', 0);
+        $data['form_search'] = $this->form->build_serach_form($this->reports_form->get_provider_summary_search_form());
+        if(isset($_POST) && !empty($_POST)){
+            $search_data = $_POST;
+            $this->session->set_userdata('provider_sum_search', $search_data);
+        }
         $this->load->view('view_adminReports_providerReport', $data);
     }
-
-    function provider_sum_Report($grid = NULL, $start_date = NULL, $end_date = NULL, $reseller = NULL, $destination = NULL, $pattern = NULL, $start_hour = NULL, $start_minute = NULL, $start_second = NULL, $end_hour = NULL, $end_minute = NULL, $end_second = NULL) {
-        $name = "Provider";
-        $type = "3";
-
-        $data['username'] = $this->session->userdata('user_name');
-        $data['page_title'] = 'Provider Report';
-
-        //For Reseller		
-        //$Reseller_post = $this->input->post('Reseller',0);
-        if ($this->session->userdata('advance_search') == 1) {
-            $provider_search = $this->session->userdata('provider_search');
-            if (!empty($provider_search['reseller'])) {
-                $reseller = $provider_search['reseller'];
-            }
-            if (!empty($provider_search['Destination'])) {
-                $destination = $provider_search['Destination'];
-            }
-            if (!empty($provider_search['Pattern'])) {
-                $pattern = $provider_search['Pattern'];
-            }
-            if (!empty($provider_search['start_date'])) {
-                $start_date_before = $provider_search['start_date'];
-
-                $start_date_before = explode(" ", $start_date_before);
-                $start_date = @$start_date_before[0];
-                $time = explode(":", @$start_date_before[1]);
-
-                $start_hour = $time[0];
-                $start_minute = $time[1];
-                $start_second = "00";
-            }
-            if (!empty($provider_search['end_date'])) {
-                $end_date_before = $provider_search['end_date'];
-
-                $end_date_before = explode(" ", $end_date_before);
-                $end_date = @$end_date_before[0];
-                $time = explode(":", @$end_date_before[1]);
-
-                $end_hour = $time[0];
-                $end_minute = $time[1];
-                $end_second = "59";
-            }
-        }
-        if ($reseller == NULL) {
-            $reseller = "ALL";
-        }
-
-        if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
-            $sth_reseller = $this->reports_model->getReseller("" . $this->session->userdata('username') . "", $type);
+    function provider_clear_search_sum_Report(){
+        $this->session->set_userdata('provider_sum_search',"");
+        redirect(base_url()."reports/provider_summery_Report/");
+    }
+    function provider_sum_Report() {
+	
+	if ($this->session->userdata('logintype') == 3) {
+            $account_data = $this->session->userdata("accountinfo");
+            $where = " where accountid = ".$account_data['id'];
         } else {
-            $sth_reseller = $this->reports_model->getReseller("", $type);
+            $where = "";
         }
-
-        $data['Reseller'] = $reseller;
-        $data['reseller'] = $sth_reseller;
-
-        //For Destination
-        //$Destination_post = $this->input->post('destination',0);
-        if ($destination == NULL) {
-            $destination = "ALL";
-        }
-        if ($pattern == NULL) {
-            $pattern = "ALL";
-        }
-
-        if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
-            $sth_destination = $this->reports_model->getDestination("" . $this->session->userdata('username') . "");
-        } else {
-            $sth_destination = $this->reports_model->getDestination();
-        }
-
-        $destination_list = $sth_destination[1];
-        $pattern_list = $sth_destination[2];
-
-        $data['Destination'] = $destination;
-        $data['destination'] = $destination_list;
-
-        $data['Pattern'] = urldecode($pattern);
-        $data['pattern'] = $pattern_list;
-
-        $sd = $start_date;
-        $ed = $end_date;
-
-        $data['start_date'] = $sd;
-        $data['end_date'] = $ed;
-
-        $data['start_hour'] = $start_hour;
-        $data['start_minute'] = $start_minute;
-        $data['start_second'] = $start_second;
-
-        $data['end_hour'] = $end_hour;
-        $data['end_minute'] = $end_minute;
-        $data['end_second'] = $end_second;
-
-        if ($sd == NULL || $ed == NULL || $sd == 'NULL' || $ed == 'NULL') {
-            $sd = date("Y-m-d", strtotime(date('m') . '/01/' . date('Y') . ' 00:00:00'));
-            $ed = date('Y-m-d 23:59:59');
-
-            $data['start_date'] = date("Y-m-d", strtotime(date('m') . '/01/' . date('Y')));
-            $data['end_date'] = date('Y-m-d');
-
-            $data['start_hour'] = '00';
-            $data['start_minute'] = '00';
-            $data['start_second'] = '00';
-
-            $data['end_hour'] = '23';
-            $data['end_minute'] = '59';
-            $data['end_second'] = '59';
-        } else {
-
-            $sd = $start_date . " " . $start_hour . ":" . $start_minute . ":" . $start_second;
-            $ed = $end_date . " " . $end_hour . ":" . $end_minute . ":" . $end_minute;
-        }
-
-        if (!empty($_POST)) {// AND $_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR'])
-            // put your processing code here... we show what we do for emailing. You will need to add a correct email address
-            if ($this->_process_create($_POST)) {
-                $this->session->set_flashdata('success', TRUE);
-                redirect('.');
+        
+        $where =  "";
+        if(isset($this->session->userdata["provider_sum_search"]) && !empty($this->session->userdata["provider_sum_search"])){
+            $where = " where ";
+            $where_len = strlen($where);
+            $search_data = $this->session->userdata("provider_sum_search");
+            if (!empty($search_data['start_date'])) {
+                $where .="callstart >= '".$search_data['start_date']."' ";
+            }
+            if (!empty($search_data['end_date'])) {
+                if(strlen($where) > $where_len)
+                    $where .=" AND ";
+                $where .=" callstart <= '".$search_data['end_date']."' ";
+            }
+            if (!empty($search_data['number'])) {
+                if(strlen($where) > $where_len)
+                    $where .=" AND ";
+                $where .=" accountid = '".$search_data['number']."' ";
             }
         }
-        $where = "";
-        if ($sd != 'NULL' && $ed != 'NULL' && $sd != "" && $ed != "") {
-            $where = " AND callstart BETWEEN '" . $sd . "' AND '" . $ed . "' ";
-        }
+        $this->db_model->build_search('provider_summary_search');
+        $json_data = array();
+        $sql1 = "SELECT count(*) as total_count FROM provider_cdrs $where GROUP BY pattern,accountid order by accountid";
+        $query1 = $this->db->query($sql1);        
+        $count_all = $query1->num_rows();
+        
+        $paging_data = $this->form->load_grid_config($count_all, $_GET['rp']=10, $_GET['page']=1);
+        $json_data = $paging_data["json_paging"];
+        $this->db_model->build_search('provider_summary_search');
+        $sql1 = "SELECT accountid,uniqueid,notes,pattern, COUNT(*) AS attempts, AVG(billseconds) AS acd,"
+                . " MAX(billseconds) AS mcd, SUM(billseconds) AS billable, "
+                . " SUM(debit) AS cost, SUM(cost) AS price FROM provider_cdrs $where 
+                      GROUP BY pattern,accountid order by accountid  limit ".$paging_data["paging"]["start"].",". $paging_data["paging"]["page_no"];
+        $query1 = $this->db->query($sql1);        
+        
+        if ($query1->num_rows() > 0) {
+            foreach ($query1->result_array() as $row1) {
+                $atmpt = $row1['attempts'];
+                $acd = $row1['acd'];
+                $mcd = $row1['mcd'];
+                $bill = $row1['billable'];
+                $price = $row1['price'];
+                $cost = $row1['cost'];
 
-        if ($reseller == 'ALL') {
-            if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
-                $where .="AND accountid IN (SELECT `id` FROM accounts WHERE reseller_id = '" . $reseller . "' AND type IN (" . $type . ")) ";
-            } else {
-                $where .="AND accountid IN (SELECT `id` FROM accounts WHERE type IN (" . $type . ")) ";
-            }
-        } else {
-            if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
-                $where .="AND accountid = '" . $reseller . "' ";
-            } else {
-                if (strpos($type, "1") != -1) {
-                    $where .= "AND accountid IN (SELECT `id` FROM accounts WHERE `id` = '" . $reseller . "' AND type IN (" . $type . ")) ";
-                } elseif (strpos($type, "3") != -1) {
-                    if ($reseller != 'ALL') {
-                        $where .= "AND accountid = '" . $reseller . "' ";
-                    }
+                $sql2 = "SELECT COUNT(*) AS completed FROM provider_cdrs
+                  where disposition IN ('SUCCESS','NORMAL_CLEARING') AND pattern='".$row1['pattern']."' 
+                    AND accountid='".$row1['accountid']."'";
+                $query2 = $this->db->query($sql2);
+                $row2 = $query2->row_array();
+                $cmplt = ($row2['completed'] != 0) ? $row2['completed'] : 0;
+                $asr =  ($cmplt/$atmpt)* 100;
+
+                $json_data['rows'][] = array('cell' => array(
+                    $this->common->build_concat_string("first_name,last_name,number", "accounts",$row1['accountid']),
+                    $this->common->get_only_numeric_val("","",$row1["pattern"]),
+                    $row1["notes"],
+                    $atmpt,
+                    $cmplt,
+                    round($asr, 2),
+                    round($acd/60, 2),
+                    round($mcd/60, 2),                        
+                    round($bill/60, 2),                        
+                    $this->common_model->calculate_currency($cost)));
+
                 }
-            }
         }
-
-        if ($destination != 'ALL') {
-            $where .= "AND pattern = '" . urldecode($destination) . "'";
-        }
-        if ($destination == 'ALL') {
-            if (urldecode($pattern) == 'ALL' || urldecode($pattern) == "") {
-                $where .= "";
-            } else {
-                $where .= "AND notes LIKE '" . "%|" . urldecode($pattern) . "' ";
-            }
-        } else {
-            if (urldecode($pattern) == 'ALL' || urldecode($pattern) == "") {
-                $where .= "";
-            } else {
-                $where .= "AND (notes LIKE '" . "%|" . $destination . "|%" . "' "
-                        . "OR notes LIKE '" . "%|" . urldecode($pattern) . "'  ) ";
-            }
-        }
-
-        $table = "tmp_" . time();
-        //$drop_view = @mysql_query("DROP TEMPORARY TABLE $table");
-        //$query ="CREATE TEMPORARY TABLE $table SELECT * FROM cdrs WHERE uniqueid != '' " . $where;
-        $query = "CREATE TEMPORARY TABLE  $table AS SELECT * FROM cdrs WHERE uniqueid != '' " . $where;
-        //CREATE VIEW prodsupp AS
-
-        $rs_create = $this->db->query($query);
-
-        if ($rs_create) {
-            $sql = $this->db->query("SELECT DISTINCT accountid AS '" . $name . "' FROM $table");
-            $count_all = $sql->num_rows();
-
-            $config['total_rows'] = $count_all;
-            $config['per_page'] = $_GET['rp'];
-
-            $page_no = $_GET['page'];
-
-            $json_data = array();
-            $json_data['page'] = $page_no;
-            $json_data['total'] = ($config['total_rows'] > 0) ? $config['total_rows'] : 0;
-
-            $perpage = $config['per_page'];
-            $start = ($page_no - 1) * $perpage;
-            if ($start < 0)
-                $start = 0;
-
-            $admin_reseller_report = $this->reports_model->getCardNum($reseller, $table, $start, $perpage, $name);
-            if (count($admin_reseller_report) > 0) {
-                $json_data['page'] = $page_no;
-                $json_data['total'] = $config['total_rows'];
-
-                foreach ($admin_reseller_report as $key => $value) {
-
-                    $json_data['rows'][] = array('cell' => array($value['bth'],
-                            $value['dst'],
-                            $value['idd'],
-                            $value['atmpt'],
-                            $value['cmplt'],
-                            $value['asr'],
-                            $value['acd'],
-                            $value['mcd'],
-                            $value['act'],
-                            $value['bill'],
-                            $this->common_model->calculate_currency($value['cost'])));
-                }
-            }
-            echo json_encode($json_data);
-        }
+        echo json_encode($json_data);        
     }
 
     function user_cdrreport() {
@@ -1256,11 +900,11 @@ class Reports extends MX_Controller {
 
     function customer_cdrreport($accountid) {
         $json_data = array();
-        $count_all = $this->reports_model->getuser_cdrs_list(false, "", "", $accountid);
+        $count_all = $this->reports_model->getcustomer_cdrs_list(false, "", "", $accountid);
         $paging_data = $this->form->load_grid_config($count_all, $_GET['rp'], $_GET['page']);
         $json_data = $paging_data["json_paging"];
 
-        $query = $this->reports_model->getuser_cdrs_list(true, $paging_data["paging"]["start"], $paging_data["paging"]["page_no"], $accountid);
+        $query = $this->reports_model->getcustomer_cdrs_list(true, $paging_data["paging"]["start"], $paging_data["paging"]["page_no"], $accountid);
         $grid_fields = json_decode($this->reports_form->build_report_list_for_user());
         $json_data['rows'] = $this->form->build_grid($query, $grid_fields);
 
@@ -1306,6 +950,45 @@ class Reports extends MX_Controller {
     function customer_paymentreport_clearsearchfilter() {
         $this->session->set_userdata('advance_search', 0);
         $this->session->set_userdata('account_search', "");
+    }
+    function reseller_commissionreport() {
+        $data['username'] = $this->session->userdata('user_name');
+        $data['page_title'] = 'Reseller Commission Report';
+        $this->session->set_userdata('advance_search', 0);
+        $data['grid_fields'] = $this->reports_form->build_commission_report_for_admin();
+        $data['form_search'] = $this->form->build_serach_form($this->reports_form->reseller_commission_search_form());
+        $this->load->view('view_commission_report', $data);
+    }
+
+    function reseller_commissionreport_json() {
+        $json_data = array();
+        $count_all = $this->reports_model->getreseller_commission_list(false, "", "");
+        $paging_data = $this->form->load_grid_config($count_all, $_GET['rp'], $_GET['page']);
+        $json_data = $paging_data["json_paging"];
+
+        $query = $this->reports_model->getreseller_commission_list(true, $paging_data["paging"]["start"], $paging_data["paging"]["page_no"]);
+        $grid_fields = json_decode($this->reports_form->build_commission_report_for_admin());
+        $json_data['rows'] = $this->form->build_grid($query, $grid_fields);
+
+        echo json_encode($json_data);
+    }
+    function reseller_commissionreport_search() {
+        $ajax_search = $this->input->post('ajax_search', 0);
+        if ($this->input->post('advance_search', TRUE) == 1) {
+            $this->session->set_userdata('advance_search', $this->input->post('advance_search'));
+            $action = $this->input->post();
+            unset($action['action']);
+            unset($action['advance_search']);
+            $this->session->set_userdata('reseller_commission_search', $action);
+        }
+        if (@$ajax_search != 1) {
+            redirect(base_url() . 'reports/reseller_commissionreport/');
+        }
+    }
+
+    function reseller_commissionreport_clearsearchfilter() {
+        $this->session->set_userdata('advance_search', 0);
+        $this->session->set_userdata('reseller_commission_search', "");
     }
 
 }

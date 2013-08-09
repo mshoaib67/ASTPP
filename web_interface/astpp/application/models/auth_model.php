@@ -12,10 +12,10 @@ class Auth_model extends CI_Model {
      * @return If login user name and password is valid then return true else return false.
      */
     function verify_login($username, $password) {
-        $q = "SELECT COUNT(*) as cnt FROM accounts WHERE number = '";
-        $q .= $this->db->escape_str($username);
-        $q .= "' AND password = '" . $this->db->escape_str($password);
-        $q .= "' AND status = 1 AND type IN (1,2,3,4,5,0)";
+        $q = "SELECT COUNT(*) as cnt FROM accounts WHERE (number = '".$this->db->escape_str($username)."'";
+	$q .= " OR email = '".$this->db->escape_str($username)."')";
+        $q .= " AND password = '".$this->db->escape_str($password)."'";
+        $q .= " AND status = 1 AND type IN (1,2,3,4,5,0)";
 
         $query = $this->db->query($q);
         //echo $this->db->last_query();

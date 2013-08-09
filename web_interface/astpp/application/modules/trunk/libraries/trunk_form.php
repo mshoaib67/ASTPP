@@ -14,9 +14,9 @@ class trunk_form {
             array('Gateway', 'gateway_id', 'SELECT', '', '', 'tOOL TIP', 'Please select gateway first', 'id', 'name', 'gateways', 'build_dropdown', '', ''),
             array('Provider', 'provider_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'number', 'accounts', 'build_dropdown', 'type', '3'),
             array('Max Channels', 'INPUT', array('name' => 'maxchannels', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), 'trim|required|numeric', 'tOOL TIP', ''),
-            array('Dialed Number Mods', 'INPUT', array('name' => 'dialed_modify', 'size' => '20', 'maxlength' => '100', 'class' => "text field medium"), '', 'tOOL TIP', ''),
+            array('Dialed Number Mods', 'INPUT', array('name' => 'dialed_modify', 'size' => '20', 'maxlength' => '200', 'class' => "text field medium"), '', 'tOOL TIP', ''),
             array('Precedence', 'INPUT', array('name' => 'precedence', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), 'trim|required|numeric', 'tOOL TIP', ''),
-            array('Reseller','resellers_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'number', 'accounts', 'build_dropdown', 'type', '1', 'multi')
+            array('Reseller','reseller_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'number', 'accounts', 'build_dropdown', 'where_arr', array("deleted" => "0", 'type'=> '1','reseller_id'=>"0"), 'multi')
         );
         $form['button_cancel'] = array('name' => 'action', 'content' => 'Cancel', 'value' => 'cancel', 'type' => 'button', 'class' => 'ui-state-default float-right ui-corner-all ui-button', 'onclick' => 'return redirect_page(\'NULL\')');
         $form['button_save'] = array('name' => 'action', 'content' => 'Save', 'value' => 'save', 'id' => 'submit', 'type' => 'button', 'class' => 'ui-state-default float-right ui-corner-all ui-button');
@@ -40,14 +40,13 @@ class trunk_form {
     function build_trunk_list_for_admin() {
         // array(display name, width, db_field_parent_table,feidname, db_field_child_table,function name);
         $grid_field_arr = json_encode(array(array("<input type='checkbox' name='chkAll' class='checkall'/>", "30", "", "", "", ""),
-            array("Trunk Name", "200", "name", "", "", ""),
-            array("Protocol", "190", "tech", "", "", ""),
+            array("Trunk Name", "195", "name", "", "", ""),
+            array("Protocol", "180", "tech", "", "", ""),
             array("Gateway Name", "190", "gateway_id", "name", "gateways", "get_field_name"),
             array("Provider", "190", "provider_id", "number", "accounts", "get_field_name"),
-            array("maxchannels", "142", "maxchannels", "", "", ""),
-//             array("Dial Number <br>Mode", "90", "dialed_modify", "", "", ""),
-            array("Precedence", "140", "precedence", "", "", ""),
-//             array("Reseller", "180", "resellers_id", "number", "accounts", "get_field_name_coma"),
+            array("maxchannels", "100", "maxchannels", "", "", ""),
+            array("Precedence", "100", "precedence", "", "", ""),
+	    array("TR Count", "80", "id", "trunk_id", "outbound_routes", "get_field_count"),
             array("Action", "60", "", "", "", array("EDIT" => array("url" => "/trunk/trunk_edit/", "mode" => "popup"),
                     "DELETE" => array("url" => "/trunk/trunk_remove/", "mode" => "single")))
                 ));

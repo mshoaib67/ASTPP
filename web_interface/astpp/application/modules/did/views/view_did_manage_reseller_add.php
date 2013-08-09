@@ -40,96 +40,96 @@
 
         <form action="<?= base_url() ?><?= isset($did) ? "did/did_reseller_edit/edit" : "did/did_reseller_edit/add" ?>" id="frm_manage_did" method="POST" enctype="multipart/form-data">
 
-            <ul style="width:600px">        
-                <li>
-                    <label class="desc">Number</label>
+            <ul style="width:50%;">        
+                <li class="input_marg">
+                    <label class="desc">Number :</label>
                     <?php if (isset($did)) { ?>
-                        <label class="desc"><?= @$did ?></label>
+                        <label class="value_bold"><?= @$did ?></label>
                         <input type="hidden" name="number" value="<?= @$did ?>" />
                     <?php } ?>
                 </li>      
-                <li>
-                    <label class="desc">Country</label>
-                    <label class="desc"><?= @$didinfo['country'] ?></label>
+                <li class="input_marg">
+                    <label class="desc">Country :</label>
+                    <label class="value_bold"><?= @$didinfo['country'] ?></label>
                     <input type="hidden" name="country" value="<?= @$didinfo['country'] ?>" />
                 </li>        
 
-                <li>
-                    <label class="desc">Province</label>     
-                    <label class="desc"><?= @$didinfo['province'] ?></label>
+                 <li class="input_marg">
+                    <label class="desc">Province :</label>     
+                    <label class="value_bold"><?= @$didinfo['province'] ?></label>
                     <input type="hidden" name="province" value="<?= @$didinfo['province'] ?>" />
                 </li>
 
-                <li>		
-                    <label class="desc">City</label>
-                    <label class="desc"><?= @$didinfo['city'] ?></label>        
+                <li class="input_marg">
+                    <label class="desc">City :</label>
+                    <label class="value_bold"><?= @$didinfo['city'] ?></label>        
                     <input type="hidden" name="city" value="<?= @$didinfo['city'] ?>" />
                 </li>       	
-                <li>
-                    <label class="desc">Provider</label>
-                    <label class="desc"><?= @$didinfo['provider'] ?></label>
+                 <li class="input_marg">
+                    <label class="desc">Provider :</label>
+                    <label class="value_bold"><?= @$didinfo['provider'] ?></label>
                     <input type="hidden" name="Provider" value="<?= @$didinfo['provider_id'] ?>" />
                     <input type="hidden" name="did_id" value="<?= @$didinfo['id'] ?>" />
                 </li>
 
-                <li>
-                    <label class="desc">Account</label>        
-                    <label class="desc"><?
+                <li class="input_marg">
+                    <label class="desc">Account :</label>        
+                    <label class="value_bold"><?
                     if ($didinfo['accountid'] == '0') {
                         echo "";
                     }
                     ?></label>        
                 </li>        
-                <li>
-                    <label class="desc">Dialstring</label>
-                    <label class="desc">&nbsp;<?= @$didinfo['extensions'] ?></label>
-                    <input type="text" class="text field medium" name="extension"  size="20"  value="<?= @$reseller_didinfo['extensions'] ?>" />
+                 <li class="input_marg">
+                    <label class="desc">Dialstring :</label>
+                    <label class="value_bold">&nbsp;<?= @$didinfo['extensions'] ?></label>
+                    <input type="text" class="text field" name="extension"  size="20"  value="<?= @$reseller_didinfo['extensions'] ?>" />
                 </li>
-                <li>
-                    <label class="desc">Setup Fee</label>
-                    <label class="desc">&nbsp;<?= @$didinfo['setup'] ?></label>
-                    <input type="text" class="text field medium" name="setup"  size="20"   value="<?= @$reseller_didinfo['setup'] ?>"/>
+                 <li class="input_marg">
+                    <label class="desc">Setup Fee :</label>
+                    <label class="value_bold">&nbsp;<?= @$didinfo['setup'] ?></label>
+                    <input type="text" class="text field" name="setup"  size="20"   value="<?= @$reseller_didinfo['setup'] ?>"/>
                 </li>
-                <li>
-                    <label class="desc">Disconnection Fee</label>
-                    <label class="desc">&nbsp;<?= @$didinfo['disconnectionfee'] ?></label>
-                    <input type="text" class="text field medium" name="disconnectionfee"  size="20"  value="<?= @$reseller_didinfo['disconnectionfee'] ?>" />
+                <li class="input_marg">
+                    <label class="desc">Disconnection Fee:</label>
+                    <label class="value_bold">&nbsp;<?= @$didinfo['disconnectionfee'] ?></label>
+                    <input type="text" class="text field" name="disconnectionfee"  size="20"  value="<?= @$reseller_didinfo['disconnectionfee'] ?>" />
+                </li>     
+                 <li class="input_marg">
+                    <label class="desc">Monthly :</label>
+                    <label class="value_bold">&nbsp;<?= @$didinfo['monthlycost'] ?></label>
+                    <input type="text" class="text field" name="monthlycost"  size="20"  value="<?= @$reseller_didinfo['monthlycost'] ?>" />
                 </li>        
-                <li>
-                    <label class="desc">Monthly</label>
-                    <label class="desc">&nbsp;<?= @$didinfo['monthlycost'] ?></label>
-                    <input type="text" class="text field medium" name="monthlycost"  size="20"  value="<?= @$reseller_didinfo['monthlycost'] ?>" />
+                 <li class="input_marg">
+                    <label class="desc">Connect :</label>
+                    <label class="value_bold">&nbsp;<?= @$didinfo['connectcost'] ?></label>
+                    <input type="text" class="text field" name="connectcost"  size="20"  value="<?= @$reseller_didinfo['connectcost'] ?>"/>
                 </li>        
-                <li>
-                    <label class="desc">Connect</label>
-                    <label class="desc">&nbsp;<?= @$didinfo['connectcost'] ?></label>
-                    <input type="text" class="text field medium" name="connectcost"  size="20"  value="<?= @$reseller_didinfo['connectcost'] ?>"/>
+                 <li class="input_marg">
+                    <label class="desc">Included :</label>
+                    <label class="value_bold">&nbsp;<?= @$didinfo['includedseconds'] ?></label>
+                    <input type="text" class="text field" name="included"  size="20"  value="<?= @$reseller_didinfo['includedseconds'] ?>"/>
                 </li>        
-                <li>
-                    <label class="desc">Included</label>
-                    <label class="desc">&nbsp;<?= @$didinfo['includedseconds'] ?></label>
-                    <input type="text" class="text field medium" name="included"  size="20"  value="<?= @$reseller_didinfo['includedseconds'] ?>"/>
+                 <li class="input_marg">
+                    <label class="desc">Cost :</label>
+                    <label class="value_bold">&nbsp;<?= @$didinfo['cost'] ?></label>
+                    <input type="text" class="text field" name="cost"  size="20"  value="<?= @$reseller_didinfo['cost'] ?>"/>
                 </li>        
-                <li>
-                    <label class="desc">Cost</label>
-                    <label class="desc">&nbsp;<?= @$didinfo['cost'] ?></label>
-                    <input type="text" class="text field medium" name="cost"  size="20"  value="<?= @$reseller_didinfo['cost'] ?>"/>
-                </li>        
-                <li>
-                    <label class="desc">Increments</label>
-                    <label class="desc">&nbsp;<?= @$didinfo['inc'] ?></label>
-                    <input type="text" class="text field medium" name="inc"  size="3"  value="<?= @$reseller_didinfo['inc'] ?>"/>
+                 <li class="input_marg">
+                    <label class="desc">Increments :</label>
+                    <label class="value_bold">&nbsp;<?= @$didinfo['inc'] ?></label>
+                    <input type="text" class="text field" name="inc"  size="20"  value="<?= @$reseller_didinfo['inc'] ?>"/>
                 </li>                
 
 
-                <li>
-                    <label class="desc">Prorate</label>
-                    <label class="desc">&nbsp;<?php if (@$didinfo['prorate'] == 1) {
+                 <li class="input_marg">
+                    <label class="desc">Prorate :</label>
+                    <label class="value_bold">&nbsp;<?php if (@$didinfo['prorate'] == 1) {
                         echo "YES";
                     } else {
                         echo "NO";
                     } ?></label>
-                    <select name="prorate" class="select field medium" >
+                    <select name="prorate" class="select field small" >
                         <option value="1" <?php if (@$reseller_didinfo['prorate'] == "1") {
                         echo "selected='selected'";
                     } ?> >YES</option>
@@ -139,10 +139,10 @@
                     </select>
                 </li>
 
-                <li>
-                    <label class="desc">Dial As</label>
-                    <label class="desc">&nbsp;<?= @$didinfo['dial_as'] ?></label>
-                    <input type="text" class="text field medium" name="dial_as"   value="<?= @$did['reseller_didinfo'] ?>"/>
+                 <li class="input_marg">
+                    <label class="desc">Dial As :</label>
+                    <label class="value_bold">&nbsp;<?= @$didinfo['dial_as'] ?></label>
+                    <input type="text" class="text field" name="dial_as"   value="<?= @$did['reseller_didinfo'] ?>"/>
                 </li>                        
             </ul>        
 

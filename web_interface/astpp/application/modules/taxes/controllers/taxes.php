@@ -32,6 +32,7 @@ class Taxes extends CI_Controller {
         foreach ($account->result_array() as $key => $value) {
             $edit_data = $value;
         }
+        $edit_data['taxes_amount'] = $this->common_model->to_calculate_currency($edit_data['taxes_amount'], '', '', false, false);
         $data['form'] = $this->form->build_form($this->taxes_form->get_taxes_form_fields(), $edit_data);
         $this->load->view('view_taxes_add_edit', $data);
     }
@@ -48,8 +49,7 @@ class Taxes extends CI_Controller {
             } else {
                 $add_array['taxes_amount'] = $this->common_model->add_calculate_currency($add_array['taxes_amount'], '', '', false, false);
                 $this->taxes_model->edit_tax($add_array, $add_array['id']);
-                $this->session->set_userdata('astpp_notification', 'Tax updated successfully!');
-                echo "1";
+                echo json_encode(array("SUCCESS"=> $add_array["taxes_description"]." Taxes updates Successfully."));
                 exit;
             }
         } else {
@@ -61,14 +61,13 @@ class Taxes extends CI_Controller {
             } else {
                 $add_array['taxes_amount'] = $this->common_model->add_calculate_currency($add_array['taxes_amount'], '', '', false, false);
                 $this->taxes_model->add_tax($add_array);
-                $this->session->set_userdata('astpp_notification', 'Tax added successfully!');
-                echo "1";
+                echo json_encode(array("SUCCESS"=> $add_array["taxes_description"]." Taxes Added Successfully."));
                 exit;
             }
         }
     }
 
-    function remove_taxe($id) {
+    function taxes_delete($id) {
         $this->taxes_model->remove_taxe($id);
         $this->session->set_userdata('astpp_notification', 'Tax removed successfully!');
         redirect(base_url() . 'taxes/taxes_list/');

@@ -40,28 +40,26 @@ class pricing extends CI_Controller {
         $add_array = $this->input->post();
         $data['form'] = $this->form->build_form($this->pricing_form->get_pricing_form_fields(), $add_array);
         if ($add_array['id'] != '') {
-            $data['page_title'] = 'Edit Account Details';
+            $data['page_title'] = 'Edit Price Details';
             if ($this->form_validation->run() == FALSE) {
                 $data['validation_errors'] = validation_errors();
                 echo $data['validation_errors'];
                 exit;
             } else {
                 $this->pricing_model->edit_price($add_array, $add_array['id']);
-                $this->session->set_userdata('astpp_notification', 'Pricelist updated successfully!');
-                echo "1";
+                echo json_encode(array("SUCCESS"=> $add_array["name"]." Pricelists updates Successfully."));
                 exit;
             }
             $this->load->view('view_price_add_edit', $data);
         } else {
-            $data['page_title'] = 'Create Account Details';
+            $data['page_title'] = 'Create Price Details';
             if ($this->form_validation->run() == FALSE) {
                 $data['validation_errors'] = validation_errors();
                 echo $data['validation_errors'];
                 exit;
             } else {
                 $this->pricing_model->add_price($add_array);
-                $this->session->set_userdata('astpp_notification', 'Pricelist added successfully!');
-                echo "1";
+                echo json_encode(array("SUCCESS"=> $add_array["name"]." Pricelists added Successfully."));
                 exit;
             }
         }
@@ -117,7 +115,7 @@ class pricing extends CI_Controller {
     function price_delete($pricelist_id) {
         $where = array("id" => $pricelist_id);
         $this->db_model->update("pricelists", array("status" => "2"), $where);
-        $this->session->set_userdata('astpp_notification', 'Pricelist Deleted successfully!');
+        $this->session->set_flashdata('astpp_notification', 'Pricelist Deleted successfully!');
         redirect(base_url() . 'pricing/price_list/');
     }
 

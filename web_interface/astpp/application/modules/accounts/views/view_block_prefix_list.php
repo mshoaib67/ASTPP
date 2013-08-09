@@ -8,7 +8,7 @@
 <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/module_js/generate_grid.js"></script>
 <script type="text/javascript" language="javascript">
     $(document).ready(function() {
-        build_grid("prefixes_grid","<?php echo base_url(); ?>accounts/customer_add_blockpatterns_json/rates/<?= $accountid; ?>",<? echo $patters_grid_fields ?>,"");
+        build_grid("prefixes_grid","<?php echo base_url(); ?>accounts/customer_add_blockpatterns_json/<?= $accountid; ?>",<? echo $patters_grid_fields ?>,"");
 
         $('.checkall').click(function () {
             $('.chkRefNos').attr('checked', this.checked); //if you want to select/deselect checkboxes use this

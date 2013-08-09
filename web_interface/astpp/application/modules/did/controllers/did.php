@@ -32,6 +32,12 @@ class DID extends MX_Controller {
         foreach ($account->result_array() as $key => $value) {
             $edit_data = $value;
         }
+        $edit_data['setup'] = $this->common_model->to_calculate_currency($edit_data['setup'], '', '', false, false);
+        $edit_data['disconnectionfee'] = $this->common_model->to_calculate_currency($edit_data['disconnectionfee'], '', '', false, false);
+        $edit_data['monthlycost'] = $this->common_model->to_calculate_currency($edit_data['monthlycost'], '', '', false, false);
+        $edit_data['connectcost'] = $this->common_model->to_calculate_currency($edit_data['connectcost'], '', '', false, false);
+        $edit_data['cost'] = $this->common_model->to_calculate_currency($edit_data['cost'], '', '', false, false);
+
         $data['form'] = $this->form->build_form($this->did_form->get_dids_form_fields(), $edit_data);
         $this->load->view('view_did_add_edit', $data);
     }
@@ -52,7 +58,7 @@ class DID extends MX_Controller {
                 $add_array['connectcost'] = $this->common_model->add_calculate_currency($add_array['connectcost'], '', '', false, false);
                 $add_array['cost'] = $this->common_model->add_calculate_currency($add_array['cost'], '', '', false, false);
                 $this->did_model->edit_did($add_array, $add_array['id']);
-                echo "1";
+                echo json_encode(array("SUCCESS"=> $add_array["number"]." DID updated Successfully."));
                 exit;
             }
         } else {
@@ -68,8 +74,8 @@ class DID extends MX_Controller {
                 $add_array['connectcost'] = $this->common_model->add_calculate_currency($add_array['connectcost'], '', '', false, false);
                 $add_array['cost'] = $this->common_model->add_calculate_currency($add_array['cost'], '', '', false, false);
                 $response = $this->did_model->add_did($add_array);
-                $this->session->set_userdata('astpp_notification', 'Did Setup Completed!');
-                echo "1";
+                echo json_encode(array("SUCCESS"=> $add_array["number"]." DID added Successfully."));
+                exit;
                 exit;
             }
         }
@@ -77,7 +83,7 @@ class DID extends MX_Controller {
 
     function did_remove($id) {
         $this->did_model->remove_did($id);
-        $this->session->set_userdata('astpp_notification', 'Did removed successfully!');
+        $this->session->set_flashdata('astpp_notification', 'Did removed successfully!');
         redirect(base_url() . 'did/did_list/');
     }
 
@@ -254,7 +260,7 @@ class DID extends MX_Controller {
                 $post['connectcost'] = $this->common_model->add_calculate_currency($post['connectcost'], '', '', false, false);
                 $post['cost'] = $this->common_model->add_calculate_currency($post['cost'], '', '', false, false);
                 $response = $this->did_model->edit_did_reseller($post);
-                $this->session->set_userdata('astpp_notification', 'DID updated successfully!');
+                $this->session->set_flashdata('astpp_notification', 'DID updated successfully!');
                 redirect(base_url() . 'did/did_list/');
             } else {
                 if ($this->session->userdata('logintype') == 1) {
@@ -266,12 +272,25 @@ class DID extends MX_Controller {
 
                         $didinfo = $this->did_model->get_did_by_number($id);
                     }
+                    $didinfo['setup'] = $this->common_model->to_calculate_currency($didinfo['setup'], '', '', true, false);
+                    $didinfo['disconnectionfee'] = $this->common_model->to_calculate_currency($didinfo['disconnectionfee'], '', '', true, false);
+                    $didinfo['monthlycost'] = $this->common_model->to_calculate_currency($didinfo['monthlycost'], '', '', true, false);
+                    $didinfo['connectcost'] = $this->common_model->to_calculate_currency($didinfo['connectcost'], '', '', true, false);
+                    $didinfo['cost'] = $this->common_model->to_calculate_currency($didinfo['cost'], '', '', true, false);
+
                     $didinfo['country'] = $this->common->get_field_name("country", "countrycode", $didinfo['country_id']);
                     $didinfo['provider'] = $this->common->get_field_name("number", "accounts", $didinfo['provider_id']);
 
                     $data['did'] = $didinfo['number'];
 
+                    $reseller_didinfo['setup'] = $this->common_model->to_calculate_currency($reseller_didinfo['setup'], '', '', true, false);
+                    $reseller_didinfo['disconnectionfee'] = $this->common_model->to_calculate_currency($reseller_didinfo['disconnectionfee'], '', '', true, false);
+                    $reseller_didinfo['monthlycost'] = $this->common_model->to_calculate_currency($reseller_didinfo['monthlycost'], '', '', true, false);
+                    $reseller_didinfo['connectcost'] = $this->common_model->to_calculate_currency($reseller_didinfo['connectcost'], '', '', true, false);
+                    $reseller_didinfo['cost'] = $this->common_model->to_calculate_currency($reseller_didinfo['cost'], '', '', true, false);
+                    
                     $data['reseller_didinfo'] = $reseller_didinfo;
+
                     $data['didinfo'] = $didinfo;
                     $data['accountinfo'] = $accountinfo;
                     $this->load->view('view_did_manage_reseller_add', $data);
@@ -281,11 +300,11 @@ class DID extends MX_Controller {
         if ($action == 'delete') {
             if ($did = $this->did_model->get_did_by_number($id)) {
                 $response = $this->did_model->remove_did_pricing($did, $this->session->userdata['accountinfo']['id']);
-                $this->session->set_userdata('astpp_notification', 'DID deleted successfully!');
+                $this->session->set_flashdata('astpp_notification', 'DID deleted successfully!');
 
                 redirect(base_url() . 'did/did_list/');
             } else {
-                $this->session->set_userdata('astpp_errormsg', "Invalid card number.");
+                $this->session->set_flashdata('astpp_errormsg', "Invalid card number.");
                 redirect(base_url() . 'did/did_list/');
             }
         }

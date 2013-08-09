@@ -4,8 +4,16 @@ if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
 class Reports_form {
-
+    function __construct() {
+        $this->CI = & get_instance();
+    }
     function get_customer_cdr_form() {
+        if ($this->CI->session->userdata('logintype') == 1 || $this->CI->session->userdata('logintype') == 5) {
+            $accountinfo = $this->CI->session->userdata['accountinfo'];
+            $reseller_id = $accountinfo["id"];
+        } else {
+            $reseller_id = "0";
+        }
         $form['forms'] = array("", array('id' => "cdr_customer_search"));
         $form['Search Customer Report'] = array(
             array('', 'HIDDEN', 'ajax_search', '1', '', '', ''),
@@ -22,8 +30,8 @@ class Reports_form {
 	    array('Disposition', 'disposition', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', '', '', '', 'set_despostion'),
             
             array('Account Number', 'accountid', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'first_name,last_name,number', 'accounts', 'build_concat_dropdown', 'where_arr', array("reseller_id" => "0","type"=>"0", "deleted" => "0")),
-            array('Trunk', 'trunk_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'trunks', 'build_dropdown', '', ''),
-            array('Rate Group', 'pricelist_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'pricelists', 'build_dropdown', '', ''),
+            array('Trunk', 'trunk_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'trunks', 'build_dropdown', 'where_arr', array("status" => "1")),
+            array('Rate Group', 'pricelist_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'pricelists', 'build_dropdown', 'where_arr',array("reseller_id" => $reseller_id)),
             array('Call Type', 'calltype', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', '', '', '', 'set_calltype'),
            
         );
@@ -75,10 +83,10 @@ class Reports_form {
             
             
             array('Bill Sec ', 'INPUT', array('name' => 'billseconds[billseconds]', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'Tool tips info', '1', 'billseconds[billseconds-integer]', '', '', '', 'search_int_type', ''),
-             array('Debit ', 'INPUT', array('name' => 'debit[debit]', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'Tool tips info', '1', 'debit[debit-integer]', '', '', '', 'search_int_type', ''),
+            array('Debit ', 'INPUT', array('name' => 'debit[debit]', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'Tool tips info', '1', 'debit[debit-integer]', '', '', '', 'search_int_type', ''),
             array('Cost ', 'INPUT', array('name' => 'cost[cost]', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'Tool tips info', '1', 'cost[cost-integer]', '', '', '', 'search_int_type', ''),
-            array('Trunk', 'trunk_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'trunks', 'build_dropdown', '', ''),
-                array('Disposition', 'disposition', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', '', '', '', 'set_despostion'),
+            array('Trunk', 'trunk_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'trunks', 'build_dropdown', 'where_arr', array("status" => "1")),
+            array('Disposition', 'disposition', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', '', '', '', 'set_despostion'),
             array('Account', 'accountid', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'first_name,last_name,number', 'accounts', 'build_concat_dropdown', 'where_arr', array("reseller_id" => "0","type"=>"1", "deleted" => "0")),
             array('Rate Group', 'pricelist_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'pricelists', 'build_dropdown', '', ''),
             array('Call Type', 'calltype', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', '', '', '', 'set_calltype'),
@@ -218,10 +226,6 @@ class Reports_form {
                 ));
         return $grid_field_arr;
     }
-    
-
-    
-
     function get_user_cdr_payment_form() {
         $form['forms'] = array("", array('id' => "cdr_payment_search"));
         $form['User Payment Report'] = array(
@@ -229,10 +233,51 @@ class Reports_form {
             array('', 'HIDDEN', 'advance_search', '1', '', '', ''),
 	    array('Account', 'accountid', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'first_name,last_name,number', 'accounts', 'build_concat_dropdown', 'where_arr', array("reseller_id" => "0","type"=>"0", "deleted" => "0")),
             array('Balance ', 'INPUT', array('name' => 'credit[credit]', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field"), '', 'Tool tips info', '1', 'credit[credit-integer]', '', '', '', 'search_int_type', ''),
-//             array('Payment', 'payment_by', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', '', '', '', 'set_payment_type'),
         );
 
         $form['button_search'] = array('name' => 'action', 'id' => "cusotmer_cdr_payment_search_btn", 'content' => 'Search', 'value' => 'save', 'type' => 'button', 'class' => 'ui-state-default float-right ui-corner-all ui-button');
+        $form['button_reset'] = array('name' => 'action', 'id' => "id_reset", 'content' => 'Clear Search Filter', 'value' => 'cancel', 'type' => 'reset', 'class' => 'ui-state-default float-right ui-corner-all ui-button');
+
+        return $form;
+    }
+    function build_commission_report_for_admin() {
+        $grid_field_arr = json_encode(array(
+            array("Account", "150", "accountid", "first_name,last_name,number", "accounts", "build_concat_string"),
+            array("Amount", "150", "amount", "credit", "credit", "convert_to_currency"),
+            array("Description", "150", "description", "", "", ""),
+            array("Reseller", "150", "reseller_id", "first_name,last_name,number", "accounts", "build_concat_string"),
+            array("Commission Rate(%)", "150", "commission_percent", "", "", ""),
+            array("Date", "150", "date", "", "", "")
+            ));
+        return $grid_field_arr;
+    }
+    function reseller_commission_search_form() {
+        $form['forms'] = array("", array('id' => "reseller_commission_search"));
+        $form['User Payment Report'] = array(
+            array('', 'HIDDEN', 'ajax_search', '1', '', '', ''),
+            array('', 'HIDDEN', 'advance_search', '1', '', '', ''),
+            array('From Date', 'INPUT', array('name' => 'date[]', 'id' => 'commission_from_date', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'tOOL TIP', '', 'start_date[start_date-date]'),
+            array('TO Date', 'INPUT', array('name' => 'date[]', 'id' => 'commission_to_date', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'tOOL TIP', '', 'end_date[end_date-date]'),
+	    array('Account', 'accountid', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'first_name,last_name,number', 'accounts', 'build_concat_dropdown', 'where_arr', array("reseller_id" => "0","type"=>"1", "deleted" => "0")),
+            array('Amount', 'INPUT', array('name' => 'amount[amount]', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field"), '', 'Tool tips info', '1', 'amount[amount-integer]', '', '', '', 'search_int_type', ''),
+        );
+
+        $form['button_search'] = array('name' => 'action', 'id' => "commission_search_btn", 'content' => 'Search', 'value' => 'save', 'type' => 'button', 'class' => 'ui-state-default float-right ui-corner-all ui-button');
+        $form['button_reset'] = array('name' => 'action', 'id' => "id_reset", 'content' => 'Clear Search Filter', 'value' => 'cancel', 'type' => 'reset', 'class' => 'ui-state-default float-right ui-corner-all ui-button');
+
+        return $form;
+    }
+    function get_provider_summary_search_form() {
+        $form['forms'] = array(base_url().'reports/provider_summery_Report', array('id' => "provider_search_summary"));
+        $form['Search Provider Report'] = array(
+            array('', 'HIDDEN', 'ajax_search', '1', '', '', ''),
+            array('', 'HIDDEN', 'advance_search', '1', '', '', ''),
+            array('From Date', 'INPUT', array('name' => 'start_date', 'id' => 'provider_from_date', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'tOOL TIP', '', 'start_date[start_date-date]'),
+            array('TO Date', 'INPUT', array('name' => 'end_date', 'id' => 'provider_to_date', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'tOOL TIP', '', 'end_date[end_date-date]'),
+            array('Account Number', 'number', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'first_name,last_name,number', 'accounts', 'build_concat_dropdown', 'where_arr', array("type"=>"3", "deleted" => "0")),
+        );
+
+        $form['button_search'] = array('name' => 'action', 'id' => "search_providerreport", 'content' => 'Search', 'value' => 'save', 'type' => 'submit', 'class' => 'ui-state-default float-right ui-corner-all ui-button');
         $form['button_reset'] = array('name' => 'action', 'id' => "id_reset", 'content' => 'Clear Search Filter', 'value' => 'cancel', 'type' => 'reset', 'class' => 'ui-state-default float-right ui-corner-all ui-button');
 
         return $form;

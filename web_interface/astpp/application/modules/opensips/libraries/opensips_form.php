@@ -1,6 +1,8 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed'); 
 class Opensips_form{
-    
+    function __construct() {
+        $this->CI = & get_instance();
+    }
     
     function get_opensips_form_fields() {
 
@@ -9,7 +11,7 @@ class Opensips_form{
             array('', 'HIDDEN', array('name'=>'id'),'', '', '', ''), 
             array('Username', 'INPUT', array('name' => 'username','size' => '20', 'maxlength' => '15', 'class' => "text field medium"), 'trim|required', 'tOOL TIP', ''),
             array('password', 'PASSWORD', array('name' => 'password','size' => '20', 'maxlength' => '15', 'class' => "text field medium"), 'trim|required', 'tOOL TIP', ''),
-            array('Account', 'accountcode', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'number', 'number', 'accounts', 'build_dropdown', 'where_arr', array("reseller_id"=>"0","deleted"=>"0")),
+            array('Account', 'accountcode', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'number', 'number', 'accounts', 'build_dropdown', 'where_arr', array("reseller_id" => "0","type"=>"0", "deleted" => "0")),
             array('Rate Group', 'pricelist_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'pricelists', 'build_dropdown', 'reseller_id', '0'),
             array('Domain', 'INPUT', array('name' => 'domain','size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', '')
             
@@ -21,7 +23,7 @@ class Opensips_form{
     
      function get_dispatcher_form_fields() {
 
-        $form['forms'] = array(base_url() . 'opensips/dispatcher_save/');
+        $form['forms'] = array(base_url() . 'opensips/dispatcher_save/',array("id"=>"opensips_dispatcher_form","name"=>"opensips_dispatcher_form"));
         $form['Dispatcher Information'] = array(
             array('', 'HIDDEN', array('name'=>'id'),'', '', '', ''), 
             array('Setid', 'INPUT', array('name' => 'setid','size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', ''),
@@ -32,7 +34,7 @@ class Opensips_form{
             array('Description', 'INPUT', array('name' => 'description','size' => '100', 'maxlength' => '100', 'class' => "text field medium"), '', 'tOOL TIP', ''),
             
          );
-        $form['button_save'] = array('name' => 'action', 'content' =>'Save' , 'value' => 'save', 'type' => 'submit', 'class' => 'ui-state-default float-right ui-corner-all ui-button');
+        $form['button_save'] = array('name' => 'action', 'content' =>'Save' , 'value' => 'save', 'type' => 'button','id'=>'submit', 'class' => 'ui-state-default float-right ui-corner-all ui-button');
         $form['button_cancel'] = array('name' => 'action', 'content' => 'Cancel', 'value' => 'cancel', 'type' => 'button', 'class' => 'ui-state-default float-right ui-corner-all ui-button', 'onclick' => 'return redirect_page(\'/opensips/dispatcher_list/\')');
         return $form;
     }
@@ -72,7 +74,7 @@ class Opensips_form{
                                     array("Password","130","password","","",""),
                                     array("Domain","130","domain","","",""), 
                                  array("Action", "120", "", "", "", array("EDIT" => array("url" => "/opensips/opensips_edit/", "mode" => "popup"),
-                    "DELETE" => array("url" => "/opensips/dispatcher_remove/", "mode" => "single")))
+                    "DELETE" => array("url" => "/opensips/opensips_remove/", "mode" => "single")))
                 ));
       return $grid_field_arr;
     }
@@ -85,7 +87,7 @@ class Opensips_form{
                                     array("Weight","130","weight","","",""),
                                     array("Attrs","130","attrs","","",""), 
                                     array("Description","130","description","","",""),
-                                  array("Action", "120", "", "", "", array("EDIT" => array("url" => "/opensips/dispatcher_edit/", "mode" => "single"),
+                                  array("Action", "120", "", "", "", array("EDIT" => array("url" => "/opensips/dispatcher_edit/", "mode" => "popup"),
                     "DELETE" => array("url" => "/opensips/dispatcher_remove/", "mode" => "single")))
                 ));
       return $grid_field_arr;
@@ -98,13 +100,14 @@ class Opensips_form{
     }
     
     function build_grid_dispatcherbuttons(){
-	$buttons_json = json_encode(array(array("Add Dispatcher","add","button_action","/opensips/dispatcher_add/"),
+	$buttons_json = json_encode(array(array("Add Dispatcher","add","button_action","/opensips/dispatcher_add/","popup"),
 				    array("Refresh","reload","/accounts/clearsearchfilter/")));
 	return $buttons_json;
     }
       function get_opensips_form_fields_for_customer($accountid){
-          if($this->CI->session->userdata("logintype")== '0'){
-            $link = base_url().'opensips/opensips_customer_save/true';
+// 	echo $this->CI->session->userdata("logintype");
+          if($this->CI->session->userdata("logintype")== '0' || $this->CI->session->userdata("logintype") == '1'){
+            $link = base_url().'opensips/customer_opensips_save/true';
         }else{
             $link = base_url().'opensips/opensips_save/true';
         }
@@ -124,7 +127,7 @@ class Opensips_form{
         return $form;
     }
     function opensips_customer_build_grid_buttons($accountid) {
-        $buttons_json = json_encode(array(array("Add Devices", "add", "button_action", "/opensips/opensips_add/$accountid/","popup"),
+        $buttons_json = json_encode(array(array("Add Devices", "add", "button_action", "/opensips/customer_opensips_add/$accountid/","popup"),
             array("Refresh", "reload", "/accounts/clearsearchfilter/")));
         return $buttons_json;
     }
@@ -134,8 +137,8 @@ class Opensips_form{
 				    array("Username","130","username","","",""),
                                     array("Password","130","password","","",""),
                                     array("Domain","130","domain","","",""), 
-                                 array("Action", "120", "", "", "", array("EDIT" => array("url" => '/accounts/opensips_action/edit/'.$accountid.'/', "mode" => "popup"),
-                    "DELETE" => array("url" => '/accounts/opensips_action/delete/'.$accountid."/", "mode" => "popup")))
+                                 array("Action", "120", "", "", "", array("EDIT" => array("url" => '/accounts/customer_opensips_action/edit/'.$accountid.'/', "mode" => "popup"),
+                    "DELETE" => array("url" => '/accounts/customer_opensips_action/delete/'.$accountid."/", "mode" => "popup")))
                 ));
       return $grid_field_arr;
     }

@@ -58,15 +58,13 @@ class Systems extends CI_Controller {
                 exit;
             } else {
                 $this->system_model->edit_configuration($add_array, $add_array['id']);
-                $this->session->set_userdata('astpp_notification', 'Saved Configuration Item!');
-                echo "1";
+                echo json_encode(array("SUCCESS"=> " Configuration updates Successfully."));
                 exit;
             }
         }
     }
 
     function configuration() {
-        $data['app_name'] = 'ASTPP - Open Source Billing Solution | System | Configuration';
         $data['username'] = $this->session->userdata('user_name');
         $data['page_title'] = 'Configuration List';
         $this->session->set_userdata('advance_search', 0);
@@ -95,7 +93,6 @@ class Systems extends CI_Controller {
     }
 
     function template() {
-        $data['app_name'] = 'ASTPP - Open Source Billing Solution | System | Template';
         $data['username'] = $this->session->userdata('user_name');
         $data['page_title'] = 'Email Template List';
         $this->session->set_userdata('advance_search', 0);
@@ -143,7 +140,7 @@ class Systems extends CI_Controller {
                 $data['validation_errors'] = validation_errors();
             } else {
                 $this->system_model->edit_template($add_array, $add_array['id']);
-                $this->session->set_userdata('astpp_notification', 'Template updated successfully!');
+                $this->session->set_flashdata('astpp_notification', 'Template updated successfully!');
                 redirect(base_url() . 'systems/template/');
                 exit;
             }
@@ -153,9 +150,7 @@ class Systems extends CI_Controller {
                 $data['validation_errors'] = validation_errors();
             } else {
                 $this->system_model->add_template($add_array);
-                $this->session->set_userdata('astpp_notification', 'Template added successfully!');
-
-
+                $this->session->set_flashdata('astpp_notification', 'Template added successfully!');
                 redirect(base_url() . 'systems/template/');
                 exit;
             }

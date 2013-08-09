@@ -33,7 +33,7 @@ class Trunk extends CI_Controller {
     function trunk_list_json() {
         $json_data = array();
         $count_all = $this->trunk_model->gettrunk_list(false);
-        $paging_data = $this->form->load_grid_config($count_all, 10, 1);
+        $paging_data = $this->form->load_grid_config($count_all,$_GET['rp'], $_GET['page']);
         $json_data = $paging_data["json_paging"];
 
         $query = $this->trunk_model->gettrunk_list(true, $paging_data["paging"]["start"], $paging_data["paging"]["page_no"]);
@@ -59,7 +59,7 @@ class Trunk extends CI_Controller {
         foreach ($account->result_array() as $key => $value) {
             $edit_data = $value;
         }
-        $edit_data["resellers_id"] = explode(",", $edit_data["resellers_id"]);
+        $edit_data["reseller_id"] = explode(",", $edit_data["reseller_id"]);
         $data['form'] = $this->form->build_form($this->trunk_form->get_trunk_form_fields(), $edit_data);
         $this->load->view('view_trunk_add_edit', $data);
     }
@@ -75,8 +75,7 @@ class Trunk extends CI_Controller {
                 exit;
             } else {
                 $this->trunk_model->edit_trunk($add_array, $add_array['id']);
-                $this->session->set_userdata('astpp_notification', 'Trunk updated successfully!');
-                echo "1";
+                echo json_encode(array("SUCCESS"=> $add_array["name"]." Trunk updated Successfully."));
                 exit;
             }
         } else {
@@ -87,8 +86,7 @@ class Trunk extends CI_Controller {
                 exit;
             } else {
                 $this->trunk_model->add_trunk($add_array);
-                $this->session->set_userdata('astpp_notification', 'Trunk added successfully!');
-                echo "1";
+                echo json_encode(array("SUCCESS"=> $add_array["name"]." Trunk added Successfully."));
                 exit;
             }
         }
@@ -116,7 +114,7 @@ class Trunk extends CI_Controller {
 
     function trunk_remove($id) {
         $this->trunk_model->remove_trunk($id);
-        $this->session->set_userdata('astpp_notification', 'Trunks removed successfully!');
+        $this->session->set_flashdata('astpp_notification', 'Trunks removed successfully!');
         redirect(base_url() . 'trunk/trunk_list/');
     }
 

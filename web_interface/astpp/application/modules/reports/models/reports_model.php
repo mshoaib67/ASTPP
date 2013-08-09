@@ -27,20 +27,24 @@ class Reports_model extends CI_Model {
         $this->db_model->build_search('customer_cdr_list_search');
         if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
             $account_data = $this->session->userdata("accountinfo");
-            $where = array("reseller_id" => $account_data['id']);
+            $where = array("reseller_id" => $account_data['id'],"accountid <>"=>$account_data['id']);
         } else {
             $where = array("reseller_id" => "0");
         }
         if ($flag) {
-            $query = $this->db_model->select("*", "reseller_cdrs", "", "callstart", "DESC", $limit, $start);
+            $query = $this->db_model->select("*", "reseller_cdrs", $where, "callstart", "DESC", $limit, $start);
         } else {
-            $query = $this->db_model->countQuery("*", "reseller_cdrs", "");
+            $query = $this->db_model->countQuery("*", "reseller_cdrs", $where);
         }
         return $query;
     }
 
     function getprovider_list($flag, $start, $limit) {
         $this->db_model->build_search('provider_cdr_list_search');
+        if ($this->session->userdata('logintype') == 3) {
+            $account_data = $this->session->userdata("accountinfo");
+            $where = array("accountid"=>$account_data['id']);
+        }
         if ($flag) {
             $query = $this->db_model->select("*", "provider_cdrs", "", "callstart", "DESC", $limit, $start);
         } else {
@@ -52,7 +56,7 @@ class Reports_model extends CI_Model {
     function getReseller($username = "", $type) {
         $reseller = "";
         if ($username != "") {
-            $reseller = "reseller = '" . $username . "' AND";
+            $reseller = "reseller_id = '" . $username . "' AND";
         }
         $q = "SELECT * FROM accounts WHERE  " . $reseller . " type IN ('" . $type . "')";
 
@@ -275,13 +279,53 @@ class Reports_model extends CI_Model {
 
     function getcustomer_payment_list($flag, $start, $limit) {
         $this->db_model->build_search('cdr_payment_search');
-        if ($flag) {
-            $query = $this->db_model->select("*", "payments", "", "accountid", "ASC", $limit, $start);
+        if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
+            $accountinfo = $this->session->userdata['accountinfo'];
+            $where = array("payment_by"=>$accountinfo["id"]);
         } else {
-            $query = $this->db_model->countQuery("*", "payments", "");
+            $where = array("payment_by"=>"-1");
+        }
+        if ($flag) {
+            $query = $this->db_model->select("*", "payments", $where, "accountid", "ASC", $limit, $start);
+        } else {
+            $query = $this->db_model->countQuery("*", "payments", $where);
         }
 
         return $query;
     }
+    function getcustomer_cdrs_list($flag, $start, $limit, $accountid = "") {
+        if ($accountid == "") {
+            $account_data = $this->session->userdata("accountinfo");
+            $where = array("accountid" => $account_data["id"]);
+        } else {
+            $where = array("accountid" => $accountid);
+        }
+        $this->db_model->build_search('customer_cdr_list_search');
+        if ($flag) {
+            $query = $this->db_model->select("*", "cdrs", $where, "callstart", "DESC", $limit, $start);
+        } else {
+            $query = $this->db_model->countQuery("*", "cdrs", $where);
+        }
+
+        return $query;
+    }
+    function getreseller_commission_list($flag, $start, $limit) {
+        $this->db_model->build_search('reseller_commission_search');
+        if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
+            $accountinfo = $this->session->userdata['accountinfo'];
+            $reseller_id = $accountinfo["id"];
+        } else {
+            $reseller_id = "0";
+        }
+        if ($flag) {
+            $query = $this->db_model->select_by_in("*", "commission","" , "date", "DESC", $limit, $start,"","reseller_id",$reseller_id);
+
+        } else {
+            $query = $this->db_model->countQuery_by_in("*", "commission", "","reseller_id",$reseller_id);
+        }
+
+        return $query;
+    }
+    
 
 }

@@ -1,7 +1,7 @@
 # This Makefile is for the ASTPP extension to perl.
 #
 # It was generated automatically by MakeMaker version
-# 6.66 (Revision: 66600) from the contents of
+# 6.72 (Revision: 67200) from the contents of
 # Makefile.PL. Don't edit this file, edit Makefile.PL instead.
 #
 #       ANY CHANGES MADE HERE WILL BE LOST!
@@ -30,7 +30,7 @@
 AR = ar
 CC = gcc
 CCCDLFLAGS = -fPIC
-CCDLFLAGS = -Wl,-E -Wl,-rpath,/usr/lib64/perl5/CORE
+CCDLFLAGS = -Wl,--enable-new-dtags -Wl,-rpath,/usr/lib64/perl5/CORE
 DLEXT = so
 DLSRC = dl_dlopen.xs
 EXE_EXT = 
@@ -42,7 +42,7 @@ LIBC =
 LIB_EXT = .a
 OBJ_EXT = .o
 OSNAME = linux
-OSVERS = 2.6.32-220.el6.x86_64
+OSVERS = 2.6.32-220.4.1.el6.x86_64
 RANLIB = :
 SITELIBEXP = /usr/local/share/perl5
 SITEARCHEXP = /usr/local/lib64/perl5
@@ -137,8 +137,8 @@ PERM_RW = 644
 PERM_RWX = 755
 
 MAKEMAKER   = /usr/local/share/perl5/ExtUtils/MakeMaker.pm
-MM_VERSION  = 6.66
-MM_REVISION = 66600
+MM_VERSION  = 6.72
+MM_REVISION = 67200
 
 # FULLEXT = Pathname for extension directory (eg Foo/Bar/Oracle).
 # BASEEXT = Basename part of FULLEXT. May be just equal FULLEXT. (eg Oracle)
@@ -190,7 +190,7 @@ PM_TO_BLIB = lib/ASTPP.pm \
 
 
 # --- MakeMaker platform_constants section:
-MM_Unix_VERSION = 6.66
+MM_Unix_VERSION = 6.72
 PERL_MALLOC_DEF = -DPERL_EXTMALLOC_DEF -Dmalloc=Perl_malloc -Dfree=Perl_mfree -Drealloc=Perl_realloc -Dcalloc=Perl_calloc
 
 
@@ -455,6 +455,7 @@ clean :: clean_subdirs
 	  $(BASEEXT).exp 
 	- $(RM_RF) \
 	  blib 
+	- $(NOECHO) $(RM_F) $(MAKEFILE_OLD)
 	- $(MV) $(FIRST_MAKEFILE) $(MAKEFILE_OLD) $(DEV_NULL)
 
 
@@ -484,7 +485,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) 'configure_requires:' >> META_new.yml
 	$(NOECHO) $(ECHO) '  ExtUtils::MakeMaker: 0' >> META_new.yml
 	$(NOECHO) $(ECHO) 'dynamic_config: 1' >> META_new.yml
-	$(NOECHO) $(ECHO) 'generated_by: '\''ExtUtils::MakeMaker version 6.66, CPAN::Meta::Converter version 2.112621'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) 'generated_by: '\''ExtUtils::MakeMaker version 6.72, CPAN::Meta::Converter version 2.120351'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) 'license: unknown' >> META_new.yml
 	$(NOECHO) $(ECHO) 'meta-spec:' >> META_new.yml
 	$(NOECHO) $(ECHO) '  url: http://module-build.sourceforge.net/META-spec-v1.4.html' >> META_new.yml
@@ -504,7 +505,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '      "ASTPP Team <info@astpp.org>"' >> META_new.json
 	$(NOECHO) $(ECHO) '   ],' >> META_new.json
 	$(NOECHO) $(ECHO) '   "dynamic_config" : 1,' >> META_new.json
-	$(NOECHO) $(ECHO) '   "generated_by" : "ExtUtils::MakeMaker version 6.66, CPAN::Meta::Converter version 2.112621",' >> META_new.json
+	$(NOECHO) $(ECHO) '   "generated_by" : "ExtUtils::MakeMaker version 6.72, CPAN::Meta::Converter version 2.120351",' >> META_new.json
 	$(NOECHO) $(ECHO) '   "license" : [' >> META_new.json
 	$(NOECHO) $(ECHO) '      "unknown"' >> META_new.json
 	$(NOECHO) $(ECHO) '   ],' >> META_new.json
@@ -522,12 +523,12 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '   "prereqs" : {' >> META_new.json
 	$(NOECHO) $(ECHO) '      "build" : {' >> META_new.json
 	$(NOECHO) $(ECHO) '         "requires" : {' >> META_new.json
-	$(NOECHO) $(ECHO) '            "ExtUtils::MakeMaker" : 0' >> META_new.json
+	$(NOECHO) $(ECHO) '            "ExtUtils::MakeMaker" : "0"' >> META_new.json
 	$(NOECHO) $(ECHO) '         }' >> META_new.json
 	$(NOECHO) $(ECHO) '      },' >> META_new.json
 	$(NOECHO) $(ECHO) '      "configure" : {' >> META_new.json
 	$(NOECHO) $(ECHO) '         "requires" : {' >> META_new.json
-	$(NOECHO) $(ECHO) '            "ExtUtils::MakeMaker" : 0' >> META_new.json
+	$(NOECHO) $(ECHO) '            "ExtUtils::MakeMaker" : "0"' >> META_new.json
 	$(NOECHO) $(ECHO) '         }' >> META_new.json
 	$(NOECHO) $(ECHO) '      },' >> META_new.json
 	$(NOECHO) $(ECHO) '      "runtime" : {' >> META_new.json
@@ -559,7 +560,7 @@ manifest :
 	$(PERLRUN) "-MExtUtils::Manifest=mkmanifest" -e mkmanifest
 
 veryclean : realclean
-	$(RM_F) *~ */*~ *.orig */*.orig *.bak */*.bak *.old */*.old 
+	$(RM_F) *~ */*~ *.orig */*.orig *.bak */*.bak *.old */*.old
 
 
 
@@ -574,6 +575,7 @@ tardist : $(DISTVNAME).tar$(SUFFIX)
 
 uutardist : $(DISTVNAME).tar$(SUFFIX)
 	uuencode $(DISTVNAME).tar$(SUFFIX) $(DISTVNAME).tar$(SUFFIX) > $(DISTVNAME).tar$(SUFFIX)_uu
+	$(NOECHO) $(ECHO) 'Created $(DISTVNAME).tar$(SUFFIX)_uu'
 
 $(DISTVNAME).tar$(SUFFIX) : distdir
 	$(PREOP)
@@ -581,6 +583,7 @@ $(DISTVNAME).tar$(SUFFIX) : distdir
 	$(TAR) $(TARFLAGS) $(DISTVNAME).tar $(DISTVNAME)
 	$(RM_RF) $(DISTVNAME)
 	$(COMPRESS) $(DISTVNAME).tar
+	$(NOECHO) $(ECHO) 'Created $(DISTVNAME).tar$(SUFFIX)'
 	$(POSTOP)
 
 zipdist : $(DISTVNAME).zip
@@ -590,12 +593,14 @@ $(DISTVNAME).zip : distdir
 	$(PREOP)
 	$(ZIP) $(ZIPFLAGS) $(DISTVNAME).zip $(DISTVNAME)
 	$(RM_RF) $(DISTVNAME)
+	$(NOECHO) $(ECHO) 'Created $(DISTVNAME).zip'
 	$(POSTOP)
 
 shdist : distdir
 	$(PREOP)
 	$(SHAR) $(DISTVNAME) > $(DISTVNAME).shar
 	$(RM_RF) $(DISTVNAME)
+	$(NOECHO) $(ECHO) 'Created $(DISTVNAME).shar'
 	$(POSTOP)
 
 
@@ -640,7 +645,7 @@ distmeta : create_distdir metafile
 
 # --- MakeMaker distsignature section:
 distsignature : create_distdir
-	$(NOECHO) cd $(DISTVNAME) && $(ABSPERLRUN) -MExtUtils::Manifest=maniadd -e 'eval { maniadd({q{SIGNATURE} => q{Public-key signature (added by MakeMaker)}}) } ' \
+	$(NOECHO) cd $(DISTVNAME) && $(ABSPERLRUN) -MExtUtils::Manifest=maniadd -e 'eval { maniadd({q{SIGNATURE} => q{Public-key signature (added by MakeMaker)}}) }' \
 	  -e '    or print "Could not add SIGNATURE to MANIFEST: $$$${'\''@'\''}\n"' --
 	$(NOECHO) cd $(DISTVNAME) && $(TOUCH) SIGNATURE
 	cd $(DISTVNAME) && cpansign -s
@@ -835,7 +840,7 @@ ppd :
 	$(NOECHO) $(ECHO) '    <ABSTRACT>Perl extension for ASTPP (www.astpp.org).</ABSTRACT>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>ASTPP Team &lt;info@astpp.org&gt;</AUTHOR>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> $(DISTNAME).ppd
-	$(NOECHO) $(ECHO) '        <ARCHITECTURE NAME="x86_64-linux-thread-multi-5.10" />' >> $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '        <ARCHITECTURE NAME="x86_64-linux-thread-multi-5.12" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <CODEBASE HREF="" />' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    </IMPLEMENTATION>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '</SOFTPKG>' >> $(DISTNAME).ppd

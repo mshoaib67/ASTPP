@@ -27,7 +27,7 @@ $ASTPP = ASTPP->new;
 $ASTPP->set_verbosity($verbosity)
   ;    #Tell ASTPP debugging how verbose we want to be.
 
-sub initialize() {
+sub initialize_callingcard() {
     $SIG{HUP} = 'ignore_hup'
       ;    # We ignore the HUP command that Asterisk sends on a call hangup.
     $config = &load_config();    # Load /var/lib/astpp/astpp-config.conf
@@ -46,7 +46,16 @@ sub initialize() {
     }
     #$cdr_db = &cdr_connect_db( $config, @output );    
     $ASTPP->set_cdr_db($astpp_db);
-    $sound = &define_sounds($astpp_db);
+    
+    $sound = &define_sounds($astpp_db);	
+	$ASTPP->debug(
+            debug =>  "audio file :::> ".$sound->{astpp_please_pin_card_empty},
+
+            verbosity => 1
+        );
+
+
+
 }
 
 sub set_in_use()
@@ -132,7 +141,7 @@ sub check_card() {    # Check a few things before saying the card is ok.
         $cardinfo->{expiry} = $astpp_db->selectall_arrayref(
             "SELECT DATE_FORMAT('$cardinfo->{expiry}' , '\%Y\%m\%d\%H\%i\%s')")
           ->[0][0];
-        if ( $now >= $cardinfo->{expiry} ) {
+        if ( $cardinfo->{expiry} ne '' && $now >= $cardinfo->{expiry} ) {
             my $sql = "UPDATE callingcards SET status = 2 WHERE cardnumber = "
               . $astpp_db->quote( $cardinfo->{cardnumber} );
             $ASTPP->debug(
@@ -557,13 +566,60 @@ sub print_console()    #Dump string to the console
     print STDERR "ASTPP:" . $output . "\n";
 }
 
+sub get_ani_map_cc() {
+    my ( $astpp_db, $ani_number, $config ) = @_;
+    my ( $sql,$tmp,$anidata );
+    $tmp =
+       "SELECT * FROM ani_map WHERE number = "
+          . $astpp_db->quote($ani_number);
+    $ASTPP->debug(debug =>"$tmp\n");
+    $sql = $astpp_db->prepare($tmp);
+    $sql->execute;
+    $anidata = $sql->fetchrow_hashref;
+    $sql->finish;
+    return ($anidata);
+}
+
+
+
+# Go looking for an account and only return open accounts.
+sub get_account_cc() {
+    my ( $astpp_db, $accountno,$allow_deactivated ) = @_;
+    my ( $sql, $accountdata );
+    
+        $sql =
+          $astpp_db->prepare( "SELECT * FROM accounts WHERE id = "
+              . $astpp_db->quote($accountno)
+              . " AND status = 1" );
+        print STDERR "SELECT * FROM accounts WHERE id = "
+              . $astpp_db->quote($accountno)
+              . " AND status = 1" ;
+        $sql->execute;
+        $accountdata = $sql->fetchrow_hashref;
+        $sql->finish;
+        return $accountdata;    
+}
+
+sub get_callingcard_by_acc() {
+    my ( $astpp_db, $cardno, $config ) = @_;
+    my ( $sql,$tmp,$carddata );
+    $tmp =
+       "SELECT * FROM callingcards WHERE account_id = " . $astpp_db->quote($cardno);
+    $ASTPP->debug(debug =>"SQL : ".$tmp);
+    $sql = $astpp_db->prepare($tmp);
+    $sql->execute;
+    $carddata = $sql->fetchrow_hashref;
+    $sql->finish;
+    return $carddata;
+}
+
 ################# Program Starts Here #################################
 my ( $cardnum, $pin, $destination, $connectsurcharge, $perminsurcharge, $brand )
   = @ARGV;
 my ( $retries, $cardinfo, $numberinfo, $pricelistinfo, @outboundroutes,
     $callstart );
 $session->answer();
-&initialize;
+&initialize_callingcard;
 my $vars = $session->getVariable("answered_time");
 $vars .= " : ";
 $vars .= $session->getVariable("hangup_time");
@@ -579,10 +635,13 @@ if($config->{cc_ani_auth}==1)
         debug     => "ANI based authentication",
         verbosity => $verbosity
     );
-    $ani_number = $session->getVariable("Caller-Caller-ID-Number");
-    $aniinfo = &get_ani_map( $astpp_db, $ani_number, $config );
-    $accinfo = &get_account($astpp_db,$aniinfo->{account},'0');
-    $cardinfo = &get_callingcard( $astpp_db, $accinfo->{number}, $config );
+    $ani_number = $session->getVariable("caller_id_number");
+
+    $aniinfo = &get_ani_map_cc( $astpp_db, $ani_number, $config );
+#     print STDERR $aniinfo->{number}.".......".$aniinfo->{accountid}."\n";
+    $accinfo = &get_account_cc($astpp_db,$aniinfo->{accountid},'0');
+    #$cardinfo = &get_callingcard( $astpp_db, $accinfo->{accountid}, $config );
+    $cardinfo = &get_callingcard_by_acc( $astpp_db, $accinfo->{id}, $config );
     $cardnum = $cardinfo->{cardnumber};
     $cardinfo->{pin} = 'NULL';
 }
@@ -598,9 +657,29 @@ else {    #We won't play the welcome file when we already have card numbers.
     $session->streamFile( $config->{calling_cards_welcome_file} );
 }
 
+ $ASTPP->debug(
+            debug => "Before card number",
+            verbosity => $verbosity
+        );
+
+
+
+
 # If $cc == 1 means that we are using an ASTPP account instead of an actual
+$ASTPP->debug(
+            debug =>  "audio file :::> ".$sound->{astpp_please_pin_card_empty},
+
+            verbosity => 1
+        );
 # calling card.
 if ( $cardinfo->{status} != 1 || !$cardinfo->{status} ) {
+
+ $ASTPP->debug(
+            debug =>  "$sound->{cardnumber}",
+
+            verbosity => $verbosity
+        );
+
     $retries = 0;
     while ( $cardinfo->{status} != 1  && $retries < $config->{card_retries} ) {
         $cardnum = $session->playAndGetDigits(

@@ -245,3 +245,30 @@ select.multiselectable{
 	width:52.5%;
 	margin-left:10px;
 }
+.desc
+{
+    width:15%;
+    border:0px solid red;
+    float:left;
+    text-align: right;
+    
+    
+}
+.value_bold{
+    font-weight: bold;
+    float: left;
+    width:15%;
+    border: 0px solid blue;
+    margin-left:15px;
+    font-size:12px;
+    
+}
+.input_marg{
+    
+    margin:5px 0px 5px 0px;
+}
+.label_custom{
+	float:left;
+	padding-top:5px;
+   
+}

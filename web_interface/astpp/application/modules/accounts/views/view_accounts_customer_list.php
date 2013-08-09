@@ -4,7 +4,6 @@
 
 <script type="text/javascript" language="javascript">
     $(document).ready(function() {
-        
         build_grid("flex1","",<? echo $grid_fields; ?>,<? echo $grid_buttons; ?>);
         
         $("#account_search_btn").click(function(){

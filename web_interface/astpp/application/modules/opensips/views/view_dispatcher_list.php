@@ -28,7 +28,9 @@
 
 
 <div class="portlet ui-widget ui-widget-content ui-helper-clearfix ui-corner-all">                        
-    <div class="portlet-header ui-widget-header">Dispatcher List<span class="ui-icon ui-icon-circle-arrow-s"></span></div>
+    <div class="portlet-header ui-widget-header">Dispatcher List
+        <span id="error_msg" class=" success"></span>
+        <span class="ui-icon ui-icon-circle-arrow-s"></span></div>
     <div class="portlet-content">         
         <form method="POST" action="del/0/" enctype="multipart/form-data" id="ListForm">
             <table id="dispatcher_grid" align="left" style="display:none;"></table>

@@ -23,9 +23,9 @@ class Rates extends MX_Controller {
         $data['grid_fields'] = $this->rates_form->build_outbound_list_for_admin();
         $data["grid_buttons"] = $this->rates_form->build_grid_buttons();
         $data['form_search'] = $this->form->build_serach_form($this->rates_form->get_termination_search_form());
+        $data['form_batch_update'] = $this->form->build_batchupdate_form($this->rates_form->termination_batch_update_form());
         $this->load->view('view_outbound_rates_list', $data);
     }
-
     /**
      * -------Here we write code for controller accounts functions account_list------
      * Listing of Accounts table data through php function json_encode
@@ -55,46 +55,51 @@ class Rates extends MX_Controller {
 
     function terminationrates_rates_import() {
         $new_final_arr = array();
-        $new_final_arr_key = array('00 or 011(We add this one)' => 'pattern',
-            'Outgoing LD PREPEND (Only used for dialing out)' => 'prepend',
-            'CountryCode' => '',
-            'Area Code' => '',
-            'Destination' => 'comment',
-            'Connect Cost' => 'connectcost',
-            'Included Seconds' => 'includedseconds',
-            'Per Minute Cost' => 'cost',
-            'Increment' => 'inc',
-            'Trunk' => 'trunk_id',
-            'Precedence Level' => 'precedence'
+        $new_final_arr_key = array('code' => 'pattern',
+            'prepend' => 'prepend',
+            'destination' => 'comment',
+            'connect cost' => 'connectcost',
+            'included seconds' => 'includedseconds',
+            'per minute cost' => 'cost',
+            'increment' => 'inc',
+            'trunk' => 'trunk_id',
+            'precedence' => 'precedence'
         );
         if (isset($_FILES['rateimport']['name'])) {
             $error = $_FILES['rateimport']['error'];
             if ($error == 0) {
                 $uploadedFile = $_FILES["rateimport"]["tmp_name"];
-
-                if ($_FILES["rateimport"]["type"] == "text/csv") {
-                    if (is_uploaded_file($uploadedFile)) {
+                if ($_FILES["rateimport"]["type"] == "text/csv" || $_FILES["rateimport"]["type"]=="application/csv" ||$_FILES["rateimport"]["type"]="text/x-comma-separated-values"){    
+		if (is_uploaded_file($uploadedFile)) {
                         $csv_tmp_data = $this->csvreader->parse_file($uploadedFile);
                         foreach ($csv_tmp_data as $key => $csv_data) {
                             foreach ($csv_data as $field_key => $field_value) {
-                                if ($new_final_arr_key[$field_key] != '' && $key != '0') {
-                                    if ($new_final_arr_key[$field_key] == 'prepend') {
-                                        $new_final_arr[$key][$new_final_arr_key[$field_key]] = "^" . "00" . $field_value . $csv_data['CountryCode'] . $csv_data['Area Code'] . ".*";
-                                    } else if ($new_final_arr_key[$field_key] == 'trunk_id') {
-                                        $new_final_arr[$key][$new_final_arr_key[$field_key]] = $_POST['trunk_id'];
+                                if ($new_final_arr_key[strtolower($field_key)] != '' && $key != '0' && $field_value != "") {
+                                    if ($new_final_arr_key[strtolower($field_key)] == 'pattern') {
+                                        $csv_data['prepend'] = isset($csv_data['prepend'])?$csv_data['prepend']:"";
+                                        $new_final_arr[$key][$new_final_arr_key[strtolower($field_key)]] = "^".$field_value . ".*";
                                     } else {
-                                        $new_final_arr[$key][$new_final_arr_key[$field_key]] = $field_value;
+                                        $new_final_arr[$key][$new_final_arr_key[strtolower($field_key)]] = $field_value;
                                     }
+                                    $new_final_arr[$key]["trunk_id"] = $_POST['trunk_id'];
+                                    if(!isset($csv_data["Code"]) || !is_numeric($csv_data["Code"])){
+                                        unset($new_final_arr[$key]);
+                                    }
+
                                 }
                             }
                         }
-                        $result = $this->rates_model->bulk_insert_terminationrates($new_final_arr);
-                        echo $result . ' termination rates Imported successfully!';
+                        if(!empty($new_final_arr)){
+                            $result = $this->rates_model->bulk_insert_terminationrates($new_final_arr);
+                            echo $result . ' termination rates Imported successfully!';
+                        }else{
+                            echo "There is an Error in csv File.";
+                        }
                     }
                 } else {
                     echo 'Please upload on Only csv file...........!';
                 }
-            } else {
+          } else {
                 echo 'Please select one csv file...........!';
             }
         } else {
@@ -103,41 +108,55 @@ class Rates extends MX_Controller {
     }
 
     function origination_import_file() {
+	
         $new_final_arr = array();
-        $new_final_arr_key = array('00 or 011' => 'pattern',
-            'CountryCode' => '',
-            'Area Code' => '',
-            'Destination' => 'comment',
-            'Connect Cost' => 'connectcost',
-            'Included Seconds' => 'includedseconds',
-            'Per Minute Cost' => 'cost',
+        $new_final_arr_key = array('code' => 'pattern',
+            'countrycode' => '',
+            'area code' => '',
+            'destination' => 'comment',
+            'connect cost' => 'connectcost',
+            'included seconds' => 'includedseconds',
+            'per minute cost' => 'cost',
+            'increment' => 'inc',
             'Pricelist' => 'pricelist_id',
-            'Increment' => 'inc',
-            'Precedence' => 'precedence'
+            'precedence' => 'precedence'
         );
+         if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
+					$account_data = $this->session->userdata("accountinfo");
+	  }
         if (isset($_FILES['rateimport']['name'])) {
             $error = $_FILES['rateimport']['error'];
             if ($error == 0) {
                 $uploadedFile = $_FILES["rateimport"]["tmp_name"];
-
-                if ($_FILES["rateimport"]["type"] == "text/csv") {
+		if ($_FILES["rateimport"]["type"] == "text/csv" || $_FILES["rateimport"]["type"]=="application/csv" ||$_FILES["rateimport"]["type"]="text/x-comma-separated-values"){
                     if (is_uploaded_file($uploadedFile)) {
                         $csv_tmp_data = $this->csvreader->parse_file($uploadedFile);
                         foreach ($csv_tmp_data as $key => $csv_data) {
                             foreach ($csv_data as $field_key => $field_value) {
-                                if ($new_final_arr_key[$field_key] != '' && $key != '0') {
-                                    if ($new_final_arr_key[$field_key] == 'pattern') {
-                                        $new_final_arr[$key][$new_final_arr_key[$field_key]] = "^" . $field_value . $csv_data['CountryCode'] . $csv_data['Area Code'] . ".*";
-                                    } else if ($new_final_arr_key[$field_key] == 'pricelist_id') {
-                                        $new_final_arr[$key][$new_final_arr_key[$field_key]] = $_POST['pricelist_id'];
+                                if ($new_final_arr_key[strtolower($field_key)] != '' && $key != '0' && $field_value != "") {
+                                    if ($new_final_arr_key[strtolower($field_key)] == 'pattern') {
+                                        $new_final_arr[$key][$new_final_arr_key[strtolower($field_key)]] = "^".$field_value.".*";
                                     } else {
-                                        $new_final_arr[$key][$new_final_arr_key[$field_key]] = $field_value;
+                                        $new_final_arr[$key][$new_final_arr_key[strtolower($field_key)]] = $field_value;
                                     }
+                                    $new_final_arr[$key]["pricelist_id"] = $_POST['pricelist_id'];
+				    if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
+					$new_final_arr[$key]["reseller_id"] = $account_data['id'];
+				    }
+                                    if(!isset($csv_data["Code"]) || !is_numeric($csv_data["Code"])){
+                                        unset($new_final_arr[$key]);
+                                    }
+                                   
+
                                 }
                             }
                         }
-                        $result = $this->rates_model->bulk_insert_inboundrates($new_final_arr);
-                        echo $result . ' outbound rates Imported successfully! Press Cancel Now...';
+                        if(!empty($new_final_arr)){
+                            $result = $this->rates_model->bulk_insert_inboundrates($new_final_arr);
+                            echo $result . ' origination rates imported successfully! Press close button now...';
+                        }else{
+                            echo "There is an Error in csv File.";
+                        }
                     }
                 } else {
                     echo 'Please upload on Only csv file...........!';
@@ -149,7 +168,6 @@ class Rates extends MX_Controller {
             echo 'Please upload on Only csv file...........!' . $error;
         }
     }
-
     function origination_add($type = "") {
         $data['username'] = $this->session->userdata('user_name');
         $data['flag'] = 'create';
@@ -173,7 +191,10 @@ class Rates extends MX_Controller {
             foreach ($account->result_array() as $key => $value) {
                 $edit_data = $value;
             }
+            $edit_data['connectcost'] = $this->common_model->to_calculate_currency($edit_data['connectcost'], '', '', false, false);
+            $edit_data['cost'] = $this->common_model->to_calculate_currency($edit_data['cost'], '', '', false, false);
             $edit_data['pattern'] = filter_var($edit_data['pattern'], FILTER_SANITIZE_NUMBER_INT);
+
             $data['form'] = $this->form->build_form($this->rates_form->get_inbound_form_fields(), $edit_data);
             $this->load->view('view_inboundrates_add_edit', $data);
         } else {
@@ -194,8 +215,7 @@ class Rates extends MX_Controller {
                 $add_array['connectcost'] = $this->common_model->add_calculate_currency($add_array['connectcost'], '', '', false, false);
                 $add_array['cost'] = $this->common_model->add_calculate_currency($add_array['cost'], '', '', false, false);
                 $this->rates_model->edit_inbound($add_array, $add_array['id']);
-                $this->session->set_userdata('astpp_notification', 'Origination updated successfully!');
-                echo "1";
+                echo json_encode(array("SUCCESS"=> "Origination updated successfully."));
                 exit;
             }
         } else {
@@ -209,8 +229,7 @@ class Rates extends MX_Controller {
                 $add_array['connectcost'] = $this->common_model->add_calculate_currency($add_array['connectcost'], '', '', false, false);
                 $add_array['cost'] = $this->common_model->add_calculate_currency($add_array['cost'], '', '', false, false);
                 $this->rates_model->add_inbound($add_array);
-                $this->session->set_userdata('astpp_notification', 'Origination added successfully!');
-                echo "1";
+                echo json_encode(array("SUCCESS"=> "Origination added successfully."));
                 exit;
             }
         }
@@ -238,25 +257,24 @@ class Rates extends MX_Controller {
 
     function terminationrates_delete($id) {
         $this->rates_model->remove_outbound($id);
-        $this->session->set_userdata('astpp_notification', 'Termination removed successfully!');
+        $this->session->set_flashdata('astpp_notification', 'Termination removed successfully!');
         redirect(base_url() . '/rates/terminationrates_list/');
     }
 
     function origination_delete($id) {
         $this->rates_model->remove_inbound($id);
-        $this->session->set_userdata('astpp_notification', 'Origination removed successfully!');
+        $this->session->set_flashdata('astpp_notification', 'Origination removed successfully!');
         redirect(base_url() . '/rates/origination_list/');
     }
 
     function origination_list() {
-        $data['app_name'] = 'ASTPP - Open Source Billing Solution | Routing | Routes';
         $data['username'] = $this->session->userdata('user_name');
         $data['page_title'] = 'Origination Rate List';
-        $data['cur_menu_no'] = 5;
         $this->session->set_userdata('advance_search', 0);
         $data['grid_fields'] = $this->rates_form->build_inbound_list_for_admin();
         $data["grid_buttons"] = $this->rates_form->build_grid_buttons_inbound();
         $data['form_search'] = $this->form->build_serach_form($this->rates_form->get_inbound_search_form());
+        $data['form_batch_update'] = $this->form->build_batchupdate_form($this->rates_form->inbound_batch_update_form());
         $this->load->view('view_inbound_rates_list', $data);
     }
 
@@ -292,6 +310,9 @@ class Rates extends MX_Controller {
         foreach ($account->result_array() as $key => $value) {
             $edit_data = $value;
         }
+	$edit_data['connectcost'] = $this->common_model->to_calculate_currency($edit_data['connectcost'], '', '', false, false);
+	$edit_data['cost'] = $this->common_model->to_calculate_currency($edit_data['cost'], '', '', false, false);
+
         $edit_data['pattern'] = filter_var($edit_data['pattern'], FILTER_SANITIZE_NUMBER_INT);
         $data['form'] = $this->form->build_form($this->rates_form->get_termination_form_fields(), $edit_data);
         $this->load->view('view_outboundrates_add_edit', $data);
@@ -310,7 +331,7 @@ class Rates extends MX_Controller {
                 $add_array['connectcost'] = $this->common_model->add_calculate_currency($add_array['connectcost'], '', '', false, false);
                 $add_array['cost'] = $this->common_model->add_calculate_currency($add_array['cost'], '', '', false, false);
                 $this->rates_model->edit_outbound($add_array, $add_array['id']);
-                echo "1";
+                echo json_encode(array("SUCCESS"=> "Termination updated successfully."));
                 exit;
             }
         } else {
@@ -324,7 +345,7 @@ class Rates extends MX_Controller {
                 $add_array['connectcost'] = $this->common_model->add_calculate_currency($add_array['connectcost'], '', '', false, false);
                 $add_array['cost'] = $this->common_model->add_calculate_currency($add_array['cost'], '', '', false, false);
                 $this->rates_model->add_outbound($add_array);
-                echo "1";
+                echo json_encode(array("SUCCESS"=> "Termination added successfully."));
                 exit;
             }
         }
@@ -411,7 +432,31 @@ class Rates extends MX_Controller {
         $this->session->set_userdata('advance_search', 0);
         $this->session->set_userdata('account_search', "");
     }
-
+    function customer_rates_download_sample_file($file_name){
+        $this->load->helper('download');
+	$full_path = base_url()."assets/Rates_File/".$file_name.".csv";
+        $file = file_get_contents($full_path);
+        force_download("samplefile.csv", $file); 
+    }
+    function terminationrates_batch_update(){
+        $batch_update_arr = $this->input->post();
+	$batch_update_arr["cost"]["cost"] = isset($batch_update_arr["cost"]["cost"])?$this->common_model->add_calculate_currency($batch_update_arr["cost"]["cost"], '', '', true, false):"0.0000";
+	$batch_update_arr["connectcost"]["connectcost"] = isset($batch_update_arr["connectcost"]["connectcost"])?$this->common_model->add_calculate_currency($batch_update_arr["connectcost"]["connectcost"], '', '', true, false):"0.0000";
+//        $batch_update_arr = array("inc"=> array("inc"=>"1","operator"=>"3"),"cost"=> array("cost"=>"1","operator"=>"4"));
+        $result = $this->rates_model->termination_rates_batch_update($batch_update_arr);
+        echo json_encode(array("SUCCESS"=> "Termination Rates Batch Updated successfully."));
+        exit;
+    }
+    
+    function origination_batch_update(){
+        $batch_update_arr = $this->input->post();
+	$batch_update_arr["cost"]["cost"] = isset($batch_update_arr["cost"]["cost"])?$this->common_model->add_calculate_currency($batch_update_arr["cost"]["cost"], '', '', true, false):"0.0000";
+//        $batch_update_arr = array("inc"=> array("inc"=>"1","operator"=>"3"),"cost"=> array("cost"=>"1","operator"=>"4"));
+        $result = $this->rates_model->inboundrates_rates_batch_update($batch_update_arr);
+        echo json_encode(array("SUCCESS"=> "Origination Rates Batch Updated successfully."));
+        exit;
+    }
+    
 }
 
 ?>

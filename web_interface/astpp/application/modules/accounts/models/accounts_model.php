@@ -130,10 +130,10 @@ class Accounts_model extends CI_Model {
     function get_reseller_Account_list($flag, $start = 0, $limit = 0) {
         $this->db_model->build_search('reseller_list_search');
         if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
-            $reseller = $this->session->userdata('username');
-            $where = array('reseller_id' => $reseller, "deleted" => "0", "type" => "1");
+            $account_data = $this->session->userdata("accountinfo");
+            $where = array('reseller_id' => $account_data['id'], "deleted" => "0", "type" => "1");
         } else {
-            $where = array("deleted" => "0", "type" => "1");
+            $where = array('reseller_id' => "0","deleted" => "0", "type" => "1");
         }
         if ($flag) {
             $query = $this->db_model->select("*", "accounts", $where, "number", "desc", $limit, $start);
@@ -311,7 +311,7 @@ class Accounts_model extends CI_Model {
         $data["payment_type"] = $data["payment_type"][0];
         if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
             $accountinfo = $this->session->userdata['accountinfo'];
-            $reseller = $accountinfo["accountid"];
+            $reseller = $accountinfo["id"];
         } else {
             $reseller = "-1";
         }
@@ -333,7 +333,7 @@ class Accounts_model extends CI_Model {
             $insert_arr = array("accountid" => $data['accountid'], "description" => "Account refill",
                 "created_date" => $date, "credit" => $data['credit'],
                 "charge_type" => "account_refill");
-            $this->db->insert("customer_log", $insert_arr);
+            $this->db->insert("invoice_item", $insert_arr);
         }
         $accountinfo['email'] = '';
         $accountdata['email'] = $this->common->get_field_name('email', 'accounts', $data['accountid']);
@@ -349,6 +349,15 @@ class Accounts_model extends CI_Model {
             $query = 'UPDATE `accounts` SET `balance` = (balance + ' . $amount . ') WHERE `id` = ' . $accountid;
             return $this->db->query($query);
         }
+    }
+    function account_authentication($where_data,$id) {
+        if($id != ""){
+            $this->db->where("id <>",$id);
+        }
+        $this->db->where($where_data);
+        $this->db->from("accounts");
+        $query = $this->db->count_all_results();
+        return $query;
     }
 
 }

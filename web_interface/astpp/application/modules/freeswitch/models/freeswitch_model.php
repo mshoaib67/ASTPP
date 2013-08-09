@@ -200,23 +200,35 @@ class Freeswitch_model extends CI_Model {
         return true;
     }
 
-    function reload_freeswitch($command) {
+    function reload_freeswitch($command,$server_host="") {
 //        $command = "api sofia profile internal start";
 	$response='';
         $query = $this->db_model->getSelect("*", "freeswich_servers", "");
         $fs_data = $query->result_array();
+//         $fp = $this->freeswitch_lib->event_socket_create($server_host, $fs_data[0]["freeswitch_port"], $fs_data[0]["freeswitch_password"]);
+        
+       foreach ($fs_data as $fs_key => $fs_value) {
+	    $fp = $this->freeswitch_lib->event_socket_create($fs_value["freeswitch_host"], $fs_value["freeswitch_port"], $fs_value["freeswitch_password"]);
+	    if ($fp) {
+		$response.= $this->freeswitch_lib->event_socket_request($fp, $command);
+		fclose($fp);
+	    }
+       }
+        return $response;
+    }
+    function reload_live_freeswitch($command) {
+	$response='';
+        $query = $this->db_model->getSelect("*", "freeswich_servers", "");
+        $fs_data = $query->result_array();
+        
         foreach ($fs_data as $fs_key => $fs_value) {
-//             try {
-                $fp = $this->freeswitch_lib->event_socket_create($fs_value["freeswitch_host"], $fs_value["freeswitch_port"], $fs_value["freeswitch_password"]);
-                if ($fp) {
-                    $response.= $this->freeswitch_lib->event_socket_request($fp, $command);
-                    fclose($fp);
-                }
-//             } 
-//             catch (Exception $e) {
-                
-//             }
+	    $fp = $this->freeswitch_lib->event_socket_create($fs_value["freeswitch_host"], $fs_value["freeswitch_port"], $fs_value["freeswitch_password"]);
+	    if ($fp) {
+		$response .= $this->freeswitch_lib->event_socket_request($fp, $command);
+		fclose($fp);
+	    }
         }
+	$response = str_replace("0 total.","",$response);
         return $response;
     }
 

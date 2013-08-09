@@ -433,10 +433,11 @@ sub fs_directory_xml
 		my %params =  %{ decode_json($record->{'dir_params'}) };
 		while (my ($key, $value) = each %params) {	     
 		    $arg{xml} .="<param name=\"".$key."\" value=\"".$params{$key}."\"/>\n";
-		}			
+		}		
+		$arg{xml} .= "<param name=\"allow-empty-password\" value=\"false\"/>\n";
+		$arg{xml} .= "<param name=\"dial-string\" value=\"{sip_invite_domain=\${domain_name},presence_id=\${dialed_user}\@\${domain_name}}\${sofia_contact(*/\${dialed_user}\@\${domain_name})}\"/>\n";
 		$arg{xml} .= "</params>\n";
 		$arg{xml} .= "<variables>\n";
-		#my @vars = &fs_list_sip_vars($self,$record->{id});
 		my %vars =  %{ decode_json($record->{'dir_vars'}) };
 		while (my ($key, $value) = each %vars) {	     
 		    $arg{xml} .="<variable name=\"".$key."\" value=\"".$vars{$key}."\"/>\n";
@@ -719,17 +720,39 @@ sub fs_configuration_xml_header() {
 sub acl
 {
     my ($self, %arg) = @_;          
-    my ($row,$tmp,$sql);
+    my ($row,$tmp,$sql,$tmp_gw,$sql_gw,$row_gw);
     $arg{xml} .= "<configuration name=\"".$arg{module}."\" description=\"Network Lists\">\n";
     $arg{xml} .= "<network-lists>\n";
     $arg{xml} .= "<list name=\"default\" default=\"deny\">\n";           
     
+    #Add customer ip address
     $tmp = "SELECT ip FROM ip_map,accounts WHERE ip_map.accountid=accounts.id AND accounts.status=1 AND deleted=0";
     $sql = $self->{_astpp_db}->prepare($tmp);
     $sql->execute;
     while ( $row = $sql->fetchrow_hashref ) {
 	 $arg{xml} .= "<node type=\"allow\" cidr=\"".$row->{ip}."/32\"/>\n";
     }
+    
+    #Add gateway ip address
+    $tmp_gw = "SELECT * FROM gateways";
+    $sql_gw = $self->{_astpp_db}->prepare($tmp_gw);
+    $sql_gw->execute;
+    while ( $row_gw = $sql_gw->fetchrow_hashref ) {	
+	my %data_gw =  %{ decode_json($row_gw->{gateway_data}) };
+	while (my ($key_gw, $value_gw) = each %data_gw) {	     	    
+	    if($key_gw eq 'proxy')
+	    {
+		$arg{xml} .= "<node type=\"allow\" cidr=\"".$data_gw{$key_gw}."/32\"/>\n";
+	    }
+	}	
+    }
+    
+    #Add opensips ip address if opensips is enable
+    if($arg{opensips} eq '1')
+    {
+	$arg{xml} .= "<node type=\"allow\" cidr=\"".$arg{opensips_ip}."/32\"/>\n";
+    }
+    
     $arg{xml} .= "</list>\n";
     $arg{xml} .= "</network-lists>\n";
     $arg{xml} .= "</configuration>\n";
@@ -743,7 +766,10 @@ sub sip_profile_gateway
     my ($row,$tmp,$sql,$sql_gw,$tmp_gw,$row_gw);
     $arg{xml} .= "<configuration name=\"".$arg{module}."\" description=\"SIP Profile\">\n";
     $arg{xml} .= "<profiles>\n";
-    $tmp = "SELECT * FROM sip_profiles";
+    
+    # Samir Doshi - To bind sip profile with correct fs. 
+    $tmp = "SELECT * FROM sip_profiles WHERE (sip_ip=".$self->{_astpp_db}->quote($arg{freeswitch_ip})." OR sip_ip='\$\${local_ip_v4}')";
+    
     $sql = $self->{_astpp_db}->prepare($tmp);
     $sql->execute;
         

@@ -17,7 +17,8 @@ sub xml_process()
     
     $xml = header( -type => 'text/plain' );
     $void_xml = &void_xml();
-        
+    
+    $astppdid = "ASTPP-STANDARD";  
     #Check if dialed number is DID number.
     $didinfo = &get_did($astpp_db, $params->{'Caller-Destination-Number'});
     if ($didinfo->{did_number}) {
@@ -80,7 +81,7 @@ sub xml_process()
     my $carddata = &get_account( $astpp_db, $params->{variable_accountcode} );            
     
     #Finalize which pricelist we need to use for call for customer
-    if(!defined $astppdid && ($astppdid ne "ASTPP-DID"))
+    if(defined $astppdid && ($astppdid ne "ASTPP-DID"))
     {
 	if($auth_type ne '' && $auth_type=='ip_auth' && $ipinfo->{pricelist_id} > 0)
 	{	    
@@ -202,7 +203,9 @@ sub xml_process()
     }
     
     #If customer has any reseller then process for reseller balance and route info.
-    my $cust_accountid = $carddata->{accountid};
+    # Samir Doshi - To Resolve callerid issue
+    my $cust_accountid = $carddata->{id};
+    
     while ( $carddata->{reseller_id} && $maxlength > 0 && $callstatus == 1 ) {
         $ASTPP->debug( debug => "FINDING LIMIT FOR: $carddata->{reseller_id}" );
         $carddata = &get_account( $astpp_db, $carddata->{reseller_id} );
@@ -215,7 +218,7 @@ sub xml_process()
         $ASTPP->debug( debug =>	"ADDING $carddata->{number} to the list of resellers for this account");
 		
 	#Calculating in use count for account 
-	if(!defined $astppdid && $astppdid ne "ASTPP-DID")
+	if(defined $astppdid && $astppdid ne "ASTPP-DID")
 	{
 	    if($carddata->{maxchannels} > 0 && $carddata->{inuse} > $carddata->{maxchannels})
 	    {	    

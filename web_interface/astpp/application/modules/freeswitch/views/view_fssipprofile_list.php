@@ -12,7 +12,9 @@
 <? endblock() ?>
 <? startblock('content') ?>        
 <div class="portlet ui-widget ui-widget-content ui-helper-clearfix ui-corner-all">                        
-    <div class="portlet-header ui-widget-header">Freeswitch SIP Profile List<span class="ui-icon ui-icon-circle-arrow-s"></span></div>
+    <div class="portlet-header ui-widget-header">Freeswitch SIP Profile List
+        <span id="error_msg" class=" success"></span>
+        <span class="ui-icon ui-icon-circle-arrow-s"></span></div>
     <div class="portlet-content">         
         <form method="POST" action="del/0/" enctype="multipart/form-data" id="ListForm">
             <table id="fs_gateway_grid" align="left" style="display:none;"></table>

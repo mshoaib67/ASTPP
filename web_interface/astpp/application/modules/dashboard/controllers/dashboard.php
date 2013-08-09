@@ -13,15 +13,14 @@ class dashboard extends CI_Controller {
         if ($this->session->userdata('user_login') == FALSE)
             redirect(base_url() . 'login/login');
         $data['app_name'] = '';
-        if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
+        if ($this->session->userdata('logintype') != 2) {
             $data['username'] = $this->session->userdata('user_name');
             $account_data = $this->session->userdata("accountinfo");
             $where = array('id' => $account_data["id"]);
             $account = $this->db_model->getSelect("*", "accounts", $where);
             $account = $account->result_array();
             $data["account"] = $account[0];
-            $data["account"]["balance"] = $this->common_model->calculate_currency($this->Astpp_common->accountbalance($data["account"]["id"]));
-            ;
+	    $data["account"]["balance"] = $this->common_model->add_calculate_currency(($data["account"]["balance"]*-1), "", '', true, true);
             $data["account"]['country_id'] = $this->common->get_field_name('country', 'countrycode', $data["account"]['country_id']);
 	    $data["account"]['timezone_id'] = $this->common->get_field_name('gmtzone', 'timezone', $data["account"]['timezone_id']);
             $data["account"]["credit_limit"] = $this->common_model->calculate_currency($data["account"]["credit_limit"]);

@@ -111,6 +111,7 @@ sub get_outbound_routes() {
 	my ( $astpp_db, $number, $accountinfo,$routeinfo, @reseller_list ) = @_;
 	my ( @routelist, @outbound_route_list, $record, $sql,$maxlen_pattern,@outbound_routes_list );
 	
+	# Samir Doshi - Added prepend field in query 
 	my $tmp = "SELECT 
 			trunks.id as trunk_id, 
 			trunks.name as name,
@@ -119,7 +120,7 @@ sub get_outbound_routes() {
 			trunks.provider_id,
 			trunks.status as status,
 			trunks.dialed_modify as dialed_modify,
-			trunks.resellers_id as trunks_reseller, 
+			trunks.reseller_id as trunks_reseller, 
 			trunks.precedence as trunk_precedence,
 			trunks.maxchannels as maxchannels,
 			outbound_routes.pattern as pattern,
@@ -128,7 +129,8 @@ sub get_outbound_routes() {
 			outbound_routes.includedseconds as includedseconds,
 			outbound_routes.cost as cost,
 			outbound_routes.inc as inc,
-			outbound_routes.reseller_id as outbound_route_resellers 
+			outbound_routes.reseller_id as outbound_route_resellers,
+			outbound_routes.prepend
 		    FROM 
 			outbound_routes,trunks,gateways
 		    WHERE
@@ -498,7 +500,11 @@ sub get_account() {
     $sql =
       $astpp_db->prepare( "SELECT * FROM accounts WHERE number = "
           . $astpp_db->quote($accountno)
-          . " AND status = 1" );      
+          . " AND status = 1" );     
+    print STDERR "SELECT * FROM accounts WHERE number = "
+          . $astpp_db->quote($accountno)
+          . " AND status = 1";
+	 
     $sql->execute;
     $accountdata = $sql->fetchrow_hashref;
     $sql->finish;
@@ -510,6 +516,9 @@ sub get_account() {
 	  $astpp_db->prepare( "SELECT * FROM accounts WHERE id = "
 	      . $astpp_db->quote($accountno)
 	      . " AND status = 1" );
+        print STDERR "SELECT * FROM accounts WHERE id = "
+              . $astpp_db->quote($accountno)
+              . " AND status = 1" ;
 	$sql->execute;
 	$accountdata = $sql->fetchrow_hashref;
 	$sql->finish;
@@ -738,9 +747,9 @@ sub get_counter() {
     my ( $astpp_db, $package, $cardnum ) = @_;
     my ( $sql, $row );
     $sql =
-      $astpp_db->prepare( "SELECT * FROM counters WHERE package = "
+      $astpp_db->prepare( "SELECT * FROM counters WHERE package_id = "
           . $astpp_db->quote($package)
-          . " AND account = "
+          . " AND accountid = "
           . $astpp_db->quote($cardnum) 
 	  . " AND status = 1" );
     $sql->execute;
@@ -778,6 +787,7 @@ sub get_callingcard() {
     $sql->finish;
     return $carddata;
 }
+
 
 # Return data on a specific calling card.
 sub get_callingcard_by_pin() {
@@ -982,15 +992,15 @@ sub rating() {  # This routine recieves a specific cdr and takes care of rating 
 
 			$package = &get_package( $astpp_db, $carddata, $cdrinfo->{dst} );
 			if ($package->{id}) {
-				my $counter = &get_counter( $astpp_db, $package->{id}, $carddata->{number} );
+				my $counter = &get_counter( $astpp_db, $package->{id}, $carddata->{id} );
 				my $difference;
 				if ( !$counter->{id}) {
-					my $tmp = "INSERT INTO counters (package,account) VALUES ("
+					my $tmp = "INSERT INTO counters (package_id,accountid) VALUES ("
 						. $astpp_db->quote( $package->{id} ) . ", "
-						. $astpp_db->quote( $carddata->{number} ) . ")";
+						. $astpp_db->quote( $carddata->{id} ) . ")";
 					$ASTPP->debug(debug =>$tmp);
 					$astpp_db->do($tmp);
-					$counter = &get_counter( $astpp_db, $package->{id}, $carddata->{number} );
+					$counter = &get_counter( $astpp_db, $package->{id}, $carddata->{id} );
 					$ASTPP->debug(debug =>"JUST CREATED COUNTER: $counter->{id}");
 				}
 				if ( $package->{includedseconds} > $counter->{seconds}) {
@@ -1285,7 +1295,7 @@ sub get_ani_map() {
     $sql->execute;
     $anidata = $sql->fetchrow_hashref;
     $sql->finish;
-    return $anidata;
+    return ($anidata);
 }
 
 
@@ -1484,7 +1494,14 @@ sub clean_cdr_data()
    if ($hangup_cause eq 'NORMAL_CLEARING' && $data->{variables}->{billsec} == 0)
    {
       $hangup_cause = uri_unescape($data->{variables}->{originate_disposition});
-   }      
+   }
+
+   if($cleandata->{callingcard} ne "" && $data->{variables}->{last_bridge_hangup_cause} ne "NORMAL_CLEARING") 
+   {
+	$data->{variables}->{billsec} = 0;
+        $hangup_cause=$data->{variables}->{last_bridge_hangup_cause};
+   }
+      
    $cleandata->{disposition} = $hangup_cause;
             
    $cleandata->{accountcode} = uri_unescape($data->{variables}->{accountcode});           

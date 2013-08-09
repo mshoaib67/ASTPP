@@ -15,21 +15,21 @@ $(document).ready(function() {
 		{display: 'IP Address', name: 'IP Address', width: 120, sortable: false, align: 'center'},
 		{display: 'Destination', name: 'Destination', width: 120, sortable: false, align: 'center'},
 		{display: 'Bridge', name: 'Bridge', width: 220, sortable: false, align: 'center'},
-		{display: 'Read codec', name: 'Read Codec', width: 100, sortable: false, align: 'center'},
-		{display: 'Write codec', name: 'Write Codec', width: 100, sortable: false, align: 'center'},
+		{display: 'Read codec', name: 'Read Codec', width: 80, sortable: false, align: 'center'},
+		{display: 'Write codec', name: 'Write Codec', width: 80, sortable: false, align: 'center'},
 		{display: 'Call State', name: 'Call State', width: 100, sortable: false, align: 'center'},
 		],
 	buttons : [
 		{name: 'Refresh', bclass: 'reload', onpress : reload_button}	
 		],
-	nowrap: false,
+	nowrap: true,
 	showToggleBtn: false,
 	sortname: "id",
 	sortorder: "asc",
-	usepager: false,
+	usepager: true,
 	resizable: true,
 	useRp: true,
-	rp: 100,
+	rp: 500,
 	showTableToggleBtn: false,
 	width: "auto",
 	height: "auto",
@@ -59,7 +59,7 @@ function reload_button()
 </script>
 
 <script type="text/javascript">
-setInterval( "refreshAjax();", 5000 );  ///////// 20 seconds
+setInterval( "refreshAjax();", 10000 );  ///////// 20 seconds
 
 $(function() {
   refreshAjax = function(){$("#flex1").flexReload();

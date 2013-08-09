@@ -9,6 +9,7 @@
 <div class="portlet ui-widget ui-widget-content ui-helper-clearfix ui-corner-all">
     <div class="portlet-content">
         <div class="hastable">
+<!--<a href="<?//=base_url()?>user/user_payment/">payment</a>-->            
             <table class="details_table">  
                 <tr>
                     <th>Account Number</th><td><?= $account['number'] ?></td>
@@ -37,6 +38,9 @@
             </table>
         </div>
         <div class="clear"></div>
+        <a href="<?= base_url() ?>user/user_payment/"> 
+            <input class="ui-state-default float-right ui-corner-all ui-button" type="submit" name="payment" value="Recharge Account" />
+        </a>   
         <a href="<?= base_url() ?>user/user_edit_account/">
             <input class="ui-state-default float-right ui-corner-all ui-button" rel="facebox"  type="submit" name="action" value="Edit Account" />
         </a>

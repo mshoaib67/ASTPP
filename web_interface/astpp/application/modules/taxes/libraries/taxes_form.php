@@ -37,11 +37,11 @@ class Taxes_form {
         // array(display name, width, db_field_parent_table,feidname, db_field_child_table,function name);
         $grid_field_arr = json_encode(array(array("<input type='checkbox' name='chkAll' class='checkall'/>", "30", "", "", "", ""),
             array("Priority", "240", "taxes_priority", "", "", ""),
-            array("Amount", "280", "taxes_amount", "", "", ""),
+            array("Amount", "280", "taxes_amount", "", "", "convert_to_currency"),
             array("Taxe Rate", "238", "taxes_rate", "", "", ""),
             array("Description", "320", "taxes_description", "", "", ""),
             array("Action", "60", "", "", "", array("EDIT" => array("url" => "/taxes/taxes_edit/", "mode" => "popup"),
-                    "DELETE" => array("url" => "/taxes/remove_taxe/", "mode" => "single")))
+                    "DELETE" => array("url" => "/taxes/taxes_delete/", "mode" => "single")))
                 ));
         return $grid_field_arr;
     }

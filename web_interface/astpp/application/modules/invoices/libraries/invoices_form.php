@@ -7,16 +7,16 @@ class invoices_form{
         $form['Invoice Configuration '] = array(
             array('', 'HIDDEN', array('name'=>'id'),'', '', '', ''), 
             array('', 'HIDDEN', array('name'=>'accountid'),'', '', '', ''),
-            array('Company name', 'INPUT', array('name' => 'company_name','size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
-                array('Address', 'INPUT', array('name' => 'address','size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
-                array('City', 'INPUT', array('name' => 'city','size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
-                array('Province', 'INPUT', array('name' => 'province','size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
-                array('Country', 'INPUT', array('name' => 'country_id','size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
-                array('Zipcode', 'INPUT', array('name' => 'zipcode','size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
-                array('Telephone', 'INPUT', array('name' => 'telephone','size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
-                array('Fax', 'INPUT', array('name' => 'fax','size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
-                array('Email Address', 'INPUT', array('name' => 'emailaddress','size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
-                array('Website', 'INPUT', array('name' => 'website','size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number')
+            array('Company name', 'INPUT', array('name' => 'company_name','size' => '20', 'maxlength' => '100', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
+                array('Address', 'INPUT', array('name' => 'address','size' => '20', 'maxlength' => '200', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
+                array('City', 'INPUT', array('name' => 'city','size' => '20', 'maxlength' => '35', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
+                array('Province', 'INPUT', array('name' => 'province','size' => '20', 'maxlength' => '40', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
+                array('Country', 'INPUT', array('name' => 'country','size' => '20', 'maxlength' => '40', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
+                array('Zipcode', 'INPUT', array('name' => 'zipcode','size' => '20', 'maxlength' => '20', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
+                array('Telephone', 'INPUT', array('name' => 'telephone','size' => '20', 'maxlength' => '25', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
+                array('Fax', 'INPUT', array('name' => 'fax','size' => '20', 'maxlength' => '25', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
+                array('Email Address', 'INPUT', array('name' => 'emailaddress','size' => '20', 'maxlength' => '100', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
+                array('Website', 'INPUT', array('name' => 'website','size' => '20', 'maxlength' => '100', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number')
                 
          );
         $form['button_save'] = array('name' => 'action', 'content' =>'Save' , 'value' => 'save', 'type' => 'submit', 'class' => 'ui-state-default float-right ui-corner-all ui-button');
@@ -31,12 +31,13 @@ class invoices_form{
       // array(display name, width, db_field_parent_table,feidname, db_field_child_table,function name);
       $grid_field_arr  = json_encode(array(array("<input type='checkbox' name='chkAll' class='checkall'/>","30","","","",""),
           array("Invoice Number","278","id","","",""),
-				    array("Account Number","270","id","number","accounts","get_field_name"),
-				    array("Invoice Date","270","date","","",""),
-				    array("From Date","260","date","","",""),
+				    array("Account Number","270","accountid","number","accounts","get_field_name"),
+				    array("Invoice Date","270","invoice_date","","",""),
+				    array("From Date","260","from_date","","",""),
 // 				    array("Invoice Total","150","value","","",""),
 // 				    array("Paid Status","200","status","status","status","get_paid_status"),
-            array("Action","60","","","",array("VIEW"=>array("url"=>"/invoices/invoice_list_view_invoice/","mode"=>"single"),
+            array("Action","60","","","",array(
+            "DOWNLOAD"=>array("url"=>"/invoices/invoice_download/","mode"=>"single"),
             "DELETE"=>array("url"=>"/invoices/delete_invoice/","mode"=>"single")))
 			));
       return $grid_field_arr;

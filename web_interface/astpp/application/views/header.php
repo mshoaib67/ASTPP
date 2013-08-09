@@ -57,6 +57,7 @@
     
     
     <?//echo "<pre>";print_r(common_model::$global_config['system_config']['opensips']);exit;?>
+    
 <? $logged_user = ($this->session->userdata('userlevel_logintype')=='-1')?'Admin':$this->session->userdata('user_name');?>    
 <div id="page_wrapper">
 <div id="page-header">
@@ -65,21 +66,18 @@
         <a href="<?=base_url()?>/dashboard" class="logo" title="ASTPP" >ASTPP</a>
             <div class="welcome">
                     <span class="note" style="color: black;">Welcome <a href="#" title="Welcome  <?=$logged_user?>"><?=ucfirst($logged_user)?></a></span>						
-                    <?php if($this->session->userdata('username') != ""){?>
-                         <!-- <a rel="facebox" class="btn ui-state-default ui-corner-all" href="<?=base_url()?>accounts/accountDetailsPopup/<?=$this->session->userdata('username')?>">
-                          <span class="ui-icon ui-icon-person"></span>
-                          My account
-                          </a>-->
-                    <?php }?>
                     <a class="btn ui-state-default ui-corner-all" href="<?php echo base_url();?>login/logout" style="background-color: transparent;">
-                        <span class="ui-icon ui-icon-power"></span>
-                            Logout
-                    </a>						
+                    <span class="ui-icon ui-icon-power"></span>Logout</a>						
+
+                    <? //if($this->session->userdata('userlevel_logintype')=='0') {?>    
+                        <!--<a href="<? //= base_url()?>user/user_change_password/">Change Password</a>-->
+                    <? //}?>
             </div>
+        
 
         <div  style="height: 34px; left: 0;   padding-top: 10px;   position: absolute;   top: 38px; width: 100%;">
             <ul id="menu">
-                <? if($this->session->userdata('userlevel_logintype')=='-1' || $this->session->userdata('userlevel_logintype')=='1'){?>
+                <? if($this->session->userdata('userlevel_logintype') != '0'){?>
                     <li style="-moz-border-radius: 5px 5px 5px 5px;-webkit-border-radius: 5px 5px 5px 5px;border-radius: 5px 5px 5px 5px;"><a href="<?=base_url()?>dashboard/"><img src="<?=base_url()?>assets/images/menu_icons/Home.png" border="0" width="16" height="16"  />&nbsp;&nbsp;Home</a></li>
                 <?} else{?>
                     <li style="-moz-border-radius: 5px 5px 5px 5px;-webkit-border-radius: 5px 5px 5px 5px;border-radius: 5px 5px 5px 5px;"><a href="<?=base_url()?>user/user/"><img src="<?=base_url()?>assets/images/menu_icons/Home.png" border="0" width="16" height="16"  />&nbsp;&nbsp;Home</a></li>    

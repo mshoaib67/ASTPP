@@ -351,11 +351,7 @@ sub fs_dialplan_xml_bridge_cc() {
 		foreach my $regex (@regexs) {
 			$regex =~ s/"//g;                               #Strip off quotation marks
 			my ($grab,$replace) = split(m!/!i, $regex);  # This will split the variable into a "grab" and "replace" as needed
-			print STDERR "Grab: $grab\n";
-			print STDERR "Replacement: $replace\n";
-			print STDERR "Phone Before: $arg{destination_number}\n";
 			$arg{destination_number} =~ s/$grab/$replace/is;
-			print STDERR "Phone After: $arg{destination_number}\n";
 		}
 	}
 	$dialstring .= "sofia/gateway/" . $arg{trunk_path} . "/" . $arg{route_prepend} . $arg{destination_number};
@@ -723,18 +719,39 @@ sub fs_configuration_xml_header() {
 sub acl
 {
     my ($self, %arg) = @_;          
-    my ($row,$tmp,$sql);
+    my ($row,$tmp,$sql,$tmp_gw,$sql_gw,$row_gw);
     $arg{xml} .= "<configuration name=\"".$arg{module}."\" description=\"Network Lists\">\n";
     $arg{xml} .= "<network-lists>\n";
     $arg{xml} .= "<list name=\"default\" default=\"deny\">\n";           
     
+    #Add customer ip address
     $tmp = "SELECT ip FROM ip_map,accounts WHERE ip_map.accountid=accounts.id AND accounts.status=1 AND deleted=0";
     $sql = $self->{_astpp_db}->prepare($tmp);
-    print STDERR $tmp . "\n";
     $sql->execute;
     while ( $row = $sql->fetchrow_hashref ) {
 	 $arg{xml} .= "<node type=\"allow\" cidr=\"".$row->{ip}."/32\"/>\n";
     }
+    
+    #Add gateway ip address
+    $tmp_gw = "SELECT * FROM gateways";
+    $sql_gw = $self->{_astpp_db}->prepare($tmp_gw);
+    $sql_gw->execute;
+    while ( $row_gw = $sql_gw->fetchrow_hashref ) {	
+	my %data_gw =  %{ decode_json($row_gw->{gateway_data}) };
+	while (my ($key_gw, $value_gw) = each %data_gw) {	     	    
+	    if($key_gw eq 'proxy')
+	    {
+		$arg{xml} .= "<node type=\"allow\" cidr=\"".$data_gw{$key_gw}."/32\"/>\n";
+	    }
+	}	
+    }
+    
+    #Add opensips ip address if opensips is enable
+    if($arg{opensips} eq '1')
+    {
+	$arg{xml} .= "<node type=\"allow\" cidr=\"".$arg{opensips_ip}."/32\"/>\n";
+    }
+    
     $arg{xml} .= "</list>\n";
     $arg{xml} .= "</network-lists>\n";
     $arg{xml} .= "</configuration>\n";
@@ -748,9 +765,11 @@ sub sip_profile_gateway
     my ($row,$tmp,$sql,$sql_gw,$tmp_gw,$row_gw);
     $arg{xml} .= "<configuration name=\"".$arg{module}."\" description=\"SIP Profile\">\n";
     $arg{xml} .= "<profiles>\n";
-    $tmp = "SELECT * FROM sip_profiles";
+    
+    # Samir Doshi - To bind sip profile with correct fs. 
+    $tmp = "SELECT * FROM sip_profiles WHERE (sip_ip=".$self->{_astpp_db}->quote($arg{freeswitch_ip})." OR sip_ip='\$\${local_ip_v4}')";
+    
     $sql = $self->{_astpp_db}->prepare($tmp);
-    print STDERR $tmp . "\n";
     $sql->execute;
         
     while ( $row = $sql->fetchrow_hashref ) {
@@ -767,7 +786,6 @@ sub sip_profile_gateway
 	$arg{xml} .= "<gateways>\n";
 	$tmp_gw = "SELECT * FROM gateways WHERE sip_profile_id='".$row->{'id'}."'";
 	$sql_gw = $self->{_astpp_db}->prepare($tmp_gw);
-	print STDERR $tmp_gw . "\n";
 	$sql_gw->execute;
 	while ( $row_gw = $sql_gw->fetchrow_hashref ) {
 	    $arg{xml} .= "<gateway name=\"".$row_gw->{name}."\">\n";
@@ -798,7 +816,6 @@ sub post_load_modules
     $arg{xml} .= "<modules>\n";    
     $tmp = "SELECT * FROM post_load_modules_conf WHERE load_module='1' ORDER BY priority";
     $sql = $self->{_astpp_db}->prepare($tmp);
-    print STDERR $tmp . "\n";
     $sql->execute;
     while ( $row = $sql->fetchrow_hashref ) {
 	 $arg{xml} .= "<load module=\"".$row->{module_name}."\"/>\n";
@@ -816,7 +833,6 @@ sub post_load_switch
     $arg{xml} .= "<settings>\n";    
     $tmp = "SELECT * FROM post_load_switch_conf";
     $sql = $self->{_astpp_db}->prepare($tmp);
-    print STDERR $tmp . "\n";
     $sql->execute;
     while ( $row = $sql->fetchrow_hashref ) {
 	 $arg{xml} .= "<param name=\"".$row->{param_name}."\" value=\"".$row->{param_value}."\"/>\n";

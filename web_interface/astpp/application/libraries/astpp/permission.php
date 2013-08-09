@@ -37,10 +37,7 @@ class Permission {
         }
      	$this->CI->session->set_userdata('permited_modules',serialize($permited_modules));
 	$this->CI->session->set_userdata('menuinfo',serialize($menu_list));
-//  	echo "<pre>"; print_r($this->CI->session->userdata); exit;            
   	return true;
-
-//
       }
     }
 }

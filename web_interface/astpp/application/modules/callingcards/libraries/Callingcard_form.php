@@ -111,7 +111,7 @@ class Callingcard_form {
     function build_ccbrand_list_for_admin() {
         // array(display name, width, db_field_parent_table,feidname, db_field_child_table,function name);
         $grid_field_arr = json_encode(array(array("CC Brand Name", "90", "name", "", "", ""),
-            array("PIN Required", "80", "pin", "", "", ""),
+            array("PIN Required", "80", "pin","pin", "pin", "get_allow"),
             array("Rate Group", "100", "pricelist_id", "name", "pricelists", "get_field_name"),
             array("Day <br>Valid for", "50", "validfordays", "", "", ""),
             array("Maintenance<br>Fee", "95", "maint_fee_pennies", "", "", ""),
@@ -147,7 +147,7 @@ class Callingcard_form {
             array("Status", "50", "status", "status", "status", "get_status"),
             array("Action", "75", "", "", "", array("PAYMENT" => array("url" => "callingcards/callingcards_refill/", "mode" => "single"),
                     "VIEW" => array("url" => "callingcards/callingcards_view/", "mode" => "popup"),
-                    "CALLERID" => array("url" => "callingcards/callingcards_add_callerid/", "mode" => "single"),
+                    "CALLERID" => array("url" => "callingcards/callingcards_add_callerid/", "mode" => "popup"),
                     "DELETE" => array("url" => "callingcards/callingcards_delete/", "mode" => "single")
             ))
                 ));
@@ -179,15 +179,16 @@ class Callingcard_form {
 
     function build_cdrreport_list_for_admin() {
         // array(display name, width, db_field_parent_table,feidname, db_field_child_table,function name);
-        $grid_field_arr = json_encode(array(array("Date", "150", "callstart", "", "", ""),
-            array("CallerID", "120", "clid", "", "", ""),
-            array("Destination", "120", "destination", "", "", ""),
-            array("Card Number", "120", "callingcard_id", "cardnumber", "callingcards", "get_field_name"),
-            array("Bill Seconds", "120", "seconds", "", "", "get_field_name"),
-            array("Disposition", "180", "disposition", "", "", ""),
-            array("Debit", "100", "debit", "", "", ""),
-            array("Rate Group", "120", "pricelist_id", "name", "pricelists", "get_field_name"),
-            array("Code", "108", "pattern", "", "", ""),
+        $grid_field_arr = json_encode(array(array("Date", "130", "callstart", "", "", ""),
+            array("CallerID", "100", "clid", "", "", ""),
+            array("Destination", "100", "destination", "", "", ""),
+            array("Code", "100", "pattern", "pattern", "", "get_only_numeric_val"),
+            array("Code Name", "150", "notes", "", "", ""),
+            array("Bill Seconds", "100", "seconds", "", "", "get_field_name"),
+            array("Debit", "85", "debit", "", "", ""),
+            array("Disposition", "150", "disposition", "", "", ""),
+            array("Card Number", "100", "callingcard_id", "cardnumber", "callingcards", "get_field_name"),
+            array("Rate Group", "100", "pricelist_id", "name", "pricelists", "get_field_name"),
                 ));
         return $grid_field_arr;
     }

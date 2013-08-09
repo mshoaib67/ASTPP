@@ -6,7 +6,6 @@
 <script type="text/javascript" language="javascript">
     $(document).ready(function() {
         $('#tabs').tabs();
-        
         build_grid("pattern_grid","<?php echo base_url(); ?>package/package_pattern_json/<?= $package_id; ?>",<? echo $pattern_grid_fields ?>, <?= $pattern_grid_buttons ?>);
     });
 </script>
@@ -25,7 +24,14 @@
                     <?= @$page_title ?>
                     <span class="ui-icon ui-icon-circle-arrow-s"></span></div>
                 <div style="color:red;margin-left: 60px;">
-                    <?php if (isset($validation_errors)) echo $validation_errors; ?> 
+                    <?php
+                    if(isset($validation_errors)){
+                        $data_errrors = json_decode($validation_errors);
+                        foreach ($data_errrors as $key => $value) {
+                            echo $value . "<br/>";
+                        }
+                    }
+                    ?> 
                 </div>
                 <?php echo $form; ?>
             </div>      

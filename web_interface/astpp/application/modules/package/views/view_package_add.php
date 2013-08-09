@@ -13,7 +13,12 @@
         <?= @$page_title ?>
         <span class="ui-icon ui-icon-circle-arrow-s"></span></div>
     <div style="color:red;margin-left: 60px;">
-        <?php if (isset($validation_errors)) echo $validation_errors; ?> 
+        <?php
+        $data_errrors = json_decode($validation_errors);
+        foreach ($data_errrors as $key => $value) {
+            echo $value . "<br/>";
+        }
+        ?> 
     </div>
     <?php echo $form; ?>
 </div>

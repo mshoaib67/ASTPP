@@ -16,6 +16,7 @@
 #################################
 TEMP_USER_ANSWER="no"
 INSTALL_ASTPP="no"
+UPGRADE_ASTPP="no"
 ASTPP_SOURCE_DIR="/usr/src/ASTPP/"
 ASTPP_HOST_DOMAIN_NAME="host.domain.tld"
 
@@ -132,73 +133,69 @@ genpasswd() {
 # Ask to install astpp
 ask_to_install_astpp () {
   
-	ask_to_user_yes_or_no "Do you have ASTPP installed already?"
+	ask_to_user_yes_or_no "Do you want to upgrade ASTPP?"
 	echo -e "";
 	if [ ${TEMP_USER_ANSWER} = "yes" ]; then
-	    echo -e "***************************************************************************************************************"
-	    echo -e "		CAUTION : This script will WIPE all your previous data and install new version. 		    "
-	    echo -e "			  If necessary please take full backup of your source manually.				    "
-	    echo -e "***************************************************************************************************************"
 	    read -n 1 -p "Press any key to continue ... "
 	    clear
 	    
-	    echo -e "Backup Directory : /usr/src/ASTPP-1.7.2"
+	    NOW=$(date +"%d%m%Y%H%M%S")
 	    
-	    mkdir /usr/src/ASTPP-1.7.2
-	    mkdir /usr/src/ASTPP-1.7.2/sql
-	    mv /usr/src/ASTPP /usr/src/ASTPP-1.7.2/
-	    mv /var/www/html/astpp /usr/src/ASTPP-1.7.2/astpp_gui
-	    mv /var/www/cgi-bin/* /usr/src/ASTPP-1.7.2/cgi-bin
-	    mv /usr/local/astpp /usr/src/ASTPP-1.7.2/usr_local_astpp
+	    echo -e "Backup Directory : /usr/src/ASTPP_$NOW"
+	    
+	    mkdir /usr/src/ASTPP_$NOW
+	    mkdir /usr/src/ASTPP_$NOW/sql	    
+	    mv /usr/src/ASTPP /usr/src/ASTPP_$NOW/
+	    mv /var/www/html/astpp /usr/src/ASTPP_$NOW/astpp_gui
+	    mv /var/www/cgi-bin/* /usr/src/ASTPP_$NOW/cgi-bin
+	    mv /usr/local/astpp /usr/src/ASTPP_$NOW/usr_local_astpp
 	    
 	    read -p "Enter your MySQL root password: "
 	    MYSQL_ROOT_PASSWORD=${REPLY}
 	    read -n 1 -p "Press any key to continue ... "
 	    clear
 	    
-	    /usr/bin/mysqldump -u root --password=${MYSQL_ROOT_PASSWORD} astpp > /usr/src/ASTPP-1.7.2/sql/astpp.sql
-	    /usr/bin/mysqldump -u root --password=${MYSQL_ROOT_PASSWORD} fscdr > /usr/src/ASTPP-1.7.2/sql/fscdr.sql
-	    /usr/bin/mysqldump -u root --password=${MYSQL_ROOT_PASSWORD} fs > /usr/src/ASTPP-1.7.2/sql/fs.sql
-
-	    /usr/bin/mysql -u root --password=${MYSQL_ROOT_PASSWORD} -e "DROP DATABASE astpp";
-            /usr/bin/mysql -u root --password=${MYSQL_ROOT_PASSWORD} -e "DROP DATABASE fs";
-            /usr/bin/mysql -u root --password=${MYSQL_ROOT_PASSWORD} -e "DROP DATABASE fscdr"; 
+	    /usr/bin/mysqldump -u root --password=${MYSQL_ROOT_PASSWORD} astpp > /usr/src/ASTPP_$NOW/sql/astpp.sql
 	    
 	    echo -e "Backup process completed!!!"
 	    read -n 1 -p "Press any key to continue ... "
+	    	    
+	    UPGRADE_ASTPP="yes"
+	    
             clear
-	fi  
+            
+	else 
+	  ask_to_user_yes_or_no "Do you want to install ASTPP?"
+	  if 	[ ${TEMP_USER_ANSWER} = "yes" ]; then
+		  INSTALL_ASTPP="yes"
+		  echo ""
+		  read -p "Enter fqdn example: ${ASTPP_HOST_DOMAIN_NAME}: "
+		  ASTPP_HOST_DOMAIN_NAME=${REPLY}
+		  echo "Your entered data as fqdm : ${ASTPP_HOST_DOMAIN_NAME}"
+		  read -n 1 -p "Press any key to continue ... "
+		  
+		  ask_to_user_yes_or_no "Do you want use FreeSwitch on ASTPP?"
+		  if 	[ ${TEMP_USER_ANSWER} = "yes" ]; then
+			  ASTPP_USING_FREESWITCH="yes"	
+		  else 
+			  ask_to_user_yes_or_no "Do you want use Asterisk on ASTPP?"
+				  if 	[ ${TEMP_USER_ANSWER} = "yes" ]; then
+				  ASTPP_USING_ASTERISK="yes"
+				  fi
+		  fi
 
-	ask_to_user_yes_or_no "Do you want to install ASTPP?"
-	if 	[ ${TEMP_USER_ANSWER} = "yes" ]; then
-		INSTALL_ASTPP="yes"
-		echo ""
-		read -p "Enter fqdn example: ${ASTPP_HOST_DOMAIN_NAME}: "
-		ASTPP_HOST_DOMAIN_NAME=${REPLY}
-		echo "Your entered data as fqdm : ${ASTPP_HOST_DOMAIN_NAME}"
-		read -n 1 -p "Press any key to continue ... "
-		
-		ask_to_user_yes_or_no "Do you want use FreeSwitch on ASTPP?"
-		if 	[ ${TEMP_USER_ANSWER} = "yes" ]; then
-			ASTPP_USING_FREESWITCH="yes"	
-		else 
-			ask_to_user_yes_or_no "Do you want use Asterisk on ASTPP?"
-				if 	[ ${TEMP_USER_ANSWER} = "yes" ]; then
-				ASTPP_USING_ASTERISK="yes"
-				fi
-		fi
-
-		ask_to_user_yes_or_no "Do you want to install ASTPP PERL PACKAGES?"
-			if [ ${TEMP_USER_ANSWER} = "yes" ]; then
-				INSTALL_ASTPP_PERL_PACKAGES="yes"
-			fi
-		
-		ask_to_user_yes_or_no "Do you want to install ASTPP web interface?"
-			if [ ${TEMP_USER_ANSWER} = "yes" ]; then
-				INSTALL_ASTPP_WEB_INTERFACE="yes"
-			fi
-		
-		
+		  ask_to_user_yes_or_no "Do you want to install ASTPP PERL PACKAGES?"
+			  if [ ${TEMP_USER_ANSWER} = "yes" ]; then
+				  INSTALL_ASTPP_PERL_PACKAGES="yes"
+			  fi
+		  
+		  ask_to_user_yes_or_no "Do you want to install ASTPP web interface?"
+			  if [ ${TEMP_USER_ANSWER} = "yes" ]; then
+				  INSTALL_ASTPP_WEB_INTERFACE="yes"
+			  fi
+		  
+		  
+	  fi
 	fi
 }
 ask_to_install_astpp
@@ -211,7 +208,11 @@ ask_to_install_astpp
 #################################
 
 clear
-echo -e "installation starting"
+if [ ${UPGRADE_ASTPP} = "yes" ]; then
+    echo -e "upgradation starting"
+else
+    echo -e "installation starting"
+fi    
 echo -e "are you ready?"
 read -n 1 -p "Press any key to continue ... "
 clear
@@ -252,20 +253,20 @@ install_freeswitch_for_astpp () {
     
     # Download latest freeswitch version
     cd /usr/local/src
-    #git clone git://git.freeswitch.org/freeswitch.git
-    wget http://files.freeswitch.org/freeswitch-1.2.8.tar.bz2
-    tar -xvf freeswitch-1.2.8.tar.bz2
-    cd freeswitch-1.2.8
-    #./bootstrap.sh
+    git clone git://git.freeswitch.org/freeswitch.git
+    #wget http://files.freeswitch.org/freeswitch-1.2.8.tar.bz2
+    #tar -xvf freeswitch-1.2.8.tar.bz2
+    cd freeswitch
+    ./bootstrap.sh
 
     read -n 1 -p "Press any key to continue ... "
 
     # Edit modules.conf
     echo "Enable mod_xml_curl, mod_xml_cdr, mod_perl (If you want to use calling card features)"
 
-    sed -i "s#\#xml_int/mod_xml_curl#xml_int/mod_xml_curl#g" /usr/local/src/freeswitch-1.2.8/modules.conf
+    sed -i "s#\#xml_int/mod_xml_curl#xml_int/mod_xml_curl#g" /usr/local/src/freeswitch/modules.conf
     #sed -i "s#\#languages/mod_perl#languages/mod_perl#g" /usr/local/src/freeswitch-1.2.8/modules.conf
-    sed -i "s#\#mod_xml_cdr#mod_xml_cdr#g" /usr/local/src/freeswitch-1.2.8/modules.conf
+    sed -i "s#\#mod_xml_cdr#mod_xml_cdr#g" /usr/local/src/freeswitch/modules.conf
 
     read -n 1 -p "Press any key to continue ... "
 
@@ -307,12 +308,21 @@ startup_services() {
 	chkconfig --level 345 apache2 on
 	chkconfig --add mysql
 	chkconfig --level 345 mysql on	
+		
+	/etc/init.d/mysql restart
+	/etc/init.d/apache2 restart
+	/etc/init.d/freeswitch restart
+	
     elif  [ ${DIST} = "CENTOS" ]; then
 	chkconfig --add httpd
 	chkconfig --levels 35 httpd on
 	chkconfig --add mysqld
 	chkconfig --levels 35 mysqld on
-    fi	
+	
+	/etc/init.d/mysqld restart
+	/etc/init.d/httpd restart
+	/etc/init.d/freeswitch restart
+    fi
 }
 
 # Setup MySQL For ASTPP
@@ -356,7 +366,7 @@ mysql -uroot -p${MYSQL_ROOT_PASSWORD} -e "CREATE USER 'astppuser'@'localhost' ID
 mysql -uroot -p${MYSQL_ROOT_PASSWORD} -e "GRANT ALL PRIVILEGES ON \`${ASTPP_DATABASE_NAME}\` . * TO 'astppuser'@'localhost' WITH GRANT OPTION;FLUSH PRIVILEGES;"
 
 mysql -uroot -p${MYSQL_ROOT_PASSWORD} astpp < ${ASTPP_SOURCE_DIR}/sql/astpp-1.7.3-beta.sql
-
+mysql -uroot -p${MYSQL_ROOT_PASSWORD} astpp < ${ASTPP_SOURCE_DIR}/sql/astpp-upgrade-1.7.3.sql
 }
 
 
@@ -370,20 +380,20 @@ install_astpp () {
 	      aptitude install -y mysql-server apache2 apache2-threaded-dev php5 php5-dev php5-common php5-cli php5-gd php-pear php5-mysql php5-cli php-apc php5-curl libapache2-mod-php5 perl libapache2-mod-perl2 libxml2 libxml2-dev openssl libcurl4-openssl-dev gettext libtool gcc g++
 	elif  [ ${DIST} = "CENTOS" ]; then
 	      # Install ASTPP pre-requisite packages using YUM
-	      yum install -y cpan autoconf automake bzip2 cpio curl curl-devel php php-devel php-common php-cli php-gd php-pear php-mysql php-pdo php-pecl-json mysql mysql-server mysql-devel libxml2 libxml2-devel openssl openssl-devel gettext-devel libtool fileutils gcc-c++ httpd httpd-devel YAML cpan perl
+	      yum install -y cpan autoconf automake bzip2 cpio curl curl-devel php php-devel php-common php-cli php-gd php-pear php-mysql php-pdo php-pecl-json mysql mysql-server mysql-devel libxml2 libxml2-devel openssl openssl-devel gettext-devel libtool fileutils gcc-c++ httpd httpd-devel perl-YAML cpan perl
 	fi	
 	
 #	cd ${ASTPP_SOURCE_DIR}	
 
 	if [ ${DIST} = "DEBIAN" ]; then
-	echo "Normalize ASTPP for Debian"
-#sed -i "s#APACHE=/etc/httpd#APACHE=/etc/apache2#g" Makefile
-sed -i "s#/var/log/httpd/astpp_access_log#/var/log/apache2/astpp_access_log#g" ${ASTPP_SOURCE_DIR}/web_interface/apache/astpp.conf
-sed -i "s#/var/log/httpd/astpp_error_log#/var/log/apache2/astpp_error_log#g" ${ASTPP_SOURCE_DIR}/web_interface/apache/astpp.conf
-touch /var/log/apache2/astpp_access_log
-touch /var/log/apache2/astpp_error_log
+	  echo "Normalize ASTPP for Debian"
+	  #sed -i "s#APACHE=/etc/httpd#APACHE=/etc/apache2#g" Makefile
+	  sed -i "s#/var/log/httpd/astpp_access_log#/var/log/apache2/astpp_access_log#g" ${ASTPP_SOURCE_DIR}/web_interface/apache/astpp.conf
+	  sed -i "s#/var/log/httpd/astpp_error_log#/var/log/apache2/astpp_error_log#g" ${ASTPP_SOURCE_DIR}/web_interface/apache/astpp.conf
+	  touch /var/log/apache2/astpp_access_log
+	  touch /var/log/apache2/astpp_error_log
 	fi
-# 	make
+	# make
 	
 	if [ ${INSTALL_ASTPP_PERL_PACKAGES} = "yes" ]; then
 		perl -MCPAN -e "install Bundle::CPAN,ExtUtils::CBuilder,DBI,DBD::mysql,YAML,Params::Validate,CGI,URI::Escape,Time::DaysInMonth,DateTime,DateTime::TimeZone,DateTime::Locale,XML::Simple,Data::Dumper,Module::Build,Storable,Time::Zone,Date::Parse,Curses,POE,Sys::Syslog,FCGI,DateTime::Set,DateTime::Event::Recurrence,DateTime::Incomplete,Date::Language,DateTime::Format::Strptime,DBI::Shell,JSON,CGI::Fast,Locale::gettext_pp,Text::Template,Mail::Sendmail,XML::Simple";
@@ -436,7 +446,7 @@ touch /var/log/apache2/astpp_error_log
 		cp ${ASTPP_SOURCE_DIR}/web_interface/astpp/htaccess ${WWWDIR}/html/astpp/.htaccess
 		
 		if [ ${DIST} = "DEBIAN" ]; then
-			chown -Rf www-data.www-data ${WWWDIR}/html/astpp			
+			chown -Rf www-data.www-data ${WWWDIR}/html/astpp
 			cp ${ASTPP_SOURCE_DIR}/web_interface/apache/astpp.conf /etc/apache2/conf.d/astpp.conf
 		elif  [ ${DIST} = "CENTOS" ]; then
 			chown -Rf apache.apache ${WWWDIR}/html/astpp
@@ -444,6 +454,61 @@ touch /var/log/apache2/astpp_error_log
 		fi
 		chmod -Rf 777 ${WWWDIR}/html/astpp
 	fi	
+}
+
+
+
+upgrade_astpp () {
+  
+	# Download ASTPP
+	cd /usr/src/	
+	git clone https://github.com/ASTPP/ASTPP.git
+
+	cd ${ASTPP_SOURCE_DIR}/modules/ASTPP && perl Makefile.PL && make && make install && cd ../../	
+	
+	mkdir -p ${ASTPPDIR}		
+	mkdir -p ${ASTPPLOGDIR}		
+	mkdir -p ${ASTPPEXECDIR}
+	mkdir -p ${WWWDIR}/html/astpp
+	
+	#setup scripts and other configuration files
+	if [ ${DIST} = "DEBIAN" ]; then
+	    chown -Rf www-data.www-data ${ASTPPDIR}
+	    chown -Rf www-data.www-data ${ASTPPLOGDIR}
+	    chown -Rf www-data.www-data ${ASTPPEXECDIR}
+	    chown -Rf www-data.www-data ${WWWDIR}/cgi-bin/
+	elif [ ${DIST} = "CENTOS" ]; then
+	    chown -Rf apache.apache ${ASTPPDIR}
+	    chown -Rf apache.apache ${ASTPPLOGDIR}
+	    chown -Rf apache.apache ${ASTPPEXECDIR}
+	    chown -Rf apache.apache ${WWWDIR}/cgi-bin/
+	fi
+	
+	cp -rf ${ASTPP_SOURCE_DIR}/scripts/*.pl ${ASTPPEXECDIR}/
+	
+	#Copy cgi scripts to cgi-bin
+	cp -rf ${ASTPP_SOURCE_DIR}/freeswitch/astpp ${WWWDIR}/cgi-bin/
+	chmod -Rf 777 ${WWWDIR}/cgi-bin/astpp
+	
+	#copy calling card script to freeswitch script folder
+	cp ${ASTPP_SOURCE_DIR}/freeswitch/astpp-callingcards.pl ${FS_SCRIPTS}/astpp-callingcards.pl
+			
+	cp -rf ${ASTPP_SOURCE_DIR}/sounds/*.wav ${FS_SOUNDSDIR}/
+	chmod -Rf 777 ${FS_SOUNDSDIR}
+	
+	
+	#Install GUI of ATSPP
+	cp -rf ${ASTPP_SOURCE_DIR}/web_interface/astpp/* ${WWWDIR}/html/astpp/
+	cp ${ASTPP_SOURCE_DIR}/web_interface/astpp/htaccess ${WWWDIR}/html/astpp/.htaccess
+	
+	chmod -Rf 777 ${WWWDIR}/html/astpp
+	
+	
+	dbname=$(cat /var/lib/astpp/astpp-config.conf | grep dbname | cut -d " " -f 3)
+	dbuser=$(cat /var/lib/astpp/astpp-config.conf | grep dbuser | cut -d " " -f 3)
+	dbpass=$(cat /var/lib/astpp/astpp-config.conf | grep dbpass | cut -d " " -f 3)
+
+	mysql -u root -f --password=${MYSQL_ROOT_PASSWORD} astpp < $ASTPP_SOURCE_DIR/sql/astpp-upgrade-1.7.3.sql
 }
 
 
@@ -482,7 +547,19 @@ finalize_astpp_installation () {
     # /var/lib/astpp/astpp-config.conf
     sed -i "s#dbpass = <PASSSWORD>#dbpass = ${MYSQL_ROOT_PASSWORD}#g" ${ASTPPDIR}/astpp-config.conf
     sed -i "s#base_url=http://localhost:8081/#base_url=http://${ASTPP_HOST_DOMAIN_NAME}:8081/#g" ${ASTPPDIR}/astpp-config.conf
+}
 
+setup_cron()
+{
+echo "# Generate Invoice   
+0 1 * * * cd /var/www/html/astpp/cron/ && php cron.php GenerateInvoice
+          
+# Low balance notification
+0 0 * * * cd /var/www/html/astpp/cron/ && php cron.php LowBalance
+          
+# Update currency rate
+@hourly /usr/local/astpp/astpp-currency-update.pl
+" >> /var/spool/cron/crontabs/root
 }
 
 astpp_install () {
@@ -494,14 +571,24 @@ astpp_install () {
 	
 	install_astpp
 	mySQL_for_astpp
-	startup_services
 	finalize_astpp_installation
+	setup_cron
+	startup_services
 	
 	clear
 	echo " you can login on "
 	echo "http://${ASTPP_HOST_DOMAIN_NAME}:8081 "
 	echo "Username= Leave empty "
 	echo "Password= Passw0rd! "
+}
+
+astpp_upgrade () {
+
+	upgrade_astpp	
+	setup_cron
+	startup_services	
+	clear
+	echo " ASTPP upgrade completed!!! "
 }
 
 # Install astpp
@@ -518,35 +605,6 @@ if [ ${INSTALL_ASTPP} = "yes" ]; then
 	start_install_astpp
 fi
 
-steps () {
-
-cat <<EOT
-Note : 
-1. We already have added demo data in few modules. 
-2. Pricelist module name is changed to Rate Group
-3. In Termination Rates and Origination Rates, no need to append ^ and .* manually. 
-
-Here is the steps to configure : 
-
-[Origination Configuration]
-1. Create Rate Group. Routing -> Rate Group
-2. Add Origination Rates. Routing -> Origination rates (Pattern example : 1, 235)
-Note : Please do not use ^ or .* 
-
-[Termination Configuration]
-1. Create SIP Profile. Routing -> SIP Profile
-2. Add Gateway under your sip profile. Routing -> Gateway
-3. Add Provider. Global Accounts -> Provider List
-4. Add your trunk. Routing -> Trunk
-5. Add termination rates. Routing -> Termination rates (Pattern example : 1, 235)
-Note : Please do not use ^ or .* 
-
-Create new Customer or Reseller and assign your created rate group.
-For customer add SIP Device from View Account or Freeswitch SIP Devices.
-
-For reseller configuration, create new reseller. Login as reseller. Add
-Routes. Create customers and then make calls using that customer.
-
-7. Register it and make outbound calls. 
-EOT
-}
+if [ ${UPGRADE_ASTPP} = "yes" ]; then
+	astpp_upgrade
+fi

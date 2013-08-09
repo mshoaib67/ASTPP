@@ -12,12 +12,12 @@ class Package_model extends CI_Model {
             $account_data = $this->session->userdata("accountinfo");
             $where = array("reseller_id" => $account_data['id'], "status" => "1");
         } else {
-            $where = array("status" => "1");
+            $where = array("status" => "1","reseller_id"=>"0");
         }
         if ($flag) {
-            $query = $this->db_model->getSelect("*", "packages", "", "id", "ASC", $limit, $start);
+            $query = $this->db_model->getSelect("*", "packages", $where, "id", "ASC", $limit, $start);
         } else {
-            $query = $this->db_model->countQuery("*", "packages", "");
+            $query = $this->db_model->countQuery("*", "packages", $where);
         }
         return $query;
     }

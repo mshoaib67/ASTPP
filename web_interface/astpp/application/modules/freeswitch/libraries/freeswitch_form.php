@@ -15,14 +15,12 @@ class Freeswitch_form {
         $form['Freeswitch Devices'] = array(
             array('', 'HIDDEN', array('name' => 'id'), '', '', '', ''),
             array('Username', 'INPUT', array('name' => 'fs_username', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), 'trim|required|min_length[2]|max_length[25]|xss_clean', 'tOOL TIP', 'Please Enter account number'),
-            array('Password', 'PASSWORD', array('name' => 'fs_password', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), 'trim|required|min_length[5]|max_length[10]|xss_clean', 'tOOL TIP', 'Please Enter Password'),
+            array('Password', 'PASSWORD', array('name' => 'fs_password', 'size' => '20', 'maxlength' => '20', 'class' => "text field medium"), 'trim|required|min_length[5]|max_length[20]|xss_clean', 'tOOL TIP', 'Please Enter Password'),
             array('Account', 'accountcode', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'first_name,last_name,number', 'accounts', 'build_concat_dropdown', 'where_arr', array("reseller_id" => "0","type"=>"0", "deleted" => "0")),
-//            array('Account Number', 'accountcode', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'number', 'accounts', 'build_dropdown', 'where_arr', array("reseller_id" => "0", "deleted" => "0")),
             array('Caller Name', 'INPUT', array('name' => 'effective_caller_id_name', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
             array('Caller Number', 'INPUT', array('name' => 'effective_caller_id_number', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
             array('Sip Profile', 'sip_profile_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'sip_profiles', 'build_dropdown', '', ''),
-//             array('VM Password', 'INPUT', array('name' => 'vm_password', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
-            array('Rate Group', 'pricelist_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'pricelists', 'build_dropdown', 'reseller_id', '0'),
+            array('Rate Group', 'pricelist_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'pricelists', 'build_dropdown', 'where_arr', array("status" => "1","reseller_id" => "0")),
             array('Context::', 'INPUT', array('name' => 'context', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
         );
 
@@ -63,11 +61,9 @@ class Freeswitch_form {
     function build_system_list_for_admin() {
         // array(display name, width, db_field_parent_table,feidname, db_field_child_table,function name);
         $grid_field_arr = json_encode(array(
-//             array("ID", "60", "id", "", "", ""),
             array("User Name", "155", "username", "", "", ""),
             array("Password", "155", "password", "", "", ""),
             array("SIP Profile", "152", "sip_profile_id", "name", "sip_profiles", "get_field_name"),
-//             array("VM Password", "178", "vm_password", "", "", ""),
             array("Account Number", "150", "accountid", "number", "accounts", "get_field_name"),
             array("Caller Name", "150", "effective_caller_id_name", "", "", ""),
             array("Caller Number", "160", "effective_caller_id_number", "", "", ""),
@@ -80,17 +76,17 @@ class Freeswitch_form {
 
     function build_grid_buttons() {
         $buttons_json = json_encode(array(array("Add SIP Devices", "add", "button_action", "/freeswitch/fssipdevices_add/", "popup"),
-            array("Refresh", "reload", "/accounts/clearsearchfilter/")));
+                        array("Refresh", "reload", "/accounts/clearsearchfilter/")));
         return $buttons_json;
     }
     function build_grid_buttons_for_user() {
         $buttons_json = json_encode(array(array("Add SIP Devices", "add", "button_action", "/user/user_fssipdevices_action/add/", "popup"),
-            array("Refresh", "reload", "/accounts/clearsearchfilter/")));
+                        array("Refresh", "reload", "/accounts/clearsearchfilter/")));
         return $buttons_json;
     }
 
     function fsdevices_build_grid_buttons($accountid) {
-        $buttons_json = json_encode(array(array("Add SIP Devices", "add", "button_action", "/freeswitch/fssipdevices_add/$accountid/", "popup"),
+        $buttons_json = json_encode(array(array("Add SIP Devices", "add", "button_action", "/freeswitch/customer_fssipdevices_add/$accountid/", "popup"),
             array("Refresh", "reload", "/accounts/clearsearchfilter/")));
         return $buttons_json;
     }
@@ -104,8 +100,9 @@ class Freeswitch_form {
             array('SIP Profile', 'sip_profile_id', 'SELECT', '', '', 'tOOL TIP', '', 'id', 'name', 'sip_profiles', 'build_dropdown', '', ''),
             array('Username', 'INPUT', array('name' => 'username', 'size' => '20', 'maxlength' => '30', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter user name'),
             array('Password', 'PASSWORD', array('name' => 'password', 'size' => '20', 'maxlength' => '30', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
-            array('Proxy', 'INPUT', array('name' => 'proxy', 'size' => '20', 'maxlength' => '30', 'class' => "text field medium"), 'trim|required|xss_clean', 'tOOL TIP', ''),
-            array('Register', array('name' => 'register', 'class' => 'add_settings'), 'SELECT', '', '', 'tOOL TIP', '', '', '', '', 'set_sip_config_option'),
+            array('Proxy', 'INPUT', array('name' => 'proxy', 'size' => '20', 'maxlength' => '35', 'class' => "text field medium"), 'trim|required|xss_clean', 'tOOL TIP', ''),
+            array('Outbound-Proxy', 'INPUT', array('name' => 'outbound-proxy', 'size' => '20', 'maxlength' => '35', 'class' => "text field medium"), 'trim|xss_clean', 'tOOL TIP', ''),
+	    array('Register', array('name' => 'register', 'class' => 'add_settings'), 'SELECT', '', '', 'tOOL TIP', '', '', '', '', 'set_sip_config_option'),
             array('Caller-id-in-from', array('name' => 'caller-id-in-from', 'class' => 'add_settings'), 'SELECT', '', '', 'tOOL TIP', '', '', '', '', 'set_sip_config_option'),
             
         );
@@ -132,15 +129,13 @@ class Freeswitch_form {
     function build_fsgateway_list_for_admin() {
         // array(display name, width, db_field_parent_table,feidname, db_field_child_table,function name);
         $grid_field_arr = json_encode(array(
-            array("Gateway Name", "201", "name", "", "", ""),
+            array("Gateway Name", "250", "name", "", "", ""),
             array("SIP Profile", "181", "sip_profile_id", "name", "sip_profiles", "get_field_name"),
-            array("User Name", "191", "username", "", "", ""),
-            array("Password", "181", "password", "", "", ""),
-            array("Proxy", "171", "proxy", "", "", ""),
-            array("Register", "170", "register", "register", "register", "convert_to_ucfirst"),
-//             array("Realm", "125", "realm", "", "", ""),
-//             array("Extension", "135", "extension", "", "", ""),
-            array("Action", "60", "", "", "", array("EDIT" => array("url" => "/freeswitch/fsgateway_edit/", "mode" => "popup"),
+            array("User Name", "200", "username", "", "", ""),
+//             array("Password", "181", "password", "", "", ""),
+            array("Proxy", "235", "proxy", "", "", ""),
+            array("Register", "200", "register", "register", "register", "convert_to_ucfirst"),
+            array("Action", "100", "", "", "", array("EDIT" => array("url" => "/freeswitch/fsgateway_edit/", "mode" => "popup"),
                     "DELETE" => array("url" => "/freeswitch/fsgateway_delete/", "mode" => "single")))
                 ));
         return $grid_field_arr;
@@ -169,6 +164,7 @@ class Freeswitch_form {
             array('disable-transcoding', 'disable-transcoding', 'SELECT', '', '', 'tOOL TIP', '', '', '', '', 'set_sip_config_option'),
             array('all-reg-options-ping', 'all-reg-options-ping', 'SELECT', '', '', 'tOOL TIP', '', '', '', '', 'set_sip_config_option'),
             array('unregister-on-options-fail', 'unregister-on-options-fail', 'SELECT', '', '', 'tOOL TIP', '', '', '', '', 'set_sip_config_option'),
+            array('log-auth-failures', 'log-auth-failures', 'SELECT', '', '', 'tOOL TIP', '', '', '', '', 'set_sip_config_option'),
         );
 
         $form['Others Information'] = array(
@@ -185,6 +181,10 @@ class Freeswitch_form {
             array('session-timeout', 'INPUT', array('name' => 'session-timeout-pt', 'value' => '1800', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', ''),
             array('auth-calls', 'auth-calls', 'SELECT', '', '', 'tOOL TIP', '', '', '', '', 'set_sip_config_option'),
             array('apply-inbound-acl', 'INPUT', array('name' => 'apply-inbound-acl', 'value' => 'default', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', ''),
+            array('inbound-codec-prefs', 'INPUT', array('name' => 'inbound-codec-prefs', 'size' => '25', 'maxlength' => '25', 'class' => "text field medium"), '', 'tOOL TIP', ''),
+            array('outbound-codec-prefs', 'INPUT', array('name' => 'outbound-codec-prefs', 'size' => '25', 'maxlength' => '25', 'class' => "text field medium"), '', 'tOOL TIP', ''),
+            array('inbound-late-negotiation', 'inbound-late-negotiation', 'SELECT', '', '', 'tOOL TIP', '', '', '', '', 'set_sip_config_options'),
+            array('inbound-codec-negotiation', 'INPUT', array('name' => 'inbound-codec-negotiation', 'size' => '25', 'maxlength' => '25', 'class' => "text field medium"), '', 'tOOL TIP', ''),
         );
         $form['button_cancel'] = array('name' => 'action', 'content' => 'Cancel', 'value' => 'cancel', 'type' => 'button', 'class' => 'ui-state-default float-right ui-corner-all ui-button', 'onclick' => 'return redirect_page(\'NULL\')');
         $form['button_save'] = array('content' => 'Save', 'value' => 'save', 'type' => 'button','id'=>'submit', 'class' => 'ui-state-default float-right ui-corner-all ui-button');
@@ -233,7 +233,7 @@ class Freeswitch_form {
         $form['Freeswitch Server Information'] = array(
             array('', 'HIDDEN', array('name' => 'id'), '', '', '', ''),
             array('Freeswich Host', 'INPUT', array('name' => 'freeswitch_host', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), 'trim|required|valid_ip', 'tOOL TIP', 'Please Enter account number'),
-            array('Freeswitch Password', 'INPUT', array('name' => 'freeswitch_password', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
+            array('Freeswitch Password', 'INPUT', array('name' => 'freeswitch_password', 'size' => '20', 'maxlength' => '20', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
             array('Freeswitch Port', 'INPUT', array('name' => 'freeswitch_port', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), 'trim|required|numeric', 'tOOL TIP', 'Please Enter account number'),
         );
 
@@ -265,8 +265,6 @@ class Freeswitch_form {
             array("SIP Profile", "215", "sip_profile_id", "name", "sip_profiles", "get_field_name"),
             array("Caller Name", "223", "effective_caller_id_name", "", "", ""),
             array("Caller Number", "220", "effective_caller_id_number", "", "", ""),
-//             array("Rate Group", "127", "pricelist_id", "name", "pricelists", "get_field_name"),
-//             array("Context", "160", "context", "", "", ""),
             array("Action", "60", "", "", "", array("EDIT" => array("url" => "/accounts/fssipdevices_actio/edit/", "mode" => "single"),
                     "DELETE" => array("url" => "/accounts/fssipdevices_actio/delete/", "mode" => "single")))
                 ));
@@ -276,21 +274,37 @@ class Freeswitch_form {
     function fsdevice_form_fields_for_customer($accountid) {
         if ($this->CI->session->userdata("logintype") == '0') {
             $link = base_url() . 'freeswitch/user_fssipdevices_save/true';
+            $form['forms'] = array($link, array("id" => "sipdevices_form", "name" => "sipdevices_form"));
+            $form['Freeswitch Devices'] = array(
+                array('', 'HIDDEN', array('name' => 'id'), '', '', '', ''),
+                array('', 'HIDDEN', array('name' => 'accountcode', 'value' => $accountid), '', '', '', ''),
+                array('Username', 'INPUT', array('name' => 'fs_username', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), 'trim|required|min_length[2]|max_length[25]|xss_clean', 'tOOL TIP', 'Please Enter account number'),
+                array('Password', 'PASSWORD', array('name' => 'fs_password', 'size' => '20', 'maxlength' => '20', 'class' => "text field medium"), 'trim|required|min_length[5]|max_length[20]|xss_clean', 'tOOL TIP', 'Please Enter Password'),
+                array('Caller Name', 'INPUT', array('name' => 'effective_caller_id_name', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
+                array('Caller Number', 'INPUT', array('name' => 'effective_caller_id_number', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
+                array('Sip Profile', 'sip_profile_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'sip_profiles', 'build_dropdown', '', ''),
+                array('Context::', 'INPUT', array('name' => 'context', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
+            );
+            
         } else {
-            $link = base_url() . 'freeswitch/fssipdevices_save/true';
+            if ($this->CI->session->userdata("logintype") == '1') {
+                $link = base_url() . 'freeswitch/customer_fssipdevices_save/true';
+            }else{
+                $link = base_url() . 'freeswitch/fssipdevices_save/true';
+            }
+            $form['forms'] = array($link, array("id" => "sipdevices_form", "name" => "sipdevices_form"));
+            $form['Freeswitch Devices'] = array(
+                array('', 'HIDDEN', array('name' => 'id'), '', '', '', ''),
+                array('', 'HIDDEN', array('name' => 'accountcode', 'value' => $accountid), '', '', '', ''),
+                array('Username', 'INPUT', array('name' => 'fs_username', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), 'trim|required|min_length[2]|max_length[25]|xss_clean', 'tOOL TIP', 'Please Enter account number'),
+                array('Password', 'PASSWORD', array('name' => 'fs_password', 'size' => '20', 'maxlength' => '20', 'class' => "text field medium"), 'trim|required|min_length[5]|max_length[20]|xss_clean', 'tOOL TIP', 'Please Enter Password'),
+                array('Caller Name', 'INPUT', array('name' => 'effective_caller_id_name', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
+                array('Caller Number', 'INPUT', array('name' => 'effective_caller_id_number', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
+                array('Sip Profile', 'sip_profile_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'sip_profiles', 'build_dropdown', '', ''),
+                array('Rate Group', 'pricelist_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'pricelists', 'build_dropdown', 'reseller_id', '0'),
+                array('Context::', 'INPUT', array('name' => 'context', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
+            );
         }
-        $form['forms'] = array($link, array("id" => "sipdevices_form", "name" => "sipdevices_form"));
-        $form['Freeswitch Devices'] = array(
-            array('', 'HIDDEN', array('name' => 'id'), '', '', '', ''),
-            array('', 'HIDDEN', array('name' => 'accountcode', 'value' => $accountid), '', '', '', ''),
-            array('Username', 'INPUT', array('name' => 'fs_username', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), 'trim|required|min_length[2]|max_length[25]|xss_clean', 'tOOL TIP', 'Please Enter account number'),
-            array('Password', 'PASSWORD', array('name' => 'fs_password', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), 'trim|required|min_length[5]|max_length[10]|xss_clean', 'tOOL TIP', 'Please Enter Password'),
-            array('Caller Name', 'INPUT', array('name' => 'effective_caller_id_name', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
-            array('Caller Number', 'INPUT', array('name' => 'effective_caller_id_number', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
-            array('Sip Profile', 'sip_profile_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'sip_profiles', 'build_dropdown', '', ''),
-//             array('Rate Group', 'pricelist_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'pricelists', 'build_dropdown', 'reseller_id', '0'),
-            array('Context::', 'INPUT', array('name' => 'context', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter account number'),
-        );
 
         $form['button_cancel'] = array('name' => 'action', 'content' => 'Cancel', 'value' => 'cancel', 'type' => 'button', 'class' => 'ui-state-default float-right ui-corner-all ui-button', 'onclick' => 'return redirect_page(\'NULL\')');
         $form['button_save'] = array('name' => 'action', 'content' => 'Save', 'value' => 'save', 'id' => 'submit', 'type' => 'button', 'class' => 'ui-state-default float-right ui-corner-all ui-button');

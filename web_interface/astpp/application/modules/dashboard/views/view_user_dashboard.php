@@ -38,7 +38,7 @@
   </div>
     <div class="clear"></div>
 <!--         <a href="<?= base_url() ?>user/user_edit_account/"> -->
-        <a href="<?= base_url() ?>accounts/reseller_edit_account/"> 
+        <a href="<?= base_url() ?>user/user_edit_account/"> 
             <input class="ui-state-default float-right ui-corner-all ui-button" rel="facebox"  type="submit" name="action" value="Edit Account" />
         </a>
     <div class="clear"></div>

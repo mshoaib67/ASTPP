@@ -58,31 +58,61 @@ class Freeswitch extends MX_Controller {
             $data['form'] = $this->form->build_form($this->freeswitch_form->fsdevice_form_fields_for_customer($add_array["accountcode"]), $add_array);
         }
         if ($add_array['id'] != '') {
-            $data['page_title'] = 'Edit Account Details';
+            $data['page_title'] = 'Freeswitch SIP Devices';
             if ($this->form_validation->run() == FALSE) {
                 $data['validation_errors'] = validation_errors();
                 echo $data['validation_errors'];
                 exit;
             } else {
                 $this->freeswitch_model->edit_freeswith($add_array, $add_array['id']);
-//                 $this->session->set_userdata('astpp_notification', 'Switch Configuration updated successfully!');
-                echo "1";
+                echo json_encode(array("SUCCESS"=> "SIP Devices updates Successfully."));
                 exit;
             }
         } else {
-            $data['page_title'] = 'Create Account Details';
+            $data['page_title'] = 'Create Freeswitch SIP Devices';
             if ($this->form_validation->run() == FALSE) {
                 $data['validation_errors'] = validation_errors();
                 echo $data['validation_errors'];
                 exit;
             } else {
                 $this->freeswitch_model->add_freeswith($add_array);
-//                 $this->session->set_userdata('astpp_notification', 'Switch Configuration added successfully!');
-                echo "1";
+                echo json_encode(array("SUCCESS"=> "SIP Devices added Successfully."));
                 exit;
             }
         }
     }
+    function customer_fssipdevices_save($user_flg = false) {
+        $add_array = $this->input->post();
+        if (!$user_flg) {
+            $data['form'] = $this->form->build_form($this->freeswitch_form->get_freeswith_form_fields(), $add_array);
+        } else {
+            $data['form'] = $this->form->build_form($this->freeswitch_form->fsdevice_form_fields_for_customer($add_array["accountcode"]), $add_array);
+        }
+        if ($add_array['id'] != '') {
+            $data['page_title'] = 'Edit Freeswitch SIP Devices';
+            if ($this->form_validation->run() == FALSE) {
+                $data['validation_errors'] = validation_errors();
+                echo $data['validation_errors'];
+                exit;
+            } else {
+                $this->freeswitch_model->edit_freeswith($add_array, $add_array['id']);
+                echo json_encode(array("SUCCESS"=> "SIP Devices updated Successfully."));
+                exit;
+            }
+        } else {
+            $data['page_title'] = 'Create Freeswitch SIP Devices';
+            if ($this->form_validation->run() == FALSE) {
+                $data['validation_errors'] = validation_errors();
+                echo $data['validation_errors'];
+                exit;
+            } else {
+                $this->freeswitch_model->add_freeswith($add_array);
+                echo json_encode(array("SUCCESS"=> "SIP Devices added Successfully."));
+                exit;
+            }
+        }
+    }
+    
 
     function user_fssipdevices_save($user_flg = false) {
         
@@ -91,20 +121,27 @@ class Freeswitch extends MX_Controller {
 //        exit;
         $data['form'] = $this->form->build_form($this->freeswitch_form->fsdevice_form_fields_for_customer($add_array["accountcode"]), $add_array);
         if ($add_array['id'] != '') {
-            $data['page_title'] = 'Edit Account Details';
+            $data['page_title'] = 'Edit Freeswitch SIP Devices';
             if ($this->form_validation->run() == FALSE) {
                 $data['validation_errors'] = validation_errors();
                 echo $data['validation_errors'];
                 exit;
             } else {
                 $this->freeswitch_model->edit_freeswith($add_array, $add_array['id']);
-                echo "1";
+                echo json_encode(array("SUCCESS"=> "SIP Devices updated Successfully."));
                 exit;
             }
         }else{
-             $this->freeswitch_model->add_freeswith($add_array);
-                echo "1";
+            $data['page_title'] = 'Create Freeswitch SIP Devices';
+            if ($this->form_validation->run() == FALSE) {
+                $data['validation_errors'] = validation_errors();
+                echo $data['validation_errors'];
                 exit;
+            } else {
+                $this->freeswitch_model->add_freeswith($add_array);
+                echo json_encode(array("SUCCESS"=> "SIP Devices added Successfully."));
+                exit;
+            }
         }
     }
 
@@ -131,10 +168,8 @@ class Freeswitch extends MX_Controller {
     }
 
     function fssipdevices() {
-        $data['app_name'] = 'ASTPP - Open Source Billing Solution | System | Freeswitch SIP Devices';
         $data['username'] = $this->session->userdata('user_name');
         $data['page_title'] = 'Freeswitch SIP Devices';
-        $data['cur_menu_no'] = 5;
         $this->session->set_userdata('advance_search', 0);
         $data['grid_fields'] = $this->freeswitch_form->build_system_list_for_admin();
         $data["grid_buttons"] = $this->freeswitch_form->build_grid_buttons();
@@ -145,7 +180,7 @@ class Freeswitch extends MX_Controller {
     function fssipdevices_json() {
         $json_data = array();
         $count_all = $this->freeswitch_model->fs_retrieve_sip_user(false);
-        $paging_data = $this->form->load_grid_config($count_all, $_GET['rp'] = 10, $_GET['page'] = 1);
+        $paging_data = $this->form->load_grid_config($count_all, $_GET['rp'], $_GET['page']);
         $json_data = $paging_data["json_paging"];
 
         $query = $this->freeswitch_model->fs_retrieve_sip_user(true, $paging_data["paging"]["start"], $paging_data["paging"]["page_no"]);
@@ -170,7 +205,7 @@ class Freeswitch extends MX_Controller {
     function customer_fssipdevices_json($accountid) {
         $json_data = array();
         $count_all = $this->freeswitch_model->get_sipdevices_list(false, $accountid);
-        $paging_data = $this->form->load_grid_config($count_all, $_GET['rp'] = 10, $_GET['page'] = 1);
+        $paging_data = $this->form->load_grid_config($count_all, $_GET['rp'], $_GET['page']);
         $json_data = $paging_data["json_paging"];
         $devices_result = array();
         $query = $this->freeswitch_model->get_sipdevices_list(true, $accountid, $paging_data["paging"]["start"], $paging_data["paging"]["page_no"]);
@@ -194,15 +229,15 @@ class Freeswitch extends MX_Controller {
             $ret_url = '<a href="/user/user_fssipdevices_action/edit/' . $id . '/' . $accountid . '/" class="icon edit_image"  rel="facebox" title="Update">&nbsp;</a>';
             $ret_url .= '<a href="/user/user_fssipdevices_action/delete/' . $id . '/' . $accountid . '/" class="icon delete_image" title="Delete" onClick="return get_alert_msg();">&nbsp;</a>';
         } else {
-            $ret_url = '<a href="/accounts/fssipdevices_action/edit/' . $id . '/' . $accountid . '/" class="icon edit_image"  rel="facebox" title="Update">&nbsp;</a>';
-            $ret_url .= '<a href="/accounts/fssipdevices_action/delete/' . $id . '/' . $accountid . '/" class="icon delete_image" title="Delete" onClick="return get_alert_msg();">&nbsp;</a>';
+            $ret_url = '<a href="/accounts/customer_fssipdevices_action/edit/' . $id . '/' . $accountid . '/" class="icon edit_image"  rel="facebox" title="Update">&nbsp;</a>';
+            $ret_url .= '<a href="/accounts/customer_fssipdevices_action/delete/' . $id . '/' . $accountid . '/" class="icon delete_image" title="Delete" onClick="return get_alert_msg();">&nbsp;</a>';
         }
         return $ret_url;
     }
 
     function fssipdevices_delete($id) {
         $this->freeswitch_model->delete_freeswith_devices($id);
-        $this->session->set_userdata('astpp_notification', 'Sip devices remove successfully!');
+        $this->session->set_flashdata('astpp_notification', 'Sip devices remove successfully!');
         redirect(base_url() . 'freeswitch/fssipdevices/');
         exit;
     }
@@ -228,24 +263,22 @@ class Freeswitch extends MX_Controller {
         $response_arr[] = $this->freeswitch_lib->event_socket_request($fp, $cmd);*/
 
         $command = "api show channels";
-        $response = $this->freeswitch_model->reload_freeswitch($command);
-
+        $response = $this->freeswitch_model->reload_live_freeswitch($command);
         $calls = array();
         $calls_final = array();
         $data_header = array();
         $k = 0;
-
 //         foreach($response_arr as $resp_key=>$response){
-            $data = explode("\n", $response);
+            $data = explode("\n",$response);
             for ($i = 0; $i < count($data) - 2; $i++) {
                 if (trim($data[$i]) != '') {
-                    if ($i == 1) {
+                    if (count($data_header) ==0 ) {
                         $data_header = explode(",", $data[$i]);
                     } else {
                         $data_call = explode(",", $data[$i]);
                         for ($j = 0; $j < count($data_call); $j++) {
-                            $calls[$k][$data_header[$j]] = $data_call[$j];
-                            $calls_final[$calls[$k]['uuid']] = $calls[$k];
+                            $calls[$k][@$data_header[$j]] = @$data_call[$j];
+                            $calls_final[@$calls[$k]['uuid']] = @$calls[$k];
                         }
                         $k++;
                     }
@@ -381,13 +414,14 @@ class Freeswitch extends MX_Controller {
                 $update = $this->db->update("gateways", $insert_arr, array('id' => $gateway_data['id']));
                 if ($update) {
                     $profile_name = $this->common->get_field_name('name', 'sip_profiles', $insert_arr['sip_profile_id']);
+		    $sip_ip = $this->common->get_field_name('sip_ip', 'sip_profiles', $insert_arr['sip_profile_id']);
                     $cmd = "api sofia profile ".$profile_name." killgw '".$insert_arr['name']."' ";
-                    $this->freeswitch_model->reload_freeswitch($cmd);
+                    $this->freeswitch_model->reload_freeswitch($cmd,$sip_ip);
 
-                    $cmd2 = "api sofia profile " . $profile_name . " rescan";
-                    $this->freeswitch_model->reload_freeswitch($cmd2);
+                    $cmd2 = "api sofia profile " . $profile_name . " restart reloadacl reloadxml";
+                    $this->freeswitch_model->reload_freeswitch($cmd2,$sip_ip);
                 }
-                echo "1";
+                echo json_encode(array("SUCCESS"=> $insert_arr['name']." Gateway updated Successfully."));
                 exit;
             }
         } else {
@@ -400,10 +434,11 @@ class Freeswitch extends MX_Controller {
                 $insert = $this->db->insert("gateways", $insert_arr);
                 if ($insert) {
                     $profile_name = $this->common->get_field_name('name', 'sip_profiles', $insert_arr['sip_profile_id']);
-                    $cmd = "api sofia profile " . $profile_name . " rescan reloadxml";
-                    $this->freeswitch_model->reload_freeswitch($cmd);
+		    $sip_ip = $this->common->get_field_name('sip_ip', 'sip_profiles', $insert_arr['sip_profile_id']);
+                    $cmd = "api sofia profile " . $profile_name . " restart reloadacl reloadxml";
+                    $this->freeswitch_model->reload_freeswitch($cmd,$sip_ip);
                 }
-                echo "1";
+                echo json_encode(array("SUCCESS"=> $insert_arr['name']." Gateway added Successfully."));
                 exit;
             }
         }
@@ -414,12 +449,13 @@ class Freeswitch extends MX_Controller {
         if ($delete) {
             $profile_id = $this->common->get_field_name('sip_profile_id', 'gateways', $gateway_id);
             $profile_name = $this->common->get_field_name('name', 'sip_profiles', $profile_id);
+	    $sip_ip = $this->common->get_field_name('sip_ip', 'sip_profiles', $profile_id);
             $gateway_name = $this->common->get_field_name('name', 'gateways', $gateway_id);
             $cmd = "api sofia profile " . $profile_name . " killgw " . $gateway_name . " reloadxml";
-            $this->freeswitch_model->reload_freeswitch($cmd);
+            $this->freeswitch_model->reload_freeswitch($cmd,$sip_ip);
         }
 
-        $this->session->set_userdata('astpp_notification', 'Gateway Deleted successfully!');
+        $this->session->set_flashdata('astpp_notification', 'Gateway Deleted successfully!');
         redirect(base_url() . 'freeswitch/fsgateway/');
     }
 
@@ -510,20 +546,22 @@ class Freeswitch extends MX_Controller {
                 $check_authentication = $this->freeswitch_model->profile_authentication($sipprofile_data);
                 if ($check_authentication->num_rows == 0) {
 		    $profile_name = $this->common->get_field_name('name', 'sip_profiles', $sipprofile_data['id']);
-                    $cmd = "api sofia profile '$profile_name' stop reloadxml";
-		    $response= $this->freeswitch_model->reload_freeswitch($cmd);
+                    $cmd = "api sofia profile '$profile_name' stop";
+		    $response= $this->freeswitch_model->reload_freeswitch($cmd,$sipprofile_data['sip_ip']);
+		    
 		    $command = "api reloadacl";
-		    $this->freeswitch_model->reload_freeswitch($command);
-		    usleep(5000);
+		    $response= $this->freeswitch_model->reload_freeswitch($cmd,$sipprofile_data['sip_ip']);
+		    		    
                     $update = $this->db->update("sip_profiles", $insert_arr, array('id' => $sipprofile_data['id']));
                     if ($update) {
+			sleep(2);  
                         $cmd = "api sofia profile '".$sipprofile_data['name']."' start reloadxml";
-                        $response= $this->freeswitch_model->reload_freeswitch($cmd);
+                        $response= $this->freeswitch_model->reload_freeswitch($cmd,$sipprofile_data['sip_ip']);
 
 		      $command = "api reloadacl";
-		      $this->freeswitch_model->reload_freeswitch($command);
+		      $this->freeswitch_model->reload_freeswitch($command,$sipprofile_data['sip_ip']);
                     }
-		      echo "1";
+                      echo json_encode(array("SUCCESS"=> $sipprofile_data['name']." SIP Profile updated Successfully."));
 		      exit;
                 } else {
                     $data['validation_errors'] = json_encode(array("name_error"=>"Duplicate SIP IP OR Port found it must be unique."));
@@ -541,12 +579,12 @@ class Freeswitch extends MX_Controller {
                     $insert = $this->db->insert("sip_profiles", $insert_arr);
                     if ($insert) {
                        $cmd = "api sofia profile  '".$sipprofile_data['name']."' start reloadxml";
-                       $response= $this->freeswitch_model->reload_freeswitch($cmd);
+                       $response= $this->freeswitch_model->reload_freeswitch($cmd,$sipprofile_data['sip_ip']);
 
 		      $command = "api reloadacl";
-		      $this->freeswitch_model->reload_freeswitch($command);
+		      $this->freeswitch_model->reload_freeswitch($command,$sipprofile_data['sip_ip']);
                     }
-                     echo "1";
+                      echo json_encode(array("SUCCESS"=> $sipprofile_data['name']." SIP Profile added Successfully."));
 		      exit;
                 } else {
                      $data['validation_errors'] = json_encode(array("name_error"=>"Duplicate SIP IP OR Port found it must be unique."));
@@ -560,12 +598,13 @@ class Freeswitch extends MX_Controller {
 
     function fssipprofile_delete($profile_id) {
 	$profile_name = $this->common->get_field_name('name', 'sip_profiles', $profile_id);
+        $sip_ip = $this->common->get_field_name('sip_ip', 'sip_profiles', $profile_id);
 	$cmd = "api sofia profile '$profile_name' stop reloadxml";
-	$this->freeswitch_model->reload_freeswitch($cmd);
+	$this->freeswitch_model->reload_freeswitch($cmd,$sip_ip);
 	$command = "api reloadacl";
-	$this->freeswitch_model->reload_freeswitch($command);
+	$this->freeswitch_model->reload_freeswitch($command,$sip_ip);
 	$delete = $this->db_model->delete("sip_profiles", array("id" => $profile_id));
-        $this->session->set_userdata('astpp_notification', 'Gateway Deleted successfully!');
+        $this->session->set_flashdata('astpp_notification', 'Gateway Deleted successfully!');
         redirect(base_url() . 'freeswitch/fssipprofile/');
     }
 
@@ -631,7 +670,7 @@ class Freeswitch extends MX_Controller {
                 exit;
             } else {
                 $this->freeswitch_model->edit_fsserver($add_array, $add_array['id']);
-                echo "1";
+                echo json_encode(array("SUCCESS"=> " Freeswitch Server updated Successfully."));
                 exit;
             }
         } else {
@@ -642,7 +681,7 @@ class Freeswitch extends MX_Controller {
                 exit;
             } else {
                 $this->freeswitch_model->add_fssever($add_array);
-                echo "1";
+                echo json_encode(array("SUCCESS"=> "Freeswitch Server added Successfully."));
                 exit;
             }
         }
@@ -651,7 +690,7 @@ class Freeswitch extends MX_Controller {
 
     function fsserver_delete($id) {
         $this->freeswitch_model->fsserver_delete($id);
-        $this->session->set_userdata('astpp_notification', 'Freeswitch server Deleted!!!');
+        $this->session->set_flashdata('astpp_notification', 'Freeswitch server Deleted!!!');
         redirect(base_url() . 'freeswitch/fsserver_list/');
         exit;
     }

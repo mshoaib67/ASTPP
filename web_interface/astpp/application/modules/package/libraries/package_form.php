@@ -11,7 +11,7 @@ class Package_form {
             array('', 'HIDDEN', array('name' => 'id'), '', '', '', ''),
             array('', 'HIDDEN', array('name' => 'status', 'value' => '1'), '', '', ''),
             array('Package name', 'INPUT', array('name' => 'package_name', 'size' => '20', 'maxlength' => '35', 'class' => "text field medium"), 'trim|required|min_length[2]|max_length[45]|xss_clean', 'tOOL TIP', ''),
-            array('Rate Group', 'pricelist_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'pricelists', 'build_dropdown', '', ''),
+            array('Rate Group', 'pricelist_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'pricelists', 'build_dropdown', 'where_arr', array("status" => "1","reseller_id" => "0")),
             array('Included Seconds', 'INPUT', array('name' => 'includedseconds', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), 'trim|required|xss_clean', 'tOOL TIP', ''),
         );
         $form['button_cancel'] = array('name' => 'action', 'content' => 'Cancel', 'value' => 'cancel', 'type' => 'button', 'class' => 'ui-state-default float-right ui-corner-all ui-button', 'onclick' => 'return redirect_page(\'/package/package_list/\')');
@@ -26,7 +26,7 @@ class Package_form {
             array('', 'HIDDEN', 'ajax_search', '1', '', '', ''),
             array('', 'HIDDEN', 'advance_search', '1', '', '', ''),
             array('Package name', 'INPUT', array('name' => 'package_name[package_name]', '', 'size' => '20', 'maxlength' => '30', 'class' => "text field"), '', 'tOOL TIP', '1', 'package_name[package_name-string]', '', '', '', 'search_string_type', ''),
-            array('Rate Group', 'pricelist_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'pricelists', 'build_dropdown', '', ''),
+            array('Rate Group', 'pricelist_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'pricelists', 'build_dropdown', 'where_arr', array("status" => "1","reseller_id" => "0")),
             array('Included Seconds', 'INPUT', array('name' => 'includedseconds[includedseconds]', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field"), '', 'Tool tips info', '1', 'includedseconds[includedseconds-integer]', '', '', '', 'search_int_type', ''),
         );
         $form['button_search'] = array('name' => 'action', 'id' => "package_search_btn", 'content' => 'Search', 'value' => 'save', 'type' => 'button', 'class' => 'ui-state-default float-right ui-corner-all ui-button');

@@ -19,7 +19,7 @@ class rates_form {
             array('Included Seconds', 'INPUT', array('name' => 'includedseconds', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', ''),
           
             array('Precedence', 'INPUT', array('name' => 'precedence', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', ''),
-            array('Trunk', 'trunk_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'trunks', 'build_dropdown', '', ''),
+            array('Trunk', 'trunk_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'trunks', 'build_dropdown', 'where_arr', array("status" => "1")),
         );
 
         $form['button_cancel'] = array('name' => 'action', 'content' => 'Cancel', 'value' => 'cancel', 'type' => 'button', 'class' => 'ui-state-default float-right ui-corner-all ui-button', 'onclick' => 'return redirect_page(\'NULL\')');
@@ -33,7 +33,7 @@ class rates_form {
         $form['Origination Rate Add/Edit'] = array(
             array('', 'HIDDEN', array('name' => 'id'), '', '', '', ''),
             array('', 'HIDDEN', array('name' => 'status', 'value' => '1'), '', '', ''),
-            array('Rate Group', 'pricelist_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'pricelists', 'build_dropdown', '', ''),
+            array('Rate Group', 'pricelist_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'pricelists', 'build_dropdown', 'where_arr', array("status" => "1","reseller_id" => "0")),
             array('Code', 'INPUT', array('name' => 'pattern', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), 'trim|required|min_length[1]|numeric|max_length[25]|xss_clean', 'tOOL TIP', ''),
             array('Destination', 'INPUT', array('name' => 'comment', 'size' => '20', 'maxlength' => '30', 'class' => "text field medium"), 'tOOL TIP', ''),
             
@@ -64,7 +64,7 @@ class rates_form {
 	    array('Cost per Minutes', 'INPUT', array('name' => 'cost[cost]', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'Tool tips info', '1', 'cost[cost-integer]', '', '', '', 'search_int_type', ''),
             array('Connect Charge', 'INPUT', array('name' => 'connectcost[connectcost]', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'Tool tips info', '1', 'connectcost[connectcost-integer]', '', '', '', 'search_int_type', ''),
             array('Included Seconds', 'INPUT', array('name' => 'includedseconds[includedseconds]', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'Tool tips info', '1', 'includedseconds[includedseconds-integer]', '', '', '', 'search_int_type', ''),
-          array('Trunk', 'trunk_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'trunks', 'build_dropdown', '', ''),
+            array('Trunk', 'trunk_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'trunks', 'build_dropdown', 'where_arr', array("status" => "1")),
             
             
         );
@@ -75,6 +75,42 @@ class rates_form {
         return $form;
     }
 
+    
+    function termination_batch_update_form() {
+        $form['forms'] = array("rates/terminationrates_batch_update/", array('id' => "termination_batch_update"));
+        $form['Batch Update Termination Rates'] = array(
+            array('Prepand', 'INPUT', array('name' => 'prepend[prepend]','id'=>'prepend', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'tOOL TIP', '1', array('name'=>'prepend[operator]','class'=>'update_drp'), '', '', '', 'update_drp_type', ''),
+	    array('Increment', 'INPUT', array('name' => 'inc[inc]','id'=>'inc', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'tOOL TIP', '1', array('name'=>'inc[operator]','class'=>'update_drp'), '', '', '', 'update_int_type', ''),
+	    array('Cost per Minutes', 'INPUT', array('name' => 'cost[cost]','id'=>'cost', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'Tool tips info', '1', array('name'=>'cost[operator]','class'=>'update_drp'), '', '', '', 'update_int_type', ''),
+            array('Connect Charge', 'INPUT', array('name' => 'connectcost[connectcost]','id'=>'connectcost', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'Tool tips info', '1', array('name'=>'connectcost[operator]','class'=>'update_drp'), '', '', '', 'update_int_type', ''),
+            array('Included Seconds', 'INPUT', array('name' => 'includedseconds[includedseconds]','id'=>'includedseconds', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'Tool tips info', '1', array('name'=>'includedseconds[operator]','class'=>'update_drp'), '', '', '', 'update_int_type', ''),
+            array('Precedence', 'INPUT', array('name' => 'precedence[precedence]','id'=>'precedence', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'tOOL TIP', '1', array('name'=>'precedence[operator]','class'=>'update_drp'), '', '', '', 'update_drp_type', ''),
+            array('Trunk', array('name'=> 'trunk_id[trunk_id]','id'=>'trunk_id'), 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'trunks', 'build_dropdown', 'where_arr', array("status" => "1"),array('name'=>'trunk_id[operator]','class'=>'update_drp'), 'update_drp_type'),
+        );
+
+        $form['button_search'] = array('name' => 'action', 'id' => "batch_update_btn", 'content' => 'Update', 'value' => 'save', 'type' => 'button', 'class' => 'ui-state-default float-right ui-corner-all ui-button');
+        $form['button_reset'] = array('name' => 'action', 'id' => "id_batch_reset", 'content' => 'Clear Value', 'value' => 'cancel', 'type' => 'reset', 'class' => 'ui-state-default float-right ui-corner-all ui-button');
+
+        return $form;
+    }
+    function inbound_batch_update_form() {
+        $form['forms'] = array("rates/origination_batch_update/",array('id' => "inbound_batch_update"));        
+        $form['Batch Update Origination Rates'] = array(
+            array('Rate Group', array('name'=> 'pricelist_id[pricelist_id]','id'=>'pricelist_id'), 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'pricelists', 'build_dropdown', 'where_arr', array("status" => "1","reseller_id" => "0"),array('name'=>'pricelist_id[operator]','class'=>'update_drp'), 'update_drp_type'),
+            array('Increment', 'INPUT', array('name' => 'inc[inc]', 'id'=>'inc', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'tOOL TIP', '1', array('name'=>'inc[operator]','class'=>'update_drp'), '', '', '', 'update_int_type', ''),
+            array('Cost per Minutes', 'INPUT', array('name' => 'cost[cost]', 'id'=>'cost', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'Tool tips info', '1',array('name'=>'cost[operator]','class'=>'update_drp'), '', '', '', 'update_int_type', ''),
+            array('Connect Charge', 'INPUT', array('name' => 'connectcost[connectcost]','id'=>'connectcost', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'Tool tips info', '1', array('name'=>'connectcost[operator]','class'=>'update_drp'), '', '', '', 'update_int_type', ''),
+            array('Included Seconds', 'INPUT', array('name' => 'includedseconds[includedseconds]','id'=>'includedseconds', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'Tool tips info', '1',array('name'=>'includedseconds[operator]','class'=>'update_drp'), '', '', '', 'update_int_type', ''),
+            array('Precedence', 'INPUT', array('name' => 'precedence[precedence]','id'=>'precedence', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'tOOL TIP', '1', array('name'=>'precedence[operator]','class'=>'update_drp'), '', '', '', 'update_drp_type', ''),
+        );
+
+        $form['button_search'] = array('name' => 'action', 'id' => "batch_update", 'content' => 'Update', 'value' => 'save', 'type' => 'button', 'class' => 'ui-state-default float-right ui-corner-all ui-button');
+        $form['button_reset'] = array('name' => 'action', 'id' => "id_batch_reset", 'content' => 'Clear Value', 'value' => 'cancel', 'type' => 'reset', 'class' => 'ui-state-default float-right ui-corner-all ui-button');
+
+        return $form;
+    }
+    
+    
     function get_inbound_search_form() {
         $form['forms'] = array("", array('id' => "inbound_search"));
         $form['Search Origination Rates'] = array(
@@ -87,7 +123,7 @@ class rates_form {
             array('Cost per Minutes', 'INPUT', array('name' => 'cost[cost]', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'Tool tips info', '1', 'cost[cost-integer]', '', '', '', 'search_int_type', ''),
             
             array('Included Seconds', 'INPUT', array('name' => 'includedseconds[includedseconds]', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'Tool tips info', '1', 'includedseconds[includedseconds-integer]', '', '', '', 'search_int_type', ''),
-            array('Rate Group', 'pricelist_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'pricelists', 'build_dropdown', '', ''),
+            array('Rate Group', 'pricelist_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'name', 'pricelists', 'build_dropdown', 'where_arr', array("status" => "1","reseller_id" => "0")),
         );
 
         $form['button_search'] = array('name' => 'action', 'id' => "inbound_search_btn", 'content' => 'Search', 'value' => 'save', 'type' => 'button', 'class' => 'ui-state-default float-right ui-corner-all ui-button');
@@ -124,10 +160,10 @@ class rates_form {
             array("Prepend", "80", "prepend", "pattern", "", "get_only_numeric_val"),
             array("Destination", "140", "comment", "", "", ""),
             array("Increment", "85", "inc", "", "", ""),
-            array("Cost per <br> Minutes", "145", "cost", "cost", "cost", "convert_to_currency"),
+            array("Cost per Minutes", "145", "cost", "cost", "cost", "convert_to_currency"),
 
-            array("Connect <br> Charge", "115", "connectcost", "connectcost", "connectcost", "convert_to_currency"),
-            array("Included <br> Seconds", "110", "includedseconds", "", "", ""),
+            array("Connect Charge", "115", "connectcost", "connectcost", "connectcost", "convert_to_currency"),
+            array("Included Seconds", "110", "includedseconds", "", "", ""),
 
             array("Precedence", "110", "precedence", "", "", ""),
             array("Trunk", "148", "trunk_id", "name", "trunks", "get_field_name"),

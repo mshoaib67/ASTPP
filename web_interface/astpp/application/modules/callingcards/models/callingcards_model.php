@@ -50,12 +50,18 @@ class Callingcards_model extends CI_Model {
         $add_array['account_id'] = $this->common->get_field_name('id', 'accounts', array('number' => $add_array['account_id']));
         for ($i = 0; $i < $count; $i++) {
             $add_array['cardnumber'] = $this->common->find_uniq_rendno(common_model::$global_config['system_config']['cardlength'], 'cardnumber', 'callingcards');
-            $add_array['pin'] = $this->common->find_uniq_rendno(common_model::$global_config['system_config']['pinlength'], '', '');
-
             $add_array['created'] = date('Y-m-d H:i:s');
-            $acc_result = $this->db_model->getSelect('validfordays,maint_fee_pennies,disconnect_fee_pennies,minute_fee_minutes,minute_fee_pennies,min_length_minutes,min_length_pennies', 'callingcardbrands', array('id' => $add_array['brand_id']));
+            $date = date('Y-m-d H:i:s');
+            $acc_result = $this->db_model->getSelect('pin,validfordays,maint_fee_pennies,disconnect_fee_pennies,minute_fee_minutes,minute_fee_pennies,min_length_minutes,min_length_pennies', 'callingcardbrands', array('id' => $add_array['brand_id']));
             $acc_result = $acc_result->result_array();
-
+            if($acc_result[0]["pin"]!= "1"){
+                $add_array['pin'] = $this->common->find_uniq_rendno(common_model::$global_config['system_config']['pinlength'], '', '');
+                unset($acc_result[0]["pin"]);
+            }else{
+                $add_array['pin'] = "";
+                unset($acc_result[0]["pin"]);
+            }
+            $add_array['expiry'] = date("Y-m-d H:i:s",strtotime($date."+".$acc_result[0]['validfordays']."day"));
             $merge_array_value = array_merge($add_array, $acc_result[0]);
             $this->db->insert("callingcards", $merge_array_value);
         }
@@ -72,11 +78,6 @@ class Callingcards_model extends CI_Model {
 
     function add_ccbrand($add_array) {
         unset($add_array['action']);
-        if ($add_array['pin'] == '1') {
-            $add_array['pin'] = $this->common->find_uniq_rendno(common_model::$global_config['system_config']['pinlength'], '', '');
-        } else {
-            $add_array['pin'] = '';
-        }
         if ($this->session->userdata('logintype') == 1 || $this->session->userdata('logintype') == 5) {
             $account_data = $this->session->userdata("accountinfo");
             $add_array["reseller_id"] = $account_data['id'];
@@ -87,7 +88,6 @@ class Callingcards_model extends CI_Model {
 
     function edit_ccbrand($add_array, $id) {
         unset($add_array['action']);
-        unset($add_array['pin']);
         $this->db->where('id', $id);
         $this->db->update('callingcardbrands', $add_array);
         return true;
@@ -121,7 +121,7 @@ class Callingcards_model extends CI_Model {
     function getcallingcard_cdr($flag, $start, $limit) {
         $this->db_model->build_search('cc_cdr_list_search');
         if ($flag) {
-            $query = $this->db_model->select("*", "callingcardcdrs", "", "id", "ASC", $limit, $start);
+            $query = $this->db_model->select("*", "callingcardcdrs", "", "callstart", "DESC", $limit, $start);
         } else {
             $query = $this->db_model->countQuery("*", "callingcardcdrs", "");
         }

@@ -86,6 +86,8 @@ class Callingcards extends CI_Controller {
         foreach ($account->result_array() as $key => $value) {
             $edit_data = $value;
         }
+        $edit_data['value'] = $this->common_model->to_calculate_currency($edit_data['value'], '', '', false, false);
+
         $data['form'] = $this->form->build_form($this->callingcard_form->get_callingcard_form_fields(), $edit_data);
         $this->load->view('view_cc_add_edit', $data);
     }
@@ -100,15 +102,14 @@ class Callingcards extends CI_Controller {
         } else {
             $add_array['value'] = $this->common_model->add_calculate_currency($add_array['value'], '', '', false, false);
             $response = $this->callingcards_model->add_callingcard($add_array);
-            $this->session->set_userdata('astpp_notification', 'calling card Setup Completed!');
-            echo "1";
+            echo json_encode(array("SUCCESS"=> "Calling card Setup Completed."));
             exit;
         }
     }
 
     function callingcards_delete($id) {
         $this->callingcards_model->remove_callingcard($id);
-        $this->session->set_userdata('astpp_notification', 'Calling card Remove successfully.!');
+        $this->session->set_flashdata('astpp_notification', 'Calling card Remove successfully.!');
         redirect(base_url() . 'callingcards/callingcards_list/');
     }
 
@@ -142,7 +143,7 @@ class Callingcards extends CI_Controller {
                 $data['validation_errors'] = validation_errors();
             } else {
                 $response = $this->callingcards_model->update_status_card($this->input->post());
-                $this->session->set_userdata('astpp_notification', 'Calling card status Updated successfully.!');
+                $this->session->set_flashdata('astpp_notification', 'Calling card status Updated successfully.!');
                 redirect(base_url() . 'callingcards/callingcards_list/');
             }
         }
@@ -176,7 +177,7 @@ class Callingcards extends CI_Controller {
             } else {
                 $data_post['value'] = $this->common_model->add_calculate_currency($data_post['value'], '', '', false, false);
                 $response = $this->callingcards_model->refill_card($data_post);
-                $this->session->set_userdata('astpp_notification', 'Calling card refill successfully.!');
+                $this->session->set_flashdata('astpp_notification', 'Calling card refill successfully.!');
                 redirect(base_url() . 'callingcards/callingcards_list/');
             }
         }
@@ -228,6 +229,10 @@ class Callingcards extends CI_Controller {
         foreach ($account->result_array() as $key => $value) {
             $edit_data = $value;
         }
+        $edit_data['maint_fee_pennies'] = $this->common_model->add_calculate_currency($edit_data['maint_fee_pennies'], '', '', true, false);
+        $edit_data['disconnect_fee_pennies'] = $this->common_model->add_calculate_currency($edit_data['disconnect_fee_pennies'], '', '', true, false);
+        $edit_data['minute_fee_pennies'] = $this->common_model->add_calculate_currency($edit_data['minute_fee_pennies'], '', '', true, false);
+        $edit_data['min_length_pennies'] = $this->common_model->add_calculate_currency($edit_data['min_length_pennies'], '', '', true, false);
 
         $data['form'] = $this->form->build_form($this->callingcard_form->get_ccbrands_form_fields(), $edit_data);
         $this->load->view('view_ccbrand_add_edit', $data);
@@ -249,8 +254,7 @@ class Callingcards extends CI_Controller {
                 $add_array['minute_fee_pennies'] = $this->common_model->add_calculate_currency($add_array['minute_fee_pennies'], '', '', false, false);
                 $add_array['min_length_pennies'] = $this->common_model->add_calculate_currency($add_array['min_length_pennies'], '', '', false, false);
                 $this->callingcards_model->edit_ccbrand($add_array, $add_array['id']);
-                $this->session->set_userdata('astpp_notification', 'Brand Updated successfully!');
-                echo "1";
+                echo json_encode(array("SUCCESS"=> "Brand Updated successfully."));
                 exit;
             }
         } else {
@@ -266,8 +270,7 @@ class Callingcards extends CI_Controller {
                 $add_array['min_length_pennies'] = $this->common_model->add_calculate_currency($add_array['min_length_pennies'], '', '', false, false);
 
                 $response = $this->callingcards_model->add_ccbrand($add_array);
-                $this->session->set_userdata('astpp_notification', 'Brand added successfully!');
-                echo "1";
+                echo json_encode(array("SUCCESS"=> "Brand added successfully."));
                 exit;
             }
         }
@@ -294,14 +297,13 @@ class Callingcards extends CI_Controller {
 
     function brands_delete($id) {
         $this->callingcards_model->remove_ccbrand($id);
-        $this->session->set_userdata('astpp_notification', 'Calling card Brand Remove successfully.!');
+        $this->session->set_flashdata('astpp_notification', 'Calling card Brand Remove successfully.!');
         redirect(base_url() . 'callingcards/brands/');
     }
 
     function callingcards_cdrs() {
         $data['username'] = $this->session->userdata('user_name');
         $data['page_title'] = 'Calling Cards CDRs';
-
         $this->session->set_userdata('advance_search', 0);
         $data['grid_fields'] = $this->callingcard_form->build_cdrreport_list_for_admin();
         $data["grid_buttons"] = $this->callingcard_form->build_grid_buttons_cdrs();
@@ -458,11 +460,11 @@ class Callingcards extends CI_Controller {
             $add_array = $this->input->post();
             if (isset($add_array['edit'])) {
                 $this->callingcards_model->edit_callerid($this->input->post());
-                $this->session->set_userdata('astpp_notification', 'CallerID update successfully...');
+                $this->session->set_flashdata('astpp_notification', 'CallerID update successfully...');
                 redirect(base_url() . 'callingcards/callingcards_list/');
             } else {
                 $this->callingcards_model->add_callerid($this->input->post());
-                $this->session->set_userdata('astpp_notification', 'CallerID Added successfully...');
+                $this->session->set_flashdata('astpp_notification', 'CallerID Added successfully...');
                 redirect(base_url() . 'callingcards/callingcards_list/');
             }
             exit;

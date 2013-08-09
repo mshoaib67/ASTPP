@@ -53,29 +53,36 @@ class Package extends MX_Controller {
         $add_array = $this->input->post();
         $data['form'] = $this->form->build_form($this->package_form->get_package_form_fields(), $add_array);
         if ($add_array['id'] != '') {
-            $data['page_title'] = 'Edit Account Details';
+            $data['page_title'] = 'Edit Package Details';
             if ($this->form_validation->run() == FALSE) {
+
+                $data['form'] = $this->form->build_form($this->package_form->get_package_form_fields(), $add_array);
+                $data['pattern_grid_fields'] = $this->package_form->build_pattern_list_for_customer($add_array['id']);
+                $data['pattern_grid_buttons'] = $this->package_form->set_pattern_grid_buttons($add_array['id']);
+                $data["package_id"] = $add_array['id'];
+                
+                
                 $data['validation_errors'] = validation_errors();
-                $this->load->view('view_package_add', $data);
+                $this->load->view('view_packages_edit', $data);        
             } else {
                 $this->package_model->edit_package($add_array, $add_array['id']);
-                $this->session->set_userdata('astpp_notification', 'Packages Updated successfully!');
+                $this->session->set_flashdata('astpp_notification', 'Packages Updated successfully!');
 
                 redirect(base_url() . 'package/package_list/');
                 exit;
             }
         } else {
-            $data['page_title'] = 'Create Account Details';
+            $data['page_title'] = 'Create Package Details';
             if ($this->form_validation->run() == FALSE) {
                 $data['validation_errors'] = validation_errors();
+                $this->load->view('view_package_add', $data);
             } else {
                 $this->package_model->add_package($add_array);
-                $this->session->set_userdata('astpp_notification', 'Packages added successfully!');
+                $this->session->set_flashdata('astpp_notification', 'Packages added successfully!');
                 redirect(base_url() . 'package/package_list/');
                 exit;
             }
         }
-        $this->load->view('view_packages_edit', $data);
     }
 
     function package_list_search() {
@@ -95,7 +102,7 @@ class Package extends MX_Controller {
 
     function package_delete($id) {
         $this->package_model->remove_package($id);
-        $this->session->set_userdata('astpp_notification', 'package Removed Completed!');
+        $this->session->set_flashdata('astpp_notification', 'package Removed Completed!');
         redirect(base_url() . 'package/package_list/');
     }
 
@@ -105,10 +112,8 @@ class Package extends MX_Controller {
     }
 
     function package_list() {
-        $data['app_name'] = 'ASTPP - Open Source Billing Solution | Routing | Package';
         $data['username'] = $this->session->userdata('user_name');
         $data['page_title'] = 'Package List';
-        $data['cur_menu_no'] = 5;
         $this->session->set_userdata('advance_search', 0);
         $data['grid_fields'] = $this->package_form->build_package_list_for_admin();
         $data["grid_buttons"] = $this->package_form->build_grid_buttons();
@@ -212,11 +217,11 @@ class Package extends MX_Controller {
     function customer_add_patterns_json($accountid) {
         $this->load->module('rates/rates');
         $json_data = array();
-        $count_all = $this->rates_model->getinbound_rates_list(false);
+        $count_all = $this->rates_model->getunblocked_pattern_list($accountid,false);
         $paging_data = $this->form->load_grid_config($count_all, $_GET['rp'], $_GET['page']);
         $json_data = $paging_data["json_paging"];
 
-        $query = $this->rates->rates_model->getinbound_rates_list(true, $paging_data["paging"]["start"], $paging_data["paging"]["page_no"]);
+        $query = $this->rates->rates_model->getunblocked_pattern_list($accountid,true, $paging_data["paging"]["start"], $paging_data["paging"]["page_no"]);
         $grid_fields = json_decode($this->rates->rates_form->build_outbound_list_for_customer());
         $json_data['rows'] = $this->rates->form->build_grid($query, $grid_fields);
 

@@ -1,5 +1,5 @@
 1. Setup EPEL Yum Repositories with newer packages and install Git:
-    [For Debian]
+    [For CentOS]
     rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/`uname -m`/epel-release-6-8.noarch.rpm
 
 2. Install GIT

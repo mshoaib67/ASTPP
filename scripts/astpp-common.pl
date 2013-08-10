@@ -1363,7 +1363,7 @@ sub get_outbound_callerid()
 sub search_for_block_prefixes() {
   my ( $astpp_db,$params,$id) = @_;
   my($temp,$sql,$accrecord);
-  $temp = "SELECT * from block_patterns WHERE ".$astpp_db->quote($params)." RLIKE blocked_patterns AND accountid = ".$astpp_db->quote($id).")";
+  $temp = "SELECT * from block_patterns WHERE ".$astpp_db->quote($params)." RLIKE blocked_patterns AND accountid = ".$astpp_db->quote($id);
   $ASTPP->debug(debug =>$tmp);
   $sql = $astpp_db->prepare($temp);
   $sql->execute;

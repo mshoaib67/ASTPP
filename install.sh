@@ -566,7 +566,7 @@ echo "# Generate Invoice
           
 # Update currency rate
 @hourly /usr/local/astpp/astpp-currency-update.pl
-" >> $CRONPATH
+" > $CRONPATH
 
 chmod 600 $CRONPATH
 }

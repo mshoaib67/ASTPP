@@ -551,6 +551,13 @@ finalize_astpp_installation () {
 
 setup_cron()
 {
+
+if [ ${DIST} = "DEBIAN" ]; then
+CRONPATH='/var/spool/cron/crontabs/astpp'
+elif [ ${DIST} = "CENTOS" ]; then
+CRONPATH='/var/spool/cron/astpp'
+fi
+
 echo "# Generate Invoice   
 0 1 * * * cd /var/www/html/astpp/cron/ && php cron.php GenerateInvoice
           
@@ -559,7 +566,9 @@ echo "# Generate Invoice
           
 # Update currency rate
 @hourly /usr/local/astpp/astpp-currency-update.pl
-" >> /var/spool/cron/crontabs/root
+" >> $CRONPATH
+
+chmod 600 $CRONPATH
 }
 
 astpp_install () {

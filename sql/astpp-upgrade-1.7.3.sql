@@ -75,7 +75,7 @@ ALTER TABLE `invoices_total` CHANGE `invoices_id` `invoiceid` INT( 11 ) NOT NULL
 DROP view if exists taxes_to_accounts_view;
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `taxes_to_accounts_view` AS select `taxes_to_accounts`.`id` AS `id`,`taxes_to_accounts`.`accountid` AS `accountid`,`taxes`.`id` AS `taxes_id`,`taxes`.`taxes_priority` AS `taxes_priority`,`taxes`.`taxes_amount` AS `taxes_amount`,`taxes`.`taxes_rate` AS `taxes_rate`,`taxes`.`taxes_description` AS `taxes_description` from (`taxes_to_accounts` join `taxes`) where (`taxes`.`id` = `taxes_to_accounts`.`taxes_id`);
 
-ALTER TABLE `trunks` CHANGE `reseller_id` `reseller_id` VARCHAR( 11 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '0'; 
+ALTER  TABLE  `trunks`  CHANGE  `resellers_id`  `reseller_id` VARCHAR( 11  )  CHARACTER  SET utf8 COLLATE utf8_general_ci NOT  NULL DEFAULT  '0'
 
 DROP view if exists invoice_list_view;
 CREATE VIEW `invoice_list_view` AS select `invoices`.`id` AS `invoiceid`,`invoices`.`accountid` AS `accountid`,`invoices`.`invoice_date` AS `date`,`invoices`.`paid_status` AS `paid_status`,`invoices_total`.`value` AS `value`,`invoices_total`.`class` AS `class` from (`invoices` join `invoices_total`) where ((`invoices_total`.`class` = 9) and (`invoices`.`id` = `invoices_total`.`invoiceid`));

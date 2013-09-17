@@ -978,6 +978,19 @@ sub rating() {  # This routine recieves a specific cdr and takes care of rating 
 	$ASTPP->debug(debug =>"----------------------------------------------------------------");
 	$ASTPP->debug(debug =>"uniqueid: $cdrinfo->{uniqueid}, cardno: $carddata->{number}, phoneno: $cdrinfo->{dst}, Calltype: $cdrinfo->{calltype}\n");
 	$ASTPP->debug(debug =>"disposition: $cdrinfo->{disposition} Pricelist: $pricelist_id reseller: $carddata->{reseller}");
+	
+		if ( $carddata->{dialed_modify} && ($cdrinfo->{calltype} ne "ASTPP-DID")) {
+		my @regexs = split( m/,/m, $carddata->{dialed_modify} );	
+		foreach my $regex (@regexs) {	    
+		    $regex =~ s/"//g;  
+		    my ( $grab, $replace ) = split( m!/!i, $regex );		    
+		    $ASTPP->debug( debug => "Grab: $grab" );
+		    $ASTPP->debug( debug => "Replacement: $replace" );
+		    $ASTPP->debug( debug => "Phone Before: $cdrinfo->{dst}" );
+		    $cdrinfo->{dst} =~ s/$grab/$replace/is;
+		    $ASTPP->debug( debug => "Phone After: $cdrinfo->{dst}" );
+		  }
+		}
 
 		$numdata = &get_route( $astpp_db, $config, $cdrinfo->{dst}, $pricelist_id, $carddata, $cdrinfo->{calltype} );
 		if ( !$numdata->{pattern} ) {

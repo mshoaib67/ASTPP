@@ -267,10 +267,8 @@ sub fs_dialplan_xml_did() {
 
 sub fs_dialplan_xml_bridge_start() {
 	my ($self, %arg) = @_;
-	my $dialstring .= "<action application=\"set\" data=\"hangup_after_bridge=false\"/>\n";
-#	$dialstring .= "<action application=\"set\" data=\"ignore_early_media=true\" />\n";
+	my $dialstring .= "<action application=\"set\" data=\"hangup_after_bridge=true\"/>\n";
 	$dialstring .= "<action application=\"set\" data=\"continue_on_fail=true\"/>\n";
-
 	$dialstring .= "<action application=\"export\" data=\"origination_caller_id_name=".$arg{origination_caller_id_name}."\"/>\n" if($arg{origination_caller_id_name});
 	$dialstring .= "<action application=\"export\" data=\"origination_caller_id_number=".$arg{origination_caller_id_number}."\"/>\n" if($arg{origination_caller_id_number});
 	return $dialstring;
@@ -320,12 +318,13 @@ sub fs_dialplan_xml_bridge() {
 		}
 	}
 	
-	$callcount = `/usr/local/bin/fs_cli -x 'limit_usage db $arg{trunk_path} gw_$arg{trunk_path}'`;      
-	$callcount = &trim($callcount);
-	if($arg{trunk_maxchannels} > 0 && $callcount >= $arg{trunk_maxchannels})
-	{	  
-	   return $dialstring;
-	}
+# 	$callcount = `/usr/local/bin/fs_cli -x 'limit_usage db $arg{trunk_path} gw_$arg{trunk_path}'`;      
+# 	$callcount = &trim($callcount);
+# 	if($arg{trunk_maxchannels} > 0 && $callcount >= $arg{trunk_maxchannels})
+# 	{	  
+# 	   return $dialstring;
+# 	}
+
 	$dialstring .= "<action application=\"set\" data=\"outbound_route=" . $arg{route_id} . "\"/>\n";
 	$dialstring .= "<action application=\"set\" data=\"trunk=" . $arg{trunk_id} . "\"/>\n";
 	$dialstring .= "<action application=\"set\" data=\"provider=" . $arg{trunk_provider} . "\"/>\n";

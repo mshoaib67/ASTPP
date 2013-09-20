@@ -32,7 +32,7 @@
             total:1,
             useRp:true,
             rp:10,
-            rpOptions:[10,15,20,25,40],
+            rpOptions:[10,25,50,100,200,500],
             title:false,
             pagestat:"Displaying {from} to {to} of {total} items",
             procmsg:"Processing, please wait ...",

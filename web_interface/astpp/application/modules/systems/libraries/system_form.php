@@ -10,7 +10,7 @@ class System_form {
         $form['forms'] = array(base_url() . 'systems/template_save/', array("template_form", "name" => "template_form"));
         $form['Email Template'] = array(
             array('', 'HIDDEN', array('name' => 'id'), '', '', '', ''),
-            array('Template Name', 'INPUT', array('name' => 'name', 'size' => '20', 'maxlength' => '15', 'readonly' => true, 'class' => "text field medium"), 'trim|required|min_length[2]|max_length[25]|xss_clean', 'tOOL TIP', ''),
+            array('Template Name', 'INPUT', array('name' => 'name', 'size' => '20', 'maxlength' => '15', 'readonly' => true, 'class' => "text field medium"), 'trim|required|min_length[2]|max_length[80]|xss_clean', 'tOOL TIP', ''),
             array('Subject', 'INPUT', array('name' => 'subject', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), 'trim|required', 'tOOL TIP', ''),
             array('Body', 'TEXTAREA', array('name' => 'template', 'id' => 'template', 'size' => '20', 'maxlength' => '1000', 'class' => "textarea medium"), 'trim|required', 'tOOL TIP', ''),
         );
@@ -39,7 +39,7 @@ class System_form {
         $form['forms'] = array(base_url() . 'systems/configuration_save/', array("id" => "config_form", "name" => "config_form"));
         $form['Edit System Configuration '] = array(
             array('', 'HIDDEN', array('name' => 'id'), '', '', '', ''),
-            array('Name', 'INPUT', array('name' => 'name', 'size' => '20', 'maxlength' => '15', 'readonly' => true, 'class' => "text field medium"), 'trim|required|min_length[2]|max_length[25]|xss_clean', 'tOOL TIP', ''),
+            array('Name', 'INPUT', array('name' => 'name', 'size' => '20', 'maxlength' => '15', 'readonly' => true, 'class' => "text field medium"), 'trim|required|min_length[2]|max_length[80]|xss_clean', 'tOOL TIP', ''),
             array('Value', 'INPUT', array('name' => 'value', 'size' => '20', 'maxlength' => '200', 'class' => "text field medium"), 'trim|required', 'tOOL TIP', ''),
             array('Comment', 'INPUT', array('name' => 'comment', 'size' => '20', 'maxlength' => '15', 'class' => "text field medium"), '', 'tOOL TIP', ''),
         );

@@ -44,7 +44,7 @@ class Accounts_form {
         $form['Customer Profile'] = array(
             array('Language', 'language_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'languagename', 'language', 'build_dropdown', '', ''),
             array('Company', 'INPUT', array('name' => 'company_name', 'maxlength' => '150', 'size' => '15', 'class' => 'text field medium'), '', 'tOOL TIP', ''),
-            array('First Name', 'INPUT', array('name' => 'first_name', 'id' => 'first_name', 'size' => '15', 'maxlength' => '50', 'class' => "text field medium"), 'trim|required|min_length[5]|max_length[10]|xss_clean', 'tOOL TIP', ''),
+            array('First Name', 'INPUT', array('name' => 'first_name', 'id' => 'first_name', 'size' => '15', 'maxlength' => '50', 'class' => "text field medium"), 'trim|required|max_length[20]|xss_clean', 'tOOL TIP', ''),
             array('Last Name', 'INPUT', array('name' => 'last_name', 'size' => '15', 'maxlength' => '50', 'class' => "text field medium"), '', 'tOOL TIP', ''),
             array('Telephone 1', 'INPUT', array('name' => 'telephone_1', 'size' => '15', 'maxlength' => '20', 'class' => "text field medium"), '', 'tOOL TIP', ''),
             array('Telephone 2', 'INPUT', array('name' => 'telephone_2', 'size' => '15', 'maxlength' => '20', 'class' => "text field medium"), '', 'tOOL TIP', ''),
@@ -136,7 +136,7 @@ class Accounts_form {
         $form['Reseller Profile'] = array(
             array('Language', 'language_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'languagename', 'language', 'build_dropdown', '', ''),
             array('Company', 'INPUT', array('name' => 'company_name', 'maxlength' => '150', 'size' => '50', 'class' => 'text field medium'), '', 'tOOL TIP', ''),
-            array('First Name', 'INPUT', array('name' => 'first_name', 'id' => 'first_name', 'size' => '50', 'maxlength' => '25', 'class' => "text field medium"), 'trim|required|min_length[5]|max_length[10]|xss_clean', 'tOOL TIP', ''),
+            array('First Name', 'INPUT', array('name' => 'first_name', 'id' => 'first_name', 'size' => '50', 'maxlength' => '25', 'class' => "text field medium"), 'trim|required|max_length[20]|xss_clean', 'tOOL TIP', ''),
             array('Last Name', 'INPUT', array('name' => 'last_name', 'size' => '15', 'maxlength' => '50', 'class' => "text field medium"), '', 'tOOL TIP', ''),
             array('Telephone 1', 'INPUT', array('name' => 'telephone_1', 'size' => '15', 'maxlength' => '20', 'class' => "text field medium"), '', 'tOOL TIP', ''),
             array('Telephone 2', 'INPUT', array('name' => 'telephone_2', 'size' => '15', 'maxlength' => '20', 'class' => "text field medium"), '', 'tOOL TIP', ''),
@@ -181,7 +181,7 @@ class Accounts_form {
         $form['Provider Profile'] = array(
             array('Language', 'language_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'languagename', 'language', 'build_dropdown', '', ''),
             array('Company', 'INPUT', array('name' => 'company_name', 'maxlength' => '150', 'size' => '50', 'class' => 'text field medium'), '', 'tOOL TIP', ''),
-            array('First Name', 'INPUT', array('name' => 'first_name', 'id' => 'first_name', 'size' => '25', 'maxlength' => '50', 'class' => "text field medium"), 'trim|required|min_length[5]|max_length[10]|xss_clean', 'tOOL TIP', ''),
+            array('First Name', 'INPUT', array('name' => 'first_name', 'id' => 'first_name', 'size' => '25', 'maxlength' => '50', 'class' => "text field medium"), 'trim|required|max_length[20]|xss_clean', 'tOOL TIP', ''),
             array('Last Name', 'INPUT', array('name' => 'last_name', 'size' => '15', 'maxlength' => '50', 'class' => "text field medium"), '', 'tOOL TIP', ''),
             array('Telephone 1', 'INPUT', array('name' => 'telephone_1', 'size' => '15', 'maxlength' => '20', 'class' => "text field medium"), '', 'tOOL TIP', ''),
             array('Telephone 2', 'INPUT', array('name' => 'telephone_2', 'size' => '15', 'maxlength' => '20', 'class' => "text field medium"), '', 'tOOL TIP', ''),
@@ -214,7 +214,7 @@ class Accounts_form {
             array('Password', 'PASSWORD', array('name' => 'password', 'size' => '20', 'maxlength' => '20', 'class' => "text field medium"), 'trim|required|min_length[5]|max_length[20]|xss_clean', 'tOOL TIP', 'Please Enter Password'),
             array('Language', 'language_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'languagename', 'language', 'build_dropdown', '', ''),
             array('Company', 'INPUT', array('name' => 'company_name', 'maxlength' => '150', 'size' => '15', 'class' => 'text field medium'), '', 'tOOL TIP', ''),
-            array('First Name', 'INPUT', array('name' => 'first_name', 'id' => 'first_name', 'size' => '15', 'maxlength' => '50', 'class' => "text field medium"), 'trim|required|min_length[5]|max_length[10]|xss_clean', 'tOOL TIP', 'Please Enter account number'),
+            array('First Name', 'INPUT', array('name' => 'first_name', 'id' => 'first_name', 'size' => '15', 'maxlength' => '50', 'class' => "text field medium"), 'trim|required|max_length[20]|xss_clean', 'tOOL TIP', 'Please Enter account number'),
             array('Last Name', 'INPUT', array('name' => 'last_name', 'size' => '15', 'maxlength' => '50', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
             array('Telephone 1', 'INPUT', array('name' => 'telephone_1', 'size' => '15', 'maxlength' => '20', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
             array('Telephone 2', 'INPUT', array('name' => 'telephone_2', 'size' => '15', 'maxlength' => '20', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
@@ -251,7 +251,7 @@ class Accounts_form {
             array('Password', 'PASSWORD', array('name' => 'password', 'size' => '20', 'maxlength' => '20', 'class' => "text field medium"), 'trim|required|min_length[5]|max_length[20]|xss_clean', 'tOOL TIP', 'Please Enter Password'),
             array('Language', 'language_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'languagename', 'language', 'build_dropdown', '', ''),
             array('Company', 'INPUT', array('name' => 'company_name', 'maxlength' => '150', 'size' => '15', 'class' => 'text field medium'), '', 'tOOL TIP', ''),
-            array('First Name', 'INPUT', array('name' => 'first_name', 'id' => 'first_name', 'size' => '15', 'maxlength' => '50', 'class' => "text field medium"), 'trim|required|min_length[5]|max_length[10]|xss_clean', 'tOOL TIP', 'Please Enter account number'),
+            array('First Name', 'INPUT', array('name' => 'first_name', 'id' => 'first_name', 'size' => '15', 'maxlength' => '50', 'class' => "text field medium"), 'trim|required|max_length[20]|xss_clean', 'tOOL TIP', 'Please Enter account number'),
             array('Last Name', 'INPUT', array('name' => 'last_name', 'size' => '15', 'maxlength' => '50', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
             array('Telephone 1', 'INPUT', array('name' => 'telephone_1', 'size' => '15', 'maxlength' => '20', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
             array('Telephone 2', 'INPUT', array('name' => 'telephone_2', 'size' => '15', 'maxlength' => '20', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
@@ -288,7 +288,7 @@ class Accounts_form {
         $form['Admin Profile'] = array(
             array('Language', 'language_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'languagename', 'language', 'build_dropdown', '', ''),
             array('Company', 'INPUT', array('name' => 'company_name', 'maxlength' => '150', 'size' => '15', 'class' => 'text field medium'), '', 'tOOL TIP', ''),
-            array('First Name', 'INPUT', array('name' => 'first_name', 'id' => 'first_name', 'size' => '15', 'maxlength' => '50', 'class' => "text field medium"), 'trim|required|min_length[5]|max_length[10]|xss_clean', 'tOOL TIP', 'Please Enter account number'),
+            array('First Name', 'INPUT', array('name' => 'first_name', 'id' => 'first_name', 'size' => '15', 'maxlength' => '50', 'class' => "text field medium"), 'trim|required|max_length[20]|xss_clean', 'tOOL TIP', 'Please Enter account number'),
             array('Last Name', 'INPUT', array('name' => 'last_name', 'size' => '15', 'maxlength' => '50', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
             array('Telephone 1', 'INPUT', array('name' => 'telephone_1', 'size' => '15', 'maxlength' => '25', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
             array('Telephone 2', 'INPUT', array('name' => 'telephone_2', 'size' => '15', 'maxlength' => '25', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
@@ -321,7 +321,7 @@ class Accounts_form {
         $form['Subadmin Profile'] = array(
             array('Language', 'language_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'languagename', 'language', 'build_dropdown', '', ''),
             array('Company', 'INPUT', array('name' => 'company_name', 'maxlength' => '150', 'size' => '15', 'class' => 'text field medium'), '', 'tOOL TIP', ''),
-            array('First Name', 'INPUT', array('name' => 'first_name', 'id' => 'first_name', 'size' => '25', 'maxlength' => '50', 'class' => "text field medium"), 'trim|required|min_length[5]|max_length[10]|xss_clean', 'tOOL TIP', 'Please Enter account number'),
+            array('First Name', 'INPUT', array('name' => 'first_name', 'id' => 'first_name', 'size' => '25', 'maxlength' => '50', 'class' => "text field medium"), 'trim|required|max_length[20]|xss_clean', 'tOOL TIP', 'Please Enter account number'),
             array('Last Name', 'INPUT', array('name' => 'last_name', 'size' => '15', 'maxlength' => '50', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
             array('Telephone 1', 'INPUT', array('name' => 'telephone_1', 'size' => '15', 'maxlength' => '25', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
             array('Telephone 2', 'INPUT', array('name' => 'telephone_2', 'size' => '15', 'maxlength' => '25', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
@@ -361,7 +361,7 @@ class Accounts_form {
         $form['Call shop Profile'] = array(
             array('Language', 'language_id', 'SELECT', '', '', 'tOOL TIP', 'Please Enter account number', 'id', 'languagename', 'language', 'build_dropdown', '', ''),
             array('Company', 'INPUT', array('name' => 'company_name', 'maxlength' => '150', 'size' => '15', 'class' => 'text field medium'), '', 'tOOL TIP', ''),
-            array('First Name', 'INPUT', array('name' => 'first_name', 'id' => 'first_name', 'size' => '15', 'maxlength' => '50', 'class' => "text field medium"), 'trim|required|min_length[5]|max_length[10]|xss_clean', 'tOOL TIP', 'Please Enter account number'),
+            array('First Name', 'INPUT', array('name' => 'first_name', 'id' => 'first_name', 'size' => '15', 'maxlength' => '50', 'class' => "text field medium"), 'trim|required|max_length[20]|xss_clean', 'tOOL TIP', 'Please Enter account number'),
             array('Last Name', 'INPUT', array('name' => 'last_name', 'size' => '15', 'maxlength' => '50', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
             array('Telephone 1', 'INPUT', array('name' => 'telephone_1', 'id' => 'telephone_1', 'size' => '15', 'maxlength' => '20', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),
             array('Telephone 2', 'INPUT', array('name' => 'telephone_2', 'id' => 'telephone_2', 'size' => '15', 'maxlength' => '20', 'class' => "text field medium"), '', 'tOOL TIP', 'Please Enter Password'),

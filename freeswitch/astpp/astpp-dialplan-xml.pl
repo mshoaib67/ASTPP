@@ -28,7 +28,7 @@ sub xml_process()
     }
             
     #IF opensips then check then get account code from $params->{'variable_sip_h_P-Accountcode'}
-    if($config->{opensips}=='1' && $params->{'variable_sip_h_P-Accountcode'} ne '' && $params->{variable_accountcode} eq '')
+    if($config->{opensips}=='1' && $params->{'variable_sip_h_P-Accountcode'} ne '' && $params->{'variable_sip_h_P-Accountcode'} ne '<null>' && $params->{variable_accountcode} eq '')
     {
 	$params->{'variable_accountcode'} = $params->{'variable_sip_h_P-Accountcode'};
 	$params->{'pricelist_id'} = $params->{'variable_sip_h_P-Pricelist_id'};

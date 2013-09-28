@@ -554,7 +554,7 @@ class Accounts_form {
             array("Action", "120", "", "", "", array("PAYMENT" => array("url" => "accounts/customer_payment_process_add/", "mode" => "single"),
                     "VIEW" => array("url" => "accounts/reseller_edit/", "mode" => "single"),
                     "TAXES" => array("url" => "accounts/customer_account_taxes/edit/", "mode" => "popup"),
-                    "CALLERID" => array("url" => "accounts/customer_add_callerid/", "mode" => "single", 'popup'),
+//                     "CALLERID" => array("url" => "accounts/customer_add_callerid/", "mode" => "single", 'popup'),
                     "DELETE" => array("url" => "accounts/reseller_delete/", "mode" => "single")
             ))
                 ));

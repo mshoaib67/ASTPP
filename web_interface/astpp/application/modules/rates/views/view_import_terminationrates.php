@@ -55,7 +55,7 @@
         <div class="two-column" style="float:left;width: 100%;">
             <div class="column" style="padding: 5px 7px 0px 0px;width: 57%;">
                 <div class="content-box content-box-header ui-corner-all float-left full">
-                    <div class="portlet-header ui-widget-header">Import Origination Rates:<span class="ui-icon ui-icon-circle-arrow-s"></span></div>
+                    <div class="portlet-header ui-widget-header">Import Termination Rates:<span class="ui-icon ui-icon-circle-arrow-s"></span></div>
                     <div class="portlet-content">
                         <div class="sub-form">
                             <label style="width:10%;">Trunk list:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label> 

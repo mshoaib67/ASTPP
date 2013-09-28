@@ -291,9 +291,9 @@ astpp_freeswitch_startup_script () {
 	  chown -R freeswitch:daemon ${FS_DIR}/
 	  chmod -R o-rwx ${FS_DIR}/
 
-	  cp ${ASTPP_SOURCE_DIR}freeswitch/init/freeswitch.debian.init /etc/init.d/freeswitch
+	  cp ${ASTPP_SOURCE_DIR}/freeswitch/init/freeswitch.debian.init /etc/init.d/freeswitch
     elif  [ ${DIST} = "CENTOS" ]; then
-	  cp ${ASTPP_SOURCE_DIR}freeswitch/init/freeswitch.centos.init /etc/init.d/freeswitch
+	  cp ${ASTPP_SOURCE_DIR}/freeswitch/init/freeswitch.centos.init /etc/init.d/freeswitch
     fi
   
     chmod 755 /etc/init.d/freeswitch
@@ -365,7 +365,7 @@ mysql -uroot -p${MYSQL_ROOT_PASSWORD} -e "CREATE USER 'astppuser'@'localhost' ID
 
 mysql -uroot -p${MYSQL_ROOT_PASSWORD} -e "GRANT ALL PRIVILEGES ON \`${ASTPP_DATABASE_NAME}\` . * TO 'astppuser'@'localhost' WITH GRANT OPTION;FLUSH PRIVILEGES;"
 
-mysql -uroot -p${MYSQL_ROOT_PASSWORD} astpp < ${ASTPP_SOURCE_DIR}/sql/astpp-1.7.3-beta.sql
+mysql -uroot -p${MYSQL_ROOT_PASSWORD} astpp < ${ASTPP_SOURCE_DIR}/sql/astpp-1.7.3.sql
 mysql -uroot -p${MYSQL_ROOT_PASSWORD} astpp < ${ASTPP_SOURCE_DIR}/sql/astpp-upgrade-1.7.3.sql
 }
 
@@ -406,17 +406,18 @@ install_astpp () {
 		mkdir -p ${ASTPPDIR}		
 		mkdir -p ${ASTPPLOGDIR}		
 		mkdir -p ${ASTPPEXECDIR}
-		mkdir -p ${WWWDIR}
 		
 		if [ ${DIST} = "DEBIAN" ]; then
 		    chown -Rf www-data.www-data ${ASTPPDIR}
 		    chown -Rf www-data.www-data ${ASTPPLOGDIR}
 		    chown -Rf www-data.www-data ${ASTPPEXECDIR}
+		    WWWDIR=/usr/lib
 		    chown -Rf www-data.www-data ${WWWDIR}/cgi-bin/
 		elif [ ${DIST} = "CENTOS" ]; then
 		    chown -Rf apache.apache ${ASTPPDIR}
 		    chown -Rf apache.apache ${ASTPPLOGDIR}
 		    chown -Rf apache.apache ${ASTPPEXECDIR}
+		    WWWDIR=/var/www
 		    chown -Rf apache.apache ${WWWDIR}/cgi-bin/
 		fi
 		

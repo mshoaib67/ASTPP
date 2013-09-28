@@ -79,7 +79,7 @@ class rates_form {
     function termination_batch_update_form() {
         $form['forms'] = array("rates/terminationrates_batch_update/", array('id' => "termination_batch_update"));
         $form['Batch Update Termination Rates'] = array(
-            array('Prepand', 'INPUT', array('name' => 'prepend[prepend]','id'=>'prepend', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'tOOL TIP', '1', array('name'=>'prepend[operator]','class'=>'update_drp'), '', '', '', 'update_drp_type', ''),
+            array('Prepend', 'INPUT', array('name' => 'prepend[prepend]','id'=>'prepend', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'tOOL TIP', '1', array('name'=>'prepend[operator]','class'=>'update_drp'), '', '', '', 'update_drp_type', ''),
 	    array('Increment', 'INPUT', array('name' => 'inc[inc]','id'=>'inc', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'tOOL TIP', '1', array('name'=>'inc[operator]','class'=>'update_drp'), '', '', '', 'update_int_type', ''),
 	    array('Cost per Minutes', 'INPUT', array('name' => 'cost[cost]','id'=>'cost', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'Tool tips info', '1', array('name'=>'cost[operator]','class'=>'update_drp'), '', '', '', 'update_int_type', ''),
             array('Connect Charge', 'INPUT', array('name' => 'connectcost[connectcost]','id'=>'connectcost', 'value' => '', 'size' => '20', 'maxlength' => '15', 'class' => "text field "), '', 'Tool tips info', '1', array('name'=>'connectcost[operator]','class'=>'update_drp'), '', '', '', 'update_int_type', ''),
@@ -157,7 +157,7 @@ class rates_form {
         // array(display name, width, db_field_parent_table,feidname, db_field_child_table,function name);
         $grid_field_arr = json_encode(array(array("<input type='checkbox' name='chkAll' class='checkall'/>", "30", "", "", "", ""),
             array("Code", "80", "pattern", "pattern", "", "get_only_numeric_val"),
-            array("Prepend", "80", "prepend", "pattern", "", "get_only_numeric_val"),
+            array("Prepend", "80", "prepend", "", "", ""),
             array("Destination", "140", "comment", "", "", ""),
             array("Increment", "85", "inc", "", "", ""),
             array("Cost per Minutes", "145", "cost", "cost", "cost", "convert_to_currency"),

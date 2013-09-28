@@ -108,7 +108,7 @@ class common {
             return $daily_arr;
         }
         if($select == 1){
-            $week_arr = array("1"=>"Monday","2"=>"Tuesday","3"=>"Wednsday","4"=>"Thursday","5"=>"Friday",
+            $week_arr = array("1"=>"Monday","2"=>"Tuesday","3"=>"Wednesday","4"=>"Thursday","5"=>"Friday",
                     "6"=>"Saturday","7"=>"Sunday");
             $rawDate = date("Y-m-d");
             $day = date('N', strtotime($rawDate));

@@ -694,7 +694,7 @@ class Reports extends MX_Controller {
         $query1 = $this->db->query($sql1);        
         $count_all = $query1->num_rows();
         
-        $paging_data = $this->form->load_grid_config($count_all, $_GET['rp']=10, $_GET['page']=1);
+        $paging_data = $this->form->load_grid_config($count_all, $_GET['rp'], $_GET['page']);
         $json_data = $paging_data["json_paging"];
         $this->db_model->build_search('provider_summary_search');
         $sql1 = "SELECT accountid,uniqueid,notes,pattern, COUNT(*) AS attempts, AVG(billseconds) AS acd,"
@@ -791,7 +791,7 @@ class Reports extends MX_Controller {
         $query1 = $this->db->query($sql1);        
         $count_all = $query1->num_rows();
         
-        $paging_data = $this->form->load_grid_config($count_all, $_GET['rp']=10, $_GET['page']=1);
+        $paging_data = $this->form->load_grid_config($count_all, $_GET['rp'], $_GET['page']);
         $json_data = $paging_data["json_paging"];
         $this->db_model->build_search('provider_summary_search');
         $sql1 = "SELECT accountid,uniqueid,notes,pattern, COUNT(*) AS attempts, AVG(billseconds) AS acd,"

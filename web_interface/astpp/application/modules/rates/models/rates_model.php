@@ -76,6 +76,7 @@ class rates_model extends CI_Model {
             $add_array['reseller_id'] = $reseller;
         }
         $add_array['prepend'] = $add_array['prepend'] ;
+        $add_array['pattern'] = "^" . $add_array['pattern'] . ".*";
         $this->db->insert("outbound_routes", $add_array);
         return true;
     }

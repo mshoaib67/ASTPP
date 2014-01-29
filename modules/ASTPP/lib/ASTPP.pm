@@ -162,10 +162,10 @@ sub ip_address_authenticate
 	my ($self, %arg) = @_;
 	my ($sql,$tmp,$record);
 	$arg{ip_address} = $arg{ip} if $arg{ip};  #Freeswitch passes the ip in a different format.
-	$tmp = "SELECT ip_map.*, accounts.number as account_code FROM ip_map,accounts WHERE accounts.id=ip_map.accountid AND ip = " . $self->{_astpp_db}->quote($arg{ip_address})
+	$tmp = "SELECT ip_map.*, accounts.number as account_code FROM ip_map,accounts WHERE accounts.status=1 AND accounts.deleted=0 AND accounts.id=ip_map.accountid AND ip = " . $self->{_astpp_db}->quote($arg{ip_address})
 		. " AND prefix IN (NULL,'') OR ip = " . $self->{_astpp_db}->quote($arg{ip_address});
 	$tmp .= " AND " . $self->{_astpp_db}->quote($arg{destination}) . " RLIKE prefix" if $arg{destination};
-	$tmp .= " AND accounts.status=1 ORDER BY LENGTH(prefix) DESC LIMIT 1";
+	$tmp .= " ORDER BY LENGTH(prefix) DESC LIMIT 1";
 #	print STDERR $tmp . "\n";
 	$sql = $self->{_astpp_db}->prepare($tmp);
 	$sql->execute;

@@ -180,65 +180,6 @@ sub get_outbound_routes() {
 	return @outbound_route_list;
 }
 
-# Send an email after refilling an account.  This needs to be updated and moved to templates which reside in the database and can be
-# Send an email when an invoice is created in AgileBill(tm) or OSCommerce. 
-# This needs to be updated and moved to templates which reside in the database and can be
-# configured per reseller.
-sub email_new_invoice() {
-    my ( $astpp_db,$reseller,$config, $email, $invoice, $total ) = @_;
-    my ( $sql,$subject,$mail,$accountdata,$record,$vars );
-    
-    $email = $config->{company_email} if $config->{user_email} == 0;
-    $accountdata = &get_account($astpp_db,$vars->{username});
-    
-    $sql = $astpp_db->prepare("SELECT * FROM default_templates WHERE name = 'email_new_invoice'");    
-    $sql -> execute;
-    $record = $sql->fetchrow_hashref;
-    $sql->finish;
-	
-    
-    my %mail = (
-        To         => $email,
-        From       => $config->{company_email},
-        Bcc        => $config->{company_email},
-        Subject    => $record->{'subject'},
-        'X-Mailer' => "Mail::Sendmail version $Mail::Sendmail::VERSION",
-    );
-    $mail{'Message : '} = $record->{'template'};
-    if ( sendmail %mail ) { print STDERR "Mail sent OK.\n" }
-    else { print STDERR "Error sending mail: $Mail::Sendmail::error \n" }
-    print STDERR "\n\$Mail::Sendmail::log says:\n", $Mail::Sendmail::log;
-}
-
-# Send an email when an account balance gets low. 
-# This needs to be updated and moved to templates which reside in the database and can be
-# configured per reseller.
-sub email_low_balance() {
-#     my ( $astpp_db, $reseller,$config, $email, $balance ) = @_;
-    my ( $config, $email, $balance ) = @_;
-    my ( $sql,$subject,$mail,$accountdata,$record,$vars);
-    $email = $config->{company_email} if $config->{user_email} == 0;    
-    $accountdata = &get_account($astpp_db,$vars->{username});
-    
-    $sql = $astpp_db->prepare("SELECT * FROM default_templates WHERE name = 'email_low_balance'");       
-    print STDERR "SELECT * FROM default_templates WHERE name = 'email_low_balance'";
-    $sql -> execute;
-    $record = $sql->fetchrow_hashref;
-    $sql->finish;
-    
-    my %mail = (
-        To         => $email,
-        From       => $config->{company_email},
-        Bcc        => $config->{company_email},
-        Subject    => $record->{'subject'},
-        'X-Mailer' => "Mail::Sendmail version $Mail::Sendmail::VERSION",
-    );    
-    $mail{'Message : '} = $record->{'template'};	    
-    if ( sendmail %mail ) { print STDERR "Mail sent OK.\n" }
-    else { print STDERR "Error sending mail: $Mail::Sendmail::error \n" }
-    print STDERR "\n\$Mail::Sendmail::log says:\n", $Mail::Sendmail::log;
-}
-
 # Returns a timestamp which is in a format easy to work with.
 sub timestamp() {
     my $now = strftime "%Y%m%d%H%M%S", localtime;
@@ -501,10 +442,6 @@ sub get_account() {
       $astpp_db->prepare( "SELECT * FROM accounts WHERE number = "
           . $astpp_db->quote($accountno)
           . " AND status = 1" );     
-    print STDERR "SELECT * FROM accounts WHERE number = "
-          . $astpp_db->quote($accountno)
-          . " AND status = 1";
-	 
     $sql->execute;
     $accountdata = $sql->fetchrow_hashref;
     $sql->finish;
@@ -515,10 +452,7 @@ sub get_account() {
 	$sql =
 	  $astpp_db->prepare( "SELECT * FROM accounts WHERE id = "
 	      . $astpp_db->quote($accountno)
-	      . " AND status = 1" );
-        print STDERR "SELECT * FROM accounts WHERE id = "
-              . $astpp_db->quote($accountno)
-              . " AND status = 1" ;
+	      . " AND status = 1" );        
 	$sql->execute;
 	$accountdata = $sql->fetchrow_hashref;
 	$sql->finish;
@@ -800,8 +734,7 @@ sub get_callingcard_by_pin() {
     $sql = $astpp_db->prepare($tmp);
     $sql->execute;
     $carddata = $sql->fetchrow_hashref;
-    $sql->finish;
-    print STDERR $carddata->{cardnumber};
+    $sql->finish;    
     return $carddata;
 }
 

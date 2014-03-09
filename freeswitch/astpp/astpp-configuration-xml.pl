@@ -57,7 +57,7 @@ sub xml_process()
 # 	$xml = $ASTPP->fs_configuration_xml_footer(xml=>$xml);
 	$xml = &void_xml();
     }
-    print STDERR $xml;
+#     print STDERR $xml;
     print $xml;
 }
 1;

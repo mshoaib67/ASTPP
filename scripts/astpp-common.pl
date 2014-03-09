@@ -1436,18 +1436,27 @@ sub clean_cdr_data()
    $cleandata->{dst} = $destination_number;   
    $cleandata->{callingcard} = uri_unescape($data->{variables}->{callingcard});        
    
+#    my $hangup_cause = uri_unescape($data->{variables}->{hangup_cause});
+#    if ($hangup_cause eq 'NORMAL_CLEARING' && $data->{variables}->{billsec} == 0)
+#    {
+#       $hangup_cause = uri_unescape($data->{variables}->{originate_disposition});
+#    }
+# 
+#    if($cleandata->{callingcard} ne "" && $data->{variables}->{last_bridge_hangup_cause} ne "NORMAL_CLEARING") 
+#    {
+# 	$data->{variables}->{billsec} = 0;
+#         $hangup_cause=$data->{variables}->{last_bridge_hangup_cause};
+#    }
+#       
+#    $cleandata->{disposition} = $hangup_cause;
+   
+   
    my $hangup_cause = uri_unescape($data->{variables}->{hangup_cause});
-   if ($hangup_cause eq 'NORMAL_CLEARING' && $data->{variables}->{billsec} == 0)
+   $hangup_cause=$data->{variables}->{last_bridge_hangup_cause};  
+   if ($hangup_cause eq "")
    {
-      $hangup_cause = uri_unescape($data->{variables}->{originate_disposition});
+	$hangup_cause = uri_unescape($data->{variables}->{hangup_cause});
    }
-
-   if($cleandata->{callingcard} ne "" && $data->{variables}->{last_bridge_hangup_cause} ne "NORMAL_CLEARING") 
-   {
-	$data->{variables}->{billsec} = 0;
-        $hangup_cause=$data->{variables}->{last_bridge_hangup_cause};
-   }
-      
    $cleandata->{disposition} = $hangup_cause;
             
    $cleandata->{accountcode} = uri_unescape($data->{variables}->{accountcode});           

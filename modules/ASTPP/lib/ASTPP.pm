@@ -239,10 +239,10 @@ $xml .= $ASTPP->fs_dialplan_xml_did(
 sub fs_dialplan_xml_did() {
 	my ($self, %arg) = @_;
 	my ( $xml,$sql, $trunkdata, $dialstring,$data );
-	my @variables = split /,(?!(?:[^",]|[^"],[^"])+")/, $arg{variables};
-	foreach my $variable (@variables) {		
-		$xml .= "<action application=\"set\" data=\"" . $variable . "\"/>\n";
-	}	
+	#my @variables = split /,(?!(?:[^",]|[^"],[^"])+")/, $arg{variables};
+	#foreach my $variable (@variables) {		
+#		$xml .= "<action application=\"set\" data=\"" . $variable . "\"/>\n";
+#	}	
 # 	$xml .= "<action application=\"set\" data=\"inherit_codec=true\"/>\n";	
 
 	#PSTN Call
@@ -256,7 +256,8 @@ sub fs_dialplan_xml_did() {
 	elsif($arg{call_type} == '1')
 	{ 			
 		my $user = $arg{extensions};
-		$xml .= "<action application=\"bridge\" data=\"sofia/default/".$arg{did}."\${regex(\${sofia_contact(".$user.")}|^[^\@]+(.*)|\%1)}\"/>\n";
+		#$xml .= "<action application=\"bridge\" data=\"sofia/default/".$arg{did}."\${regex(\${sofia_contact(".$user.")}|^[^\@]+(.*)|\%1)}\"/>\n";
+		$xml .= "<action application=\"bridge\" data=\"user/$user\@\${domain_name}\"/>\n";
 	}
 	#Any other option
 	else{		
@@ -434,6 +435,7 @@ sub fs_directory_xml
 		    $arg{xml} .="<param name=\"".$key."\" value=\"".$params{$key}."\"/>\n";
 		}		
 		$arg{xml} .= "<param name=\"allow-empty-password\" value=\"false\"/>\n";
+		$arg{xml} .= "<param name=\"domain_name\" value=\"" . $arg{domain} . "\"/>\n";
 		$arg{xml} .= "<param name=\"dial-string\" value=\"{sip_invite_domain=\${domain_name},presence_id=\${dialed_user}\@\${domain_name}}\${sofia_contact(*/\${dialed_user}\@\${domain_name})}\"/>\n";
 		$arg{xml} .= "</params>\n";
 		$arg{xml} .= "<variables>\n";
@@ -473,237 +475,6 @@ sub debug #Prints debugging if appropriate
 # 		. $self->{_astpp_db}->quote($arg{debug}) . "," 
 # 		. $self->{_astpp_db}->quote($arg{user}) . ")") if $arg{debug} && $self->{_astpp_db} && $self->{_verbosity_item_level} >= $self->{_verbosity_level};
 	return 0;
-}
-
-sub invoice_cdrs
-# Function 1 = count cdrs
-# Function 2 = return crds
-# Function 3 = Internal Invoices, Post CDRs.
-{
-	my ($self, %arg) = @_; #Count the cdrs billable on a specific account
-	my $tmp;
-	if ($arg{function} == 1) {
-		$tmp = "SELECT COUNT(*) FROM cdrs WHERE cardnum = ";
-	}
-	elsif ($arg{function} == 2) {
-		$tmp = "SELECT * FROM cdrs WHERE cardnum = ";
-	}
-	elsif ($arg{function} == 3) {
-		$tmp = "UPDATE cdrs SET invoiceid = "
-		. $self->{_astpp_db}->quote($arg{invoiceid})
-		. ",status = 1 "
-		. " WHERE cardnum = ";
-	}
-	if ($arg{startdate} && $arg{enddate}) {
-		$tmp .= $self->{_astpp_db}->quote($arg{cardnum})
-		. " AND status = 0"
-		. " AND callstart >= DATE(" . $self->{_astpp_db}->quote($arg{startdate}) . ")"
-		. " AND callstart <= DATE(" . $self->{_astpp_db}->quote($arg{enddate}) . ")";
-	} elsif ($arg{startdate}) {
-		$tmp .= $self->{_astpp_db}->quote($arg{cardnum})
-		. " AND status = 0"
-		. " AND callstart >= DATE(" . $self->{_astpp_db}->quote($arg{startdate}) . ")";
-	} elsif ($arg{enddate}) {
-		$tmp .= $self->{_astpp_db}->quote($arg{cardnum})
-		. " AND status = 0"
-		. " AND callstart <= DATE(" . $self->{_astpp_db}->quote($arg{enddate}) . ")";
-	} else {
-		$tmp .= $self->{_astpp_db}->quote($arg{cardnum})
-		. " AND status = 0";
-	}
-	if ($arg{function} == 2) {
-		$tmp .= " GROUP BY type ORDER BY callstart";
-	}
-
-	print STDERR "$tmp \n";
-	my $sql = $self->{_astpp_db}->prepare($tmp);
-	$sql->execute;
-
-	if ($arg{function} == 1) {
-		my $row       = $sql->fetchrow_hashref;
-		$sql->finish;
-		return(
-			$row->{"COUNT(*)"}
-		);
-	}
-	elsif ($arg{function} == 2) {
-		my @cdrs;
-		while ( my $record = $sql->fetchrow_hashref ) {
-			push @cdrs, $record;
-		}
-		$sql->finish;
-		return(
-			@cdrs
-		);
-	}
-}
-
-sub invoice_list_internal
-{
-	my ($self, %arg) = @_; # List Internal Invoices.
-	my ($tmp,$sql,@invoices);
-	$tmp = "SELECT * FROM invoice_list_view";
-	if ($arg{accountid}) {
-		$tmp .= " WHERE accountid = "
-		. $self->{_astpp_db}->quote($arg{accountid});
-	}
-	$sql = $self->{_astpp_db}->prepare($tmp);
-	$sql->execute;
-	while ( my $record = $sql->fetchrow_hashref ) {
-		push @invoices, $record;
-	}
-	$sql->finish;
-	return @invoices;
-}
-
-sub invoice_create_internal
-{
-	my ($self, %arg) = @_; # Create invoice in ASTPP Internally and return the invoice number.
-	my $tmp = "INSERT into invoices (accountid,date) VALUES("
-		. $self->{_astpp_db}->quote($arg{accountid})
-		. ",curdate())";
-	my $sql = $self->{_astpp_db}->prepare($tmp);
-	$sql->execute;
-	my $invoice = $sql->{'mysql_insertid'};
-	$sql->finish;
-	return (
-		$invoice
-	);
-}
-
-sub invoice_cdrs_subtotal_internal 
-{
-	my ($self, %arg) = @_; # Create invoice in ASTPP Internally and return the invoice number.
-	my ($tmp,$row,$sql,$credit,$debit,$total);
-	$tmp = "SELECT SUM(debit) FROM cdrs WHERE invoiceid = "
-		. $self->{_astpp_db}->quote($arg{invoiceid});
-	$sql = $self->{_astpp_db}->prepare($tmp);
-	$sql->execute;
-	$row   = $sql->fetchrow_hashref;
-	$debit = $row->{"SUM(debit)"};
-	$sql->finish;
-	$tmp = "SELECT SUM(credit) FROM cdrs WHERE invoiceid = "
-		. $self->{_astpp_db}->quote($arg{invoiceid});
-	$sql = $self->{_astpp_db}->prepare($tmp);
-	$sql->execute;
-	$row   = $sql->fetchrow_hashref;
-	$credit = $row->{"SUM(credit)"};
-	$sql->finish;
-	if ( !$credit )         { $credit         = 0; }
-	if ( !$debit )          { $debit          = 0; }
-	$total = ( $debit - $credit );
-	return ($total/1);
-
-#       $tmp = "INSERT into invoices_total (invoiceid,title,text,value,class,sort_order) VALUES("
-#               . $self->{_astpp_db}->quote($arg{invoiceid})
-#               . ",'Subtotal','',"
-#               . $self->{_astpp_db}->quote($total/1)
-#               . ",1,"
-#               . $self->{_astpp_db}->quote($arg{sort_order})
-#               . ")";
-#       $sql = $ $self->{_astpp_db}->prepare($tmp);
-#       $sql->execute;
-#       return $arg{sort_order}++;
-}
-
-sub invoice_subtotal_post_internal
-{
-	my ($self, %arg) = @_; 
-	$arg{value} = sprintf( "%." . $arg{decimalpoints_total} . "f", $arg{value} );
-	my $tmp = "INSERT into invoices_total (invoices_id,title,text,value,class,sort_order) VALUES("
-		. $self->{_astpp_db}->quote($arg{invoiceid})
-		. ","
-		. $self->{_astpp_db}->quote($arg{title})
-		. ","
-		. $self->{_astpp_db}->quote($arg{text})
-		. ","
-		. $self->{_astpp_db}->quote($arg{value})
-		. ","
-		. $self->{_astpp_db}->quote($arg{class})
-		. ","
-		. $self->{_astpp_db}->quote($arg{sort_order})
-		. ")";
-	my $sql = $self->{_astpp_db}->prepare($tmp);
-	$sql->execute;
-	$sql->finish;
-	return $arg{sort_order}++;
-}
-
-sub invoice_subtotal_internal
-{
-	my ($self, %arg) = @_; 
-	my $tmp = "SELECT SUM(value) FROM invoices_total WHERE invoices_id = "
-		. $self->{_astpp_db}->quote($arg{invoiceid});
-	my $sql = $self->{_astpp_db}->prepare($tmp);
-	$sql->execute;
-	my $row   = $sql->fetchrow_hashref;
-	my $value = $row->{"SUM(value)"};
-	$sql->finish;
-	return $value;
-}
-
-sub invoice_taxes_internal
-# function 1 = list
-# function 2 = post
-{
-	my ($self, %arg) = @_; # Create invoice in ASTPP Internally and return the invoice number.
-	my (@taxes,$row,$tmp,$sql);
-	$tmp = "SELECT * FROM taxes_to_accounts_view WHERE accountid = "
-		. $self->{_astpp_db}->quote($arg{accountid})
-		. " ORDER BY taxes_priority ASC";
-	$sql = $self->{_astpp_db}->prepare($tmp);
-	print STDERR $tmp . "/n";
-	$sql->execute;
-	while ( $row = $sql->fetchrow_hashref ) {
-		push @taxes, $row;
-	}
-	$sql->finish;
-	if ($arg{function} == 1) {
-		return @taxes;
-	}
-	my $tax_count = 1;
-	my $sort = 1;
-	my $tax_priority = "";
-	my $subtotal = $arg{invoice_subtotal};
-	foreach my $tax (@taxes) {
-		my ($tax_amount);
-		if ($tax_priority eq "") {
-			$tax_priority = $tax->{taxes_priority};
-		} elsif($tax->{taxes_priority} > $tax_priority) {
-			$tax_priority = $tax->{taxes_priority};
-			my $tmp = "SELECT SUM(value) FROM invoices_total WHERE invoices_id = "
-				. $self->{_astpp_db}->quote($arg{invoiceid});
-			print STDERR $tmp . "\n";
-			my $sql = $self->{_astpp_db}->prepare($tmp);
-			$sql->execute;
-			my $row   = $sql->fetchrow_hashref;
-			$subtotal = $row->{"SUM(value)"};
-			$sql->finish;
-		}
-		print STDERR "Subtotal: $subtotal \n";
-		print STDERR "Tax_rate: $tax->{taxes_rate} \n";
-		my $tax_total = (($subtotal * ( $tax->{taxes_rate} / 100 )) + $tax->{taxes_amount} );
-		print STDERR "Tax Total: $tax_total \n";
-		print STDERR "Round to: $arg{decimalpoints_tax} \n";
-		$tax_total = sprintf( "%." . $arg{decimalpoints_tax} . "f", $tax_total );
-		print STDERR "Tax Total: $tax_total \n";
-		my $tmp = "INSERT INTO invoices_total (invoices_id,title,text,value,class,sort_order) VALUES("
-		. $self->{_astpp_db}->quote($arg{invoiceid})
-		. ",'TAX',"
-		. $self->{_astpp_db}->quote($tax->{taxes_description})
-		. ","
-		. $self->{_astpp_db}->quote($tax_total)
-		. ",2,"
-		. $self->{_astpp_db}->quote($arg{sort_order})
-		. ")";
-		print STDERR $tmp . "\n";
-		my $sql = $self->{_astpp_db}->prepare($tmp);
-		$sql->execute;
-
-		$arg{sort_order}++;
-		$sql->finish;
-	}
-	return $arg{sort_order};
 }
 
 #Configuration xml header

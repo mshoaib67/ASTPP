@@ -1,6 +1,6 @@
-Open source VoIP billing
+ASTPP - Open source VoIP billing
 
-ASTPP is a mature Scalable/Clustering Open Source VoIP billing solution for Freeswitch. It supports pre-paid and post-paid billing with call rating, credit control and call reporting. It also provides many other features such as calling cards, least cost routing (LCR), did management, resellers management etc.
+ASTPP is a mature Scalable/Clustering Open Source VoIP billing solution for Freeswitch. It supports pre-paid and post-paid billing with call rating, credit control and call reporting. It also provides many other features such as calling cards, least cost routing (LCR), did management, reseller management etc.
 
 Features : 
 
@@ -80,7 +80,7 @@ Other features
     - Multiple timezone support
 
 
-Please visit the ASTPP website @  http://www.astpp.org
+Please visit the ASTPP website @  http://www.astpp.org.
 
 ASTPP Support :
 Please email us at astpp.billing@gmail.com for support.
